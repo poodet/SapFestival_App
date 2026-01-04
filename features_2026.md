@@ -86,10 +86,16 @@ Amélioration et fonctionnalités pour l'édition 2026. L'ordre n'est pas établ
 ### **Intéractivité public**:
 - Possibilité pour les utilisateur qu'une action sur l'application entraine un évenement dans le réel ? (exemple: faire monter ou descendre le court de la bière, voter pour quelque chose et visualisation en direct sur un écran, pouvoir choisir la prochaine musique)
 - intégrer l'application aux activités (pouvoir voter pour un quizz de culture G, ou besoin d'inscription, compter les points pour le tournoi de volley, etc...)
+- système de "stories" que les participants peuvent publier ?
 
 ### **Fun**:
 - bloopers dans l'affichage liés au thème de la DA
 - mini jeux liés au thème de la DA
+
+### **Présentation équipe**:
+- faire une petite fiche perso par organisateur avec sa description. Quand on clique sur le nom d'un orga dans l'application, ca ouvre sa fiche perso. exemple: 
+    - activité, tu clique sur qui l'organise, tu vois sa tete directement
+    - Tu est bénévole, en team avec un orga, du clique sur ton binome pour avoir sa tete
 
 ## 🔨 2. Architecture Techno
 
