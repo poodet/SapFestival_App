@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, ScrollView, Text, TouchableOpacity, View, Image, Dimensions, ActivityIndicator } from 'react-native';
+import { StyleSheet, SafeAreaView, ScrollView, Text, 
+  TouchableOpacity, View, Image, Dimensions, 
+  ActivityIndicator, RefreshControl } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import * as Font from 'expo-font';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -14,8 +16,8 @@ export default function ArtistsScreen() {
     'Oliver-Regular': require('../../assets/fonts/Oliver-Regular.otf'),
   });
 
-  const { artists, isLoading } = useArtists();
-  
+  // const { artists, isLoading } = useArtists();
+  const { artists, isLoading, isRefreshing, refetch } = useArtists();
   const { focusArtist } = useLocalSearchParams();
   const scrollViewRef = useRef<ScrollView>(null);
   const [offsets, setOffsets] = useState<{ [key: number]: number }>({});
@@ -56,7 +58,20 @@ export default function ArtistsScreen() {
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>ARTISTS</ScreenTitle>
-      <ScrollView ref={scrollViewRef} style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        ref={scrollViewRef} 
+        style={styles.container} 
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refetch}
+            tintColor="#F9F2EA"
+            title="Actualisation..."
+            titleColor="#F9F2EA"
+          />
+        }
+      >
         {artists.map(({ id, image, name, bio, duration, style }, index) => (
           <View key={`artist-${index}`} style={styles.card} onLayout={(event) => handleLayout(id, event)}>
             <View style={styles.cardTop}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, ActivityIndicator, Text } from 'react-native';
+import { View, StyleSheet, SafeAreaView, ActivityIndicator, Text, ScrollView, RefreshControl } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Font from 'expo-font';
 import ScreenTitle from '@/components/screenTitle';
@@ -12,7 +12,7 @@ const HomeScreen = () => {
   });
 
   // Use the hook instead of hardcoded data
-  const { menuItems, isLoading } = useMenuItems();
+  const { menuItems, isLoading, isRefreshing, refetch } = useMenuItems();
 
   // Show loading indicator while data is being fetched
   if (isLoading) {
@@ -31,7 +31,19 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>B2B</ScreenTitle>
 
+      <ScrollView 
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refetch}
+            tintColor="#F9F2EA"
+            title="Actualisation..."
+            titleColor="#F9F2EA"
+          />
+        }
+      >
       <View style={styles.container}>
+
         {/* Use menuItems from the hook */}
         {menuItems.map((card, index) => (
           <View key={index} style={styles.card}>
@@ -43,6 +55,8 @@ const HomeScreen = () => {
           </View>
         ))}
       </View>
+
+      </ScrollView>
     </SafeAreaView>
   );
 };

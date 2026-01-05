@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Audio } from 'expo-av';
-import { Button, ActivityIndicator } from 'react-native';
+import { Button, ActivityIndicator, RefreshControl } from 'react-native';
 import * as Font from 'expo-font';
 import {
   StyleSheet,
@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import ScreenTitle from '@/components/screenTitle';
+import { useActivities } from '@/contexts/DataContext';
 
 const { width } = Dimensions.get('window');
 
@@ -20,7 +21,7 @@ export default function ActivityScreen() {
     'Oliver-Regular': require('../../assets/fonts/Oliver-Regular.otf'),
   });
 
-  const { activities, isLoading } = useActivities();
+  const { activities, isLoading, isRefreshing, refetch } = useActivities();
 
   const sound1 = require('../../sounds/Le_SAP_dans_l_espace_(reggae_version).mp3');
   const sound2 = require('../../sounds/Le_SAP_dans_l_espace.mp3');
@@ -89,6 +90,15 @@ export default function ActivityScreen() {
         <FlatList
           data={activities}
           keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={refetch}
+              tintColor="#F9F2EA"
+              title="Actualisation..."
+              titleColor="#F9F2EA"
+            />
+          }
           renderItem={({ item }) => (
             <View style={styles.card}>
               <View style={[styles.cardContent, {flexWrap : 'nowrap',flexDirection:'row'}]}>
