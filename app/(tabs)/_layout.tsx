@@ -70,12 +70,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="calendar_old"
-        options={{
-          href: null, // 👈 Cache l'onglet
-        }}
-      />
-      <Tabs.Screen
         name="activities"
         options={{
           tabBarIcon: ({ color, focused }) => (

@@ -1,37 +1,39 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
+import { View, StyleSheet, SafeAreaView, ActivityIndicator, Text } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Font from 'expo-font';
 import ScreenTitle from '@/components/screenTitle';
-import FullScreenImageModal from '@/components/imageModal'; // chemin à adapter si besoin
-
-const menuBouffeImage = require('@/assets/images/menu_bouffe.jpg');
-const menuBarImage = require('@/assets/images/boissons.png');
+import FullScreenImageModal from '@/components/imageModal';
+import { useMenuItems } from '@/contexts/DataContext'; // 👈 NEW: Import the hook
 
 const HomeScreen = () => {
   const [loaded, error] = Font.useFonts({
     'Oliver-Regular': require('../../assets/fonts/Oliver-Regular.otf'),
   });
 
-  const cards = [
-    {
-      title: 'Menu Bouffe',
-      icon: 'pizza-outline',
-      image: menuBouffeImage,
-    },
-    {
-      title: 'Menu Bar',
-      icon: 'beer-outline',
-      image: menuBarImage,
-    },
-  ];
+  // Use the hook instead of hardcoded data
+  const { menuItems, isLoading } = useMenuItems();
+
+  // Show loading indicator while data is being fetched
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safeAreaViewContainer}>
+        <ScreenTitle>B2B</ScreenTitle>
+        <View style={[styles.container, { justifyContent: 'center' }]}>
+          <ActivityIndicator size="large" color="#F9F2EA" />
+          <Text style={{ color: '#F9F2EA', marginTop: 20 }}>Loading menu...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>B2B</ScreenTitle>
 
       <View style={styles.container}>
-        {cards.map((card, index) => (
+        {/* Use menuItems from the hook */}
+        {menuItems.map((card, index) => (
           <View key={index} style={styles.card}>
             <Ionicons name={card.icon} size={48} color="#F2784B" style={{paddingBottom : 10}} />
             <FullScreenImageModal

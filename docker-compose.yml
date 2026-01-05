@@ -20,6 +20,7 @@ services:
       - ./config:/app/config
       - ./types:/app/types
       - ./contexts:/app/contexts
+      - ./data:/app/data
     env_file:
       - .env
     environment:
