@@ -1,6 +1,7 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import Head from 'expo-router/head';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
 // Déclaration globale pour que TypeScript reconnaisse OneSignal
 declare global {
@@ -9,7 +10,11 @@ declare global {
   }
 }
 
-export default function RootLayout() {
+function RootLayoutNav() {
+  const { user, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Initialiser OneSignal
@@ -26,6 +31,23 @@ export default function RootLayout() {
     }
   }, []);
 
+  useEffect(() => {
+    if (loading) return;
+    
+    // Only handle routing on client side
+    if (typeof window === 'undefined') return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!user && !inAuthGroup) {
+      // Redirect to login if not authenticated
+      router.replace('/(auth)/login');
+    } else if (user && inAuthGroup) {
+      // Redirect to app if already authenticated
+      router.replace('/(tabs)/calendar');
+    }
+  }, [user, loading, segments]);
+
   return (
     <>
       {/* Injection du script OneSignal */}
@@ -34,9 +56,18 @@ export default function RootLayout() {
       </Head>
 
       <Stack>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
     </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }

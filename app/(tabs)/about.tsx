@@ -1,12 +1,17 @@
 import React from 'react';
 import * as Font from 'expo-font';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, SafeAreaView, Pressable, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FullScreenImageModal from '@/components/imageModal';
 import ScreenTitle from '@/components/screenTitle';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'expo-router';
 
 
 const AboutScreen = () => {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  
   const [loaded, error] = Font.useFonts({
     'Oliver-Regular': require('../../assets/fonts/Oliver-Regular.otf'),
   });
@@ -15,9 +20,45 @@ const AboutScreen = () => {
     alert('Menu détaillé bientôt disponible!');
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.replace('/(auth)/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      Alert.alert('Erreur', 'Impossible de se déconnecter');
+    }
+  };
+
+  // Debug: log user state
+  console.log('Current user:', user);
+
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>INFOS</ScreenTitle>
+      
+      {/* User Info & Logout - Show debug version if no user */}
+      {user ? (
+        <View style={styles.userSection}>
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{user.firstName} {user.lastName}</Text>
+            <Text style={styles.userRole}>
+              {user.role === 'organisateur' && '👑 Organisateur'}
+              {user.role === 'benevole' && '🤝 Bénévole'}
+              {user.role === 'participant' && '🎉 Participant'}
+            </Text>
+          </View>
+          <Pressable style={styles.logoutButton} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={20} color="#fff" />
+            <Text style={styles.logoutText}>Déconnexion</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <View style={styles.userSection}>
+          <Text style={styles.userName}>Non connecté - Impossible d'accéder à cette page</Text>
+        </View>
+      )}
+      
       <ScrollView style={styles.container}>
 
         <View style={[styles.section,{ }]}>
@@ -184,5 +225,47 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  userSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginVertical: 10,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1d1d1d',
+    marginBottom: 4,
+  },
+  userRole: {
+    fontSize: 14,
+    color: '#666',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ff3b30',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 6,
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
