@@ -97,6 +97,12 @@ Amélioration et fonctionnalités pour l'édition 2026. L'ordre n'est pas établ
     - activité, tu clique sur qui l'organise, tu vois sa tete directement
     - Tu est bénévole, en team avec un orga, du clique sur ton binome pour avoir sa tete
 
+### **Instruction bénévoles**:
+- Un endroit ou les benevoles peuvent checker/verifier (pense bête) en quoi consistent leur tâches:
+    - recette des différents cocktails
+    - description perm scarabé,...
+    - des rappels comme rester vigilant aux verres sur la scène...
+
 ## 🔨 2. Architecture Techno
 
 ### **Gestion données**

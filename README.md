@@ -3,8 +3,19 @@
 This is an Application project created with Expo and ReactNative. The goal is to create an app for a music festival to display all important information to the customer throughout the weekend.
 
 
+## Get started - launch in docker
 
-## Get started
+Launch this app in docker with:
+```
+docker compose up --build -d
+```
+
+access logs with
+```
+docker compose logs -f -t
+```
+
+## Get started - launch locally
 
 To build this app I used Expo and react native. 
 
