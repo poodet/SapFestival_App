@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Audio } from 'expo-av';
-import { Button, ActivityIndicator, RefreshControl } from 'react-native';
+import { Button, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import * as Font from 'expo-font';
 import {
   StyleSheet,
@@ -14,6 +14,7 @@ import {
 import ScreenTitle from '@/components/screenTitle';
 import { useActivities } from '@/contexts/DataContext';
 import theme from '@/constants/theme';
+import { extractDayName, extractTime } from '@/services/calendar.service';
 
 const { width } = Dimensions.get('window');
 
@@ -86,7 +87,7 @@ export default function ActivityScreen() {
 
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
-      <ScreenTitle>ACTIVITIES</ScreenTitle>
+      <ScreenTitle>ACTIVITES</ScreenTitle>
       <View style={styles.container}>
         <FlatList
           data={activities}
@@ -106,17 +107,22 @@ export default function ActivityScreen() {
                 <Text style={styles.name}>{item.name}</Text>
               </View>
               <View style={styles.cardContent}>
-                <Text style={styles.detail}>📅 {item.duration}</Text>
+                <Text style={styles.detail}>📅 
+                  {
+                   ' '+ extractDayName(item.date_start) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)
+                  }
+                </Text>
                 <Text style={styles.detail}>📍 {item.location}</Text>
               </View>
-              {item.participation ? (
-                <View style={styles.cardContent}>
-                  <Text style={styles.participation}>📝 {item.participation}</Text>
-                  <Text style={styles.detail}>🧙🏻‍♀️🧙‍♂️ {item.respo}</Text>
+                <View style={[styles.detail, { flexDirection: 'row', justifyContent: 'left' }]}>
+                  🧙🏻‍♀️🧙‍♂️
+                  {item.respo.map((person, index) => (
+                    <TouchableOpacity key={index} onPress={() => navigateToPersonCard(person)}>
+                      <Text style={styles.detail}> {person}  </Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
-              ) : <View style={styles.cardContent}>
-                    <Text style={styles.detail}>🧙🏻‍♀️🧙‍♂️ {item.respo}</Text>
-                  </View>}
+
               {item.info ? (
                 <View style={styles.cardContent}>
                   <Text style={[styles.detail, {fontWeight : 400}]}>{item.info}</Text>
