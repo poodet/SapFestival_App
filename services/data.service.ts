@@ -117,7 +117,7 @@ function transformActivities(data: any[]): Activity[] {
 function transformMenuItems(data: any[]): MenuItem[] {
   return data.map((row, index) => ({
     id: index || 0,
-    title: row.title || '',
+    title: row.titre || '', 
     icon: row.icon || 'help-circle-outline',
     image: imageMapper[row.image] || null,
     description: row.description || '',

@@ -21,6 +21,9 @@ services:
       - ./types:/app/types
       - ./contexts:/app/contexts
       - ./data:/app/data
+      - ./hooks:/app/hooks
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
     env_file:
       - .env
     environment:
