@@ -1,9 +1,14 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import * as Font from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import Head from 'expo-router/head';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
 import { HighlightProvider } from '../contexts/HighlightContext';
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 // Déclaration globale pour que TypeScript reconnaisse OneSignal
 declare global {
@@ -16,6 +21,25 @@ function RootLayoutNav() {
   const { user, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  // Load fonts globally
+  useEffect(() => {
+    const loadFonts = async () => {
+      try {
+        await Font.loadAsync({
+          'Oliver-Regular': require('../assets/fonts/Oliver-Regular.otf'),
+        });
+        setFontsLoaded(true);
+        await SplashScreen.hideAsync();
+      } catch (e) {
+        console.warn('Error loading fonts:', e);
+        await SplashScreen.hideAsync();
+      }
+    };
+
+    loadFonts();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

@@ -89,7 +89,7 @@ const ScheduleScreen = () => {
     if (event.category === 'artist') {
       pathName = '/(tabs)/artists';
     } else if (event.category === 'meal') {
-      pathName = '/(tabs)/meals';
+      pathName = '/(tabs)/b2b';
     } else if (event.category === 'activity') {
       pathName = '/(tabs)/activities';
     }

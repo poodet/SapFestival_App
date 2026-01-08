@@ -2,6 +2,7 @@
 import React from 'react';
 import { Text, StyleSheet, View } from 'react-native';
 import theme from '@/constants/theme';
+import ThemedText from '@/components/ThemedText';
 
 interface ScreenTitleProps {
   children: string;
@@ -10,7 +11,7 @@ interface ScreenTitleProps {
 export default function ScreenTitle({ children }: ScreenTitleProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{children}</Text>
+      <ThemedText style={styles.title}>{children}</ThemedText>
     </View>
   );
 }
@@ -26,6 +27,6 @@ const styles = StyleSheet.create({
     fontSize: 80,
     color: theme.text.primary,
     fontWeight: '500',
-    fontFamily: 'Oliver-Regular', // si tu l'as chargé via expo-font
+    textShadow: '4px 5px 0px #0000007d;'
   },
 });

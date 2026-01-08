@@ -6,6 +6,14 @@
  */
 
 export const theme = {
+  // Typography
+  fonts: {
+    regular: 'Oliver-Regular',
+    // You can add more font weights/styles here if needed
+    // bold: 'Oliver-Bold',
+    // italic: 'Oliver-Italic',
+  },
+
   // General app colors
   background: {
     primary: '#f7afce',      // Main app background color (blue)

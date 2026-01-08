@@ -20,6 +20,7 @@ import ScreenTitle from '@/components/screenTitle';
 import { useArtists } from '@/contexts/DataContext';
 import theme from '@/constants/theme'; 
 import { useHighlightItem } from '@/hooks/useHighlightItem';
+import ThemedText from '@/components/ThemedText';
 
 const { width } = Dimensions.get('window');
 
@@ -49,7 +50,7 @@ export default function ArtistsScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}>
-        <ScreenTitle>ARTISTS</ScreenTitle>
+        <ScreenTitle>ARTISTES</ScreenTitle>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.background.secondary} />
           <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading artists...</Text>
@@ -60,7 +61,7 @@ export default function ArtistsScreen() {
 
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
-      <ScreenTitle>ARTISTS</ScreenTitle>
+      <ScreenTitle>ARTISTES</ScreenTitle>
       <FlatList
         ref={flatListRef}
         data={artists}
@@ -108,7 +109,7 @@ export default function ArtistsScreen() {
                 </View>
                 <View style={styles.cardBody}>
                   <View style={styles.cardHeader}>
-                    <Text style={styles.cardTitle}>{item.name}</Text>
+                    <ThemedText style={styles.cardTitle}>{item.name}</ThemedText>
                     <Text style={[styles.cardDescription, { textAlign: 'right' }]}>{item.duration}</Text>
                   </View>
                   <Text style={styles.cardDescription}>{item.bio}</Text>

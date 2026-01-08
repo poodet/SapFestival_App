@@ -11,10 +11,13 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 import ScreenTitle from '@/components/screenTitle';
 import { useActivities } from '@/contexts/DataContext';
 import theme from '@/constants/theme';
 import { extractDayName, extractTime } from '@/services/calendar.service';
+import { useHighlightItem } from '@/hooks/useHighlightItem';
+import ThemedText from '@/components/ThemedText';
 
 const { width } = Dimensions.get('window');
 
@@ -24,6 +27,17 @@ export default function ActivityScreen() {
   });
 
   const { activities, isLoading, isRefreshing, refetch } = useActivities();
+  
+  // Use the highlight hook
+  const { 
+    currentHighlightId, 
+    animatedStyle, 
+    isItemHighlighted, 
+    flatListRef 
+  } = useHighlightItem({ 
+    items: activities,
+    pulseCount: 2, // Double pulse animation
+  });
 
   const sound1 = require('../../sounds/Le_SAP_dans_l_espace_(reggae_version).mp3');
   const sound2 = require('../../sounds/Le_SAP_dans_l_espace.mp3');
@@ -32,6 +46,12 @@ export default function ActivityScreen() {
   const currentSound = useRef<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSource, setCurrentSource] = useState<number | null>(null);
+
+  // Placeholder for future implementation
+  const navigateToPersonCard = (person: any) => {
+    // TODO: Implement person card navigation
+    console.log('Navigate to person card:', person);
+  };
 
   useEffect(() => {
     return () => {
@@ -90,6 +110,7 @@ export default function ActivityScreen() {
       <ScreenTitle>ACTIVITES</ScreenTitle>
       <View style={styles.container}>
         <FlatList
+          ref={flatListRef}
           data={activities}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={
@@ -101,51 +122,59 @@ export default function ActivityScreen() {
               titleColor={theme.background.secondary}
             />
           }
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={[styles.cardContent, {flexWrap : 'nowrap',flexDirection:'row'}]}>
-                <Text style={styles.name}>{item.name}</Text>
-              </View>
-              <View style={styles.cardContent}>
-                <Text style={styles.detail}>📅 
-                  {
-                   ' '+ extractDayName(item.date_start) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)
-                  }
-                </Text>
-                <Text style={styles.detail}>📍 {item.location}</Text>
-              </View>
-                <View style={[styles.detail, { flexDirection: 'row', justifyContent: 'left' }]}>
-                  🧙🏻‍♀️🧙‍♂️
-                  {item.respo.map((person, index) => (
-                    <TouchableOpacity key={index} onPress={() => navigateToPersonCard(person)}>
-                      <Text style={styles.detail}> {person}  </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+          renderItem={({ item }) => {
+            const isHighlighted = isItemHighlighted(item.id);
+            return (
+              <Animated.View style={isHighlighted ? animatedStyle : undefined}>
+                <View style={[
+                  styles.card,
+                  isHighlighted && styles.highlightedCard
+                ]}>
+                  <View style={[styles.cardContent, {flexWrap : 'nowrap',flexDirection:'row'}]}>
+                    <ThemedText style={styles.name}>{item.name}</ThemedText>
+                  </View>
+                  <View style={styles.cardContent}>
+                    <Text style={styles.detail}>📅 
+                      {
+                       ' '+ extractDayName(item.date_start) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)
+                      }
+                    </Text>
+                    <Text style={styles.detail}>📍 {item.location}</Text>
+                  </View>
+                    <View style={[styles.detail, { flexDirection: 'row', justifyContent: 'left' }]}>
+                      {/* 🧙🏻‍♀️🧙‍♂️ */}
+                      {item.respo.map((person, index) => (
+                        <TouchableOpacity key={index} onPress={() => navigateToPersonCard(person)}>
+                          <Text style={styles.detail}> {person}  </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
 
-              {item.info ? (
-                <View style={styles.cardContent}>
-                  <Text style={[styles.detail, {fontWeight : 400}]}>{item.info}</Text>
+                  {item.info ? (
+                    <View style={styles.cardContent}>
+                      <Text style={[styles.detail, {fontWeight : 400}]}>{item.info}</Text>
+                    </View>
+                  ) : null}
+                  {item.name === 'Élection Hymne' && (
+                    <View style={[styles.cardContent, { gap: 8, marginTop: 10 }]}>
+                      <Button
+                        title="▶️ Écouter Version 1"
+                        onPress={() => togglePlayPause(sound1)}
+                      />
+                      <Button
+                        title="▶️ Écouter Version 2"
+                        onPress={() => togglePlayPause(sound2)}
+                      />
+                      <Button
+                        title="▶️ Écouter Version 3"
+                        onPress={() => togglePlayPause(sound3)}
+                      />
+                    </View>
+                  )}
                 </View>
-              ) : null}
-              {item.name === 'Élection Hymne' && (
-                <View style={[styles.cardContent, { gap: 8, marginTop: 10 }]}>
-                  <Button
-                    title="▶️ Écouter Version 1"
-                    onPress={() => togglePlayPause(sound1)}
-                  />
-                  <Button
-                    title="▶️ Écouter Version 2"
-                    onPress={() => togglePlayPause(sound2)}
-                  />
-                  <Button
-                    title="▶️ Écouter Version 3"
-                    onPress={() => togglePlayPause(sound3)}
-                  />
-                </View>
-              )}
-            </View>
-          )}
+              </Animated.View>
+            );
+          }}
           contentContainerStyle={styles.list}
         />
       </View>
@@ -182,6 +211,14 @@ const styles = StyleSheet.create({
     width: '90%',
     maxWidth: 500,
     alignSelf: 'center',
+  },
+  highlightedCard: {
+    borderWidth: 3,
+    borderColor: theme.interactive.secondary,
+    shadowColor: theme.interactive.secondary,
+    shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
+    shadowRadius: 12,
+    elevation: Platform.OS === 'android' ? 8 : 0,
   },
   cardContent: {
     flexDirection: 'column',
