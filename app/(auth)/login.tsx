@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, Alert, StyleSheet, KeyboardAvoidingVi
 import { AuthService } from '../../services/auth.service';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import theme from '@/constants/theme';
 
 
 
@@ -78,7 +79,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: theme.ui.white
   },
   content: {
     flex: 1,
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
-    color: '#053688'
+    color: theme.interactive.text
   },
   subtitle: {
     fontSize: 20,
@@ -105,10 +106,10 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 15,
     fontSize: 16,
-    backgroundColor: '#fff'
+    backgroundColor: theme.ui.white
   },
   button: {
-    backgroundColor: '#0b8c35',
+    backgroundColor: theme.interactive.primary,
     padding: 15,
     borderRadius: 8,
     marginTop: 10
@@ -117,13 +118,13 @@ const styles = StyleSheet.create({
     opacity: 0.6
   },
   buttonText: {
-    color: '#fff',
+    color: theme.text.primary,
     textAlign: 'center',
     fontSize: 16,
     fontWeight: 'bold'
   },
   link: {
-    color: '#053688',
+    color: theme.interactive.text,
     textAlign: 'center',
     marginTop: 15,
     fontSize: 16

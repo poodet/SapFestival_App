@@ -22,7 +22,6 @@ export type Activity = {
   date_end: string;
   info: string;
   siPluie?: string;
-  color: string;
 };
 
 export type MenuItem = {

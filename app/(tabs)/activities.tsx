@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import ScreenTitle from '@/components/screenTitle';
 import { useActivities } from '@/contexts/DataContext';
+import theme from '@/constants/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -76,8 +77,8 @@ export default function ActivityScreen() {
       <SafeAreaView style={styles.safeAreaViewContainer}>
         <ScreenTitle>ACTIVITIES</ScreenTitle>
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-          <ActivityIndicator size="large" color="#F9F2EA" />
-          <Text style={{ color: '#F9F2EA', marginTop: 20 }}>Loading activities...</Text>
+          <ActivityIndicator size="large" color={theme.background.secondary} />
+          <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading activities...</Text>
         </View>
       </SafeAreaView>
     );
@@ -94,9 +95,9 @@ export default function ActivityScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={refetch}
-              tintColor="#F9F2EA"
+              tintColor={theme.background.secondary}
               title="Actualisation..."
-              titleColor="#F9F2EA"
+              titleColor={theme.background.secondary}
             />
           }
           renderItem={({ item }) => (
@@ -149,12 +150,12 @@ export default function ActivityScreen() {
 const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
-    backgroundColor: '#5a9adb',
+    backgroundColor: theme.background.primary,
     marginBottom: 50,
   },
   container: {
     flex: 1,
-    backgroundColor: '#5a9adb',
+    backgroundColor: theme.background.primary,
   },
   list: {
     paddingVertical: 20,
@@ -162,12 +163,12 @@ const styles = StyleSheet.create({
     paddingBottom : 50
   },
   card: {
-    backgroundColor: '#F9F2EA',
+    backgroundColor: theme.background.secondary,
     paddingHorizontal: width * 0.04,
     paddingVertical: width * 0.02,
     marginBottom: 20,
     borderRadius: 15,
-    shadowColor: '#000',
+    shadowColor: theme.ui.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: Platform.OS === 'ios' ? 0.1 : 0,
     shadowRadius: 8,
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: width < 350 ? 14 : 18,
     fontWeight: '700',
-    color: '#25292e',
+    color: theme.background.dark,
     flexShrink: 1,
     paddingRight: 10,
   },

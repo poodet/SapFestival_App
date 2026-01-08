@@ -22,6 +22,7 @@ services:
       - ./contexts:/app/contexts
       - ./data:/app/data
       - ./hooks:/app/hooks
+      - ./constants:/app/constants
       - ./package.json:/app/package.json
       - ./package-lock.json:/app/package-lock.json
     env_file:

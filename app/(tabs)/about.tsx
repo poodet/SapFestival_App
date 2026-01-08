@@ -6,6 +6,7 @@ import FullScreenImageModal from '@/components/imageModal';
 import ScreenTitle from '@/components/screenTitle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
+import theme from '@/constants/theme';
 
 
 const AboutScreen = () => {
@@ -49,7 +50,7 @@ const AboutScreen = () => {
             </Text>
           </View>
           <Pressable style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color="#fff" />
+            <Ionicons name="log-out-outline" size={20} color={theme.text.primary} />
             <Text style={styles.logoutText}>Déconnexion</Text>
           </Pressable>
         </View>
@@ -128,7 +129,7 @@ const AboutScreen = () => {
         </View>
 
         {/* <View style={styles.card}>
-          <Ionicons name="fast-food-outline" size={48} color="#5a9adb" style={styles.cardIcon} />
+          <Ionicons name="fast-food-outline" size={48} color={theme.background.primary} style={styles.cardIcon} />
           <Text style={styles.cardTitle}>Menu & Boissons</Text>
           <Text style={styles.cardText}>
             🌭 Pad Thai {"\n"}
@@ -154,7 +155,7 @@ export default AboutScreen;
 const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
-    backgroundColor: '#5a9adb',
+    backgroundColor: theme.background.primary,
     marginBottom : 50,
   },
   container: {
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 20,
     padding: 16,
-    backgroundColor: '#F9F2EA',
+    backgroundColor: theme.background.secondary,
     borderRadius: 10,
     marginHorizontal: 10,
     elevation: 5,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   },
   rulesText: {
     fontSize: 16,
-    color: '#25292e',
+    color: theme.background.dark,
     lineHeight: 24,
   },
   card: {
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5E4',
     borderRadius: 15,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: theme.ui.black,
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -209,7 +210,7 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontSize: 16,
-    color: '#25292e',
+    color: theme.background.dark,
     lineHeight: 24,
     textAlign: 'center',
     paddingBottom:10,
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   cardButtonText: {
-    color: '#fff',
+    color: theme.text.primary,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -231,11 +232,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: theme.ui.white,
     marginHorizontal: 16,
     marginVertical: 10,
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: theme.ui.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   logoutText: {
-    color: '#fff',
+    color: theme.text.primary,
     fontSize: 14,
     fontWeight: '600',
   },

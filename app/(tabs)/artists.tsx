@@ -7,7 +7,8 @@ import * as Font from 'expo-font';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import imageMapper from '@/components/imageMapper';
 import ScreenTitle from '@/components/screenTitle';
-import { useArtists } from '@/contexts/DataContext'; 
+import { useArtists } from '@/contexts/DataContext';
+import theme from '@/constants/theme'; 
 
 const { width } = Dimensions.get('window');
 
@@ -48,8 +49,8 @@ export default function ArtistsScreen() {
       <SafeAreaView style={styles.safeAreaViewContainer}>
         <ScreenTitle>ARTISTS</ScreenTitle>
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-          <ActivityIndicator size="large" color="#F9F2EA" />
-          <Text style={{ color: '#F9F2EA', marginTop: 20 }}>Loading artists...</Text>
+          <ActivityIndicator size="large" color={theme.background.secondary} />
+          <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading artists...</Text>
         </View>
       </SafeAreaView>
     );
@@ -66,9 +67,9 @@ export default function ArtistsScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={refetch}
-            tintColor="#F9F2EA"
+            tintColor={theme.background.secondary}
             title="Actualisation..."
-            titleColor="#F9F2EA"
+            titleColor={theme.background.secondary}
           />
         }
       >
@@ -98,7 +99,7 @@ export default function ArtistsScreen() {
         ))}
       </ScrollView>
       <TouchableOpacity style={styles.scrollToTopButton} onPress={handleScrollToTop}>
-        <Ionicons name="arrow-up" size={24} color="white" />
+        <Ionicons name="arrow-up" size={24} color={theme.text.primary} />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -107,7 +108,7 @@ export default function ArtistsScreen() {
 const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
-    backgroundColor: '#5a9adb',
+    backgroundColor: theme.background.primary,
     marginBottom: 50,
   },
   scrollContent: {
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 70,
     right: 20,
-    backgroundColor: '#25292e',
+    backgroundColor: theme.background.dark,
     padding: 12,
     borderRadius: 30,
     alignItems: 'center',
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 24,
     marginBottom: 24,
-    backgroundColor: '#F9F2EA',
+    backgroundColor: theme.background.secondary,
     width: '90%',
     maxWidth : 500,
     alignSelf: 'center'
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     left: 10,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: theme.background.overlay,
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardTopPillText: {
-    color: 'white',
+    color: theme.text.primary,
     fontSize: 12,
     fontWeight: '600',
   },

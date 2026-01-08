@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import theme from '@/constants/theme';
 
 // import { useNavigation } from '@react-navigation/native';
 
@@ -10,21 +11,21 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#5a9adb',
+        tabBarActiveTintColor: theme.background.primary,
         tabBarShowLabel: false,
         headerStyle: {
-          // backgroundColor: '#5a9adb',
+          // backgroundColor: theme.background.primary,
         },
         headerShown: false,
         headerShadowVisible: false,
         headerTintColor: '#F2784B',
         tabBarStyle: {
           position: 'absolute',
-          backgroundColor: '#F9F2EA',  // ou la couleur de ton thème
+          backgroundColor: theme.background.secondary,  // ou la couleur de ton thème
           borderRadius: 20,
           height: 70,
           elevation: 5,
-          shadowColor: '#000',
+          shadowColor: theme.ui.black,
           shadowOffset: { width: 0, height: 5 },
           shadowOpacity: 0.1,
           shadowRadius: 10,

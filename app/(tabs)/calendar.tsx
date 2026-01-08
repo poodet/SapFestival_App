@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFestivalData } from '@/contexts/DataContext';
 import { useFestivalCalendar, useDayEvents } from '@/hooks/useCalendar';
 import { timeToMinutes } from '@/services/calendar.service';
+import theme from '@/constants/theme';
 
 const DAYS = ['Vendredi', 'Samedi'];
 const SLOT_HEIGHT = 40; // hauteur pour 30 minutes
@@ -127,8 +128,8 @@ const ScheduleScreen = () => {
       <SafeAreaView style={styles.safeAreaViewContainer}>
         <ScreenTitle>LINE UP</ScreenTitle>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#fff" />
-          <Text style={{ color: '#fff', marginTop: 10, fontFamily: 'Oliver-Regular' }}>
+          <ActivityIndicator size="large" color={theme.text.primary} />
+          <Text style={{ color: theme.text.primary, marginTop: 10, fontFamily: 'Oliver-Regular' }}>
             Chargement du programme...
           </Text>
         </View>
@@ -147,16 +148,16 @@ const ScheduleScreen = () => {
               onPress={() => setSelectedDay(day)}
               style={{
                 marginHorizontal: 8,
-                backgroundColor: '#fff',
+                backgroundColor: theme.ui.white,
                 padding: 5,
                 borderRadius: 8,
                 borderWidth: 5,
-                borderColor: selectedDay === day ? '#0b8c35' : '#5a9adb',
+                borderColor: selectedDay === day ? theme.interactive.primary : theme.background.primary,
               }}
             >
               <Text
                 style={{
-                  color: selectedDay === day ? '#0b8c35' : '#6d6161',
+                  color: selectedDay === day ? theme.interactive.primary : theme.interactive.inactive,
                   fontSize: 16,
                   fontFamily: 'Oliver-Regular',
                 }}
@@ -169,11 +170,11 @@ const ScheduleScreen = () => {
         <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 8 }}>
           <Text
             style={{
-              color: '#fff',
+              color: theme.text.primary,
               fontSize: 14,
               fontFamily: 'Oliver-Regular',
               marginHorizontal: 10,
-              backgroundColor: '#053688',
+              backgroundColor: theme.categories.artists,
               borderRadius: 5,
               padding: 5,
             }}
@@ -182,11 +183,11 @@ const ScheduleScreen = () => {
           </Text>
           <Text
             style={{
-              color: '#fff',
+              color: theme.text.primary,
               fontSize: 14,
               fontFamily: 'Oliver-Regular',
               marginHorizontal: 10,
-              backgroundColor: '#f28d11',
+              backgroundColor: theme.categories.activities,
               borderRadius: 5,
               padding: 5,
             }}
@@ -195,11 +196,11 @@ const ScheduleScreen = () => {
           </Text>
           <Text
             style={{
-              color: '#fff',
+              color: theme.text.primary,
               fontSize: 14,
               fontFamily: 'Oliver-Regular',
               marginHorizontal: 10,
-              backgroundColor: '#fc87bb',
+              backgroundColor: theme.categories.meals,
               borderRadius: 5,
               padding: 5,
             }}
@@ -212,7 +213,7 @@ const ScheduleScreen = () => {
             <View style={{ width: 60 }}>
               {timeSlots.map((time, idx) => (
                 <View key={idx} style={{ height: SLOT_HEIGHT, justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 12, color: '#fff' }}>{time}</Text>
+                  <Text style={{ fontSize: 12, color: theme.text.primary }}>{time}</Text>
                 </View>
               ))}
             </View>
@@ -238,12 +239,12 @@ const ScheduleScreen = () => {
                       padding: 4,
                       borderRadius: 6,
                       borderWidth: 2,
-                      borderColor: '#5a9adb',
+                      borderColor: theme.background.primary,
                       overflow: 'hidden',
                     }}
                   >
                     <Text
-                      style={{ fontWeight: 'bold', fontSize: 12, color: '#fff' }}
+                      style={{ fontWeight: 'bold', fontSize: 12, color: theme.text.primary }}
                       numberOfLines={3}
                       ellipsizeMode="tail"
                     >
@@ -266,7 +267,7 @@ const ScheduleScreen = () => {
                   </Text>
                   <Text style={styles.modalDescription}>{selectedEvent.description || 'Pas de description.'}</Text>
                   <Pressable onPress={closeModal} style={styles.closeButton}>
-                    <Text style={{ color: '#fff' }}>Fermer</Text>
+                    <Text style={{ color: theme.text.primary }}>Fermer</Text>
                   </Pressable>
                 </>
               )}
@@ -281,18 +282,18 @@ const ScheduleScreen = () => {
 const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
-    backgroundColor: '#5a9adb',
+    backgroundColor: theme.background.primary,
     marginBottom: 50,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: theme.background.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
     width: '80%',
-    backgroundColor: '#fff',
+    backgroundColor: theme.ui.white,
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
@@ -311,7 +312,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   closeButton: {
-    backgroundColor: '#0b8c35',
+    backgroundColor: theme.interactive.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,

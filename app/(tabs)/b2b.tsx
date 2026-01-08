@@ -4,7 +4,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Font from 'expo-font';
 import ScreenTitle from '@/components/screenTitle';
 import FullScreenImageModal from '@/components/imageModal';
-import { useMenuItems } from '@/contexts/DataContext'; // 👈 NEW: Import the hook
+import { useMenuItems } from '@/contexts/DataContext';
+import theme from '@/constants/theme';
 
 const HomeScreen = () => {
   const [loaded, error] = Font.useFonts({
@@ -20,8 +21,8 @@ const HomeScreen = () => {
       <SafeAreaView style={styles.safeAreaViewContainer}>
         <ScreenTitle>B2B</ScreenTitle>
         <View style={[styles.container, { justifyContent: 'center' }]}>
-          <ActivityIndicator size="large" color="#F9F2EA" />
-          <Text style={{ color: '#F9F2EA', marginTop: 20 }}>Loading menu...</Text>
+          <ActivityIndicator size="large" color={theme.background.secondary} />
+          <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading menu...</Text>
         </View>
       </SafeAreaView>
     );
@@ -36,9 +37,9 @@ const HomeScreen = () => {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={refetch}
-            tintColor="#F9F2EA"
+            tintColor={theme.background.secondary}
             title="Actualisation..."
-            titleColor="#F9F2EA"
+            titleColor={theme.background.secondary}
           />
         }
       >
@@ -64,12 +65,12 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
-    backgroundColor: '#5a9adb',
+    backgroundColor: theme.background.primary,
     marginBottom: 50,
   },
   container: {
     flex: 1,
-    backgroundColor: '#5a9adb',
+    backgroundColor: theme.background.primary,
     padding: 20,
     alignItems: 'center',
   },
@@ -78,10 +79,10 @@ const styles = StyleSheet.create({
     height: 200,
     margin: 20,
     borderRadius: 10,
-    backgroundColor: '#F9F2EA',
+    backgroundColor: theme.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: theme.ui.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
