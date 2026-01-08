@@ -13,7 +13,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useFestivalData } from '@/contexts/DataContext';
+import { useHighlight } from '@/contexts/HighlightContext';
 import { useFestivalCalendar, useDayEvents } from '@/hooks/useCalendar';
 import { timeToMinutes } from '@/services/calendar.service';
 import theme from '@/constants/theme';
@@ -65,6 +67,8 @@ const assignColumns = (events: any[]) => {
 const ScheduleScreen = () => {
   // Fetch data from Google Sheets via DataContext
   const { artists, activities, menuItems, isLoading } = useFestivalData();
+  const router = useRouter();
+  const { setHighlightId } = useHighlight();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -80,8 +84,19 @@ const ScheduleScreen = () => {
   const events = useDayEvents(eventsByDay, selectedDay);
 
   const openModal = (event: any) => {
-    setSelectedEvent(event);
-    setModalVisible(true);
+    // Navigate to activities screen if it's an activity event
+    let pathName = '';
+    if (event.category === 'artist') {
+      pathName = '/(tabs)/artists';
+    } else if (event.category === 'meal') {
+      pathName = '/(tabs)/meals';
+    } else if (event.category === 'activity') {
+      pathName = '/(tabs)/activities';
+    }
+
+    setHighlightId(event.metadata?.id?.toString() || '');
+    
+    router.push(pathName);
   };
 
   const closeModal = () => {

@@ -1,14 +1,25 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, ScrollView, Text, 
-  TouchableOpacity, View, Image, Dimensions, 
-  ActivityIndicator, RefreshControl } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { 
+  StyleSheet, 
+  SafeAreaView, 
+  FlatList, 
+  Text, 
+  TouchableOpacity, 
+  View, 
+  Image, 
+  Dimensions, 
+  ActivityIndicator, 
+  RefreshControl,
+  Platform 
+} from 'react-native';
+import Animated from 'react-native-reanimated';
 import * as Font from 'expo-font';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import imageMapper from '@/components/imageMapper';
 import ScreenTitle from '@/components/screenTitle';
 import { useArtists } from '@/contexts/DataContext';
 import theme from '@/constants/theme'; 
+import { useHighlightItem } from '@/hooks/useHighlightItem';
 
 const { width } = Dimensions.get('window');
 
@@ -17,38 +28,29 @@ export default function ArtistsScreen() {
     'Oliver-Regular': require('../../assets/fonts/Oliver-Regular.otf'),
   });
 
-  // const { artists, isLoading } = useArtists();
   const { artists, isLoading, isRefreshing, refetch } = useArtists();
-  const { focusArtist } = useLocalSearchParams();
-  const scrollViewRef = useRef<ScrollView>(null);
-  const [offsets, setOffsets] = useState<{ [key: number]: number }>({});
-
-  const handleLayout = (id: number, event: any) => {
-    const offsetY = event.nativeEvent.layout.y;
-    setOffsets((prev) => ({ ...prev, [id]: offsetY }));
-  };
+  
+  // Use the highlight hook
+  const { 
+    animatedStyle, 
+    isItemHighlighted, 
+    flatListRef 
+  } = useHighlightItem({ 
+    items: artists,
+    pulseCount: 2, // Double pulse animation
+  });
 
   const handleScrollToTop = () => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
     }
   };
-
-  useEffect(() => {
-    if (focusArtist) {
-      const id = parseInt(focusArtist as string, 10);
-      const targetOffset = offsets[id];
-      if (targetOffset !== undefined && scrollViewRef.current) {
-        scrollViewRef.current.scrollTo({ y: targetOffset, animated: true });
-      }
-    }
-  }, [focusArtist, offsets]);
 
   if (isLoading) {
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}>
         <ScreenTitle>ARTISTS</ScreenTitle>
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.background.secondary} />
           <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading artists...</Text>
         </View>
@@ -59,10 +61,21 @@ export default function ArtistsScreen() {
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>ARTISTS</ScreenTitle>
-      <ScrollView 
-        ref={scrollViewRef} 
-        style={styles.container} 
-        contentContainerStyle={styles.scrollContent}
+      <FlatList
+        ref={flatListRef}
+        data={artists}
+        keyExtractor={(item) => item.id.toString()}
+        onScrollToIndexFailed={(info) => {
+          // Handle scroll failure gracefully
+          const wait = new Promise(resolve => setTimeout(resolve, 500));
+          wait.then(() => {
+            flatListRef.current?.scrollToIndex({
+              index: info.index,
+              animated: true,
+              viewPosition: 0.2,
+            });
+          });
+        }}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -72,32 +85,40 @@ export default function ArtistsScreen() {
             titleColor={theme.background.secondary}
           />
         }
-      >
-        {artists.map(({ id, image, name, bio, duration, style }, index) => (
-          <View key={`artist-${index}`} style={styles.card} onLayout={(event) => handleLayout(id, event)}>
-            <View style={styles.cardTop}>
-              <Image
-                alt=""
-                resizeMode="cover"
-                source={imageMapper[image]}
-                style={styles.cardImg}
-              />
-              <View style={styles.cardTopPills}>
-                <View style={[styles.cardTopPill, { paddingLeft: 6 }]}>
-                  <Text style={styles.cardTopPillText}>{style}</Text>
+        renderItem={({ item }) => {
+          const isHighlighted = isItemHighlighted(item.id);
+          return (
+            <Animated.View style={isHighlighted ? animatedStyle : undefined}>
+              <View style={[
+                styles.card,
+                isHighlighted && styles.highlightedCard
+              ]}>
+                <View style={styles.cardTop}>
+                  <Image
+                    alt=""
+                    resizeMode="cover"
+                    source={imageMapper[item.image]}
+                    style={styles.cardImg}
+                  />
+                  <View style={styles.cardTopPills}>
+                    <View style={[styles.cardTopPill, { paddingLeft: 6 }]}>
+                      <Text style={styles.cardTopPillText}>{item.style}</Text>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.cardBody}>
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.cardTitle}>{item.name}</Text>
+                    <Text style={[styles.cardDescription, { textAlign: 'right' }]}>{item.duration}</Text>
+                  </View>
+                  <Text style={styles.cardDescription}>{item.bio}</Text>
                 </View>
               </View>
-            </View>
-            <View style={styles.cardBody}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{name}</Text>
-                <Text style={[styles.cardDescription, { textAlign: 'right' }]}>{duration}</Text>
-              </View>
-              <Text style={styles.cardDescription}>{bio}</Text>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+            </Animated.View>
+          );
+        }}
+        contentContainerStyle={styles.scrollContent}
+      />
       <TouchableOpacity style={styles.scrollToTopButton} onPress={handleScrollToTop}>
         <Ionicons name="arrow-up" size={24} color={theme.text.primary} />
       </TouchableOpacity>
@@ -112,6 +133,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   scrollContent: {
+    paddingHorizontal: 16,
     paddingBottom: 50,
   },
   scrollToTopButton: {
@@ -125,9 +147,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 5,
   },
-  container: {
-    paddingHorizontal: 16,
-  },
   card: {
     padding: 12,
     borderRadius: 24,
@@ -136,6 +155,14 @@ const styles = StyleSheet.create({
     width: '90%',
     maxWidth : 500,
     alignSelf: 'center'
+  },
+  highlightedCard: {
+    borderWidth: 3,
+    borderColor: theme.interactive.secondary,
+    shadowColor: theme.interactive.secondary,
+    shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
+    shadowRadius: 12,
+    elevation: Platform.OS === 'android' ? 8 : 0,
   },
   cardTop: {
     borderRadius: 24,

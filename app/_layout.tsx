@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Head from 'expo-router/head';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
+import { HighlightProvider } from '../contexts/HighlightContext';
 
 // Déclaration globale pour que TypeScript reconnaisse OneSignal
 declare global {
@@ -69,7 +70,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <DataProvider>
-        <RootLayoutNav />
+        <HighlightProvider>
+          <RootLayoutNav />
+        </HighlightProvider>
       </DataProvider>
     </AuthProvider>
   );
