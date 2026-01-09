@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, ScrollView, Pressable, TextInput } from 'react-native';
 import { CalendarPermEventCard, CalendarPermEventHorizontalCard } from '@/components/CalendarEventCard';
-import { ThemedText } from '@/components/ThemedText';
+import { NormalText, ThemedText } from '@/components/ThemedText';
 import { timeToMinutes } from '@/services/calendar.service';
 import theme from '@/constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -146,9 +146,95 @@ export const PermsView: React.FC<PermsViewProps> = ({
   onPermPress,
 }) => {
   const [isHorizontal, setIsHorizontal] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [selectedPoles, setSelectedPoles] = useState<string[]>([]);
+  const [showPoleDropdown, setShowPoleDropdown] = useState(false);
+  const [showMyPermsOnly, setShowMyPermsOnly] = useState(false);
+  const [selectedOrganizers, setSelectedOrganizers] = useState<string[]>([]);
+  const [showOrganizerDropdown, setShowOrganizerDropdown] = useState(false);
+
+  // Get all available poles from permStyle
+  const availablePoles = Object.keys(permStyle);
+
+  // Get all unique organizers from perms
+  const availableOrganizers = useMemo(() => {
+    const organizers = new Set<string>();
+    eventsPerms.forEach(perm => {
+      if (perm.metadata?.organizer) {
+        organizers.add(perm.metadata.organizer);
+      }
+    });
+    return Array.from(organizers).sort();
+  }, [eventsPerms]);
+
+  // Toggle pole selection
+  const togglePole = (pole: string) => {
+    setSelectedPoles(prev => 
+      prev.includes(pole) 
+        ? prev.filter(p => p !== pole)
+        : [...prev, pole]
+    );
+  };
+
+  // Toggle organizer selection
+  const toggleOrganizer = (organizer: string) => {
+    setSelectedOrganizers(prev => 
+      prev.includes(organizer) 
+        ? prev.filter(o => o !== organizer)
+        : [...prev, organizer]
+    );
+  };
+
+  // Filter perms based on search, selected poles, and user filter
+  const filteredPerms = useMemo(() => {
+    let filtered = eventsPerms;
+
+    // Apply user filter
+    if (showMyPermsOnly) {
+      filtered = filtered.filter(perm => perm.metadata?.organizer === userName);
+    }
+
+    // Apply search filter
+    if (searchText.trim()) {
+      const searchLower = searchText.toLowerCase();
+      filtered = filtered.filter(perm => {
+        // Search in all relevant fields
+        const searchableText = [
+          perm.title,
+          perm.startTime,
+          perm.endTime,
+          perm.metadata?.organizer,
+          perm.metadata?.pole,
+          perm.metadata?.perm,
+          perm.metadata?.description,
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        return searchableText.includes(searchLower);
+      });
+    }
+
+    // Apply pole filter
+    if (selectedPoles.length > 0) {
+      filtered = filtered.filter(perm => {
+        const permPole = perm.metadata?.pole || perm.title;
+        return selectedPoles.some(selectedPole => 
+          selectedPole.toLowerCase() === permPole.toLowerCase()
+        );
+      });
+    }
+
+    // Apply organizer filter
+    if (selectedOrganizers.length > 0) {
+      filtered = filtered.filter(perm => {
+        return selectedOrganizers.includes(perm.metadata?.organizer || '');
+      });
+    }
+
+    return filtered;
+  }, [eventsPerms, searchText, selectedPoles, selectedOrganizers, showMyPermsOnly, userName]);
 
   // Apply perm-specific colors and column assignment
-  const permsWithColors = eventsPerms.map(perm => ({
+  const permsWithColors = filteredPerms.map(perm => ({
     ...perm,
     bgColor: getPermColor(perm.metadata?.pole || perm.title),
     icon: getPermIcon(perm.metadata?.pole || perm.title),
@@ -218,7 +304,318 @@ export const PermsView: React.FC<PermsViewProps> = ({
 
   return (
     <View style={{ flex: 1, paddingBottom: 50, paddingHorizontal: 10 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8 }}>
+      {/* Search and Filter Bar */}
+      <View style={{ paddingHorizontal: 8, paddingVertical: 8, gap: 8, zIndex: 1000 }}>
+        {/* Search Input */}
+        <View style={{ 
+          flexDirection: 'row', 
+          alignItems: 'center',
+          backgroundColor: theme.ui.white,
+          borderRadius: 8,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderWidth: 1,
+          borderColor: theme.interactive.inactive,
+        }}>
+          <Ionicons name="search-outline" size={20} color={theme.text.secondary} />
+          <TextInput
+            style={{
+              flex: 1,
+              marginLeft: 8,
+              fontSize: 16,
+              paddingVertical: 4,
+            }}
+            placeholder="Rechercher une perm..."
+            placeholderTextColor={theme.text.secondary}
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+          {searchText.length > 0 && (
+            <Pressable onPress={() => setSearchText('')}>
+              <Ionicons name="close-circle" size={20} color={theme.text.secondary} />
+            </Pressable>
+          )}
+        </View>
+
+        {/* Filter Row: My Perms Toggle + Pole Filter Dropdown */}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {/* My Perms Only Toggle */}
+          <Pressable
+            onPress={() => setShowMyPermsOnly(!showMyPermsOnly)}
+            style={{
+              backgroundColor: showMyPermsOnly ? theme.interactive.primary : theme.ui.white,
+              borderRadius: 8,
+              paddingHorizontal: 12,
+              paddingVertical: 10,
+              borderWidth: 1,
+              borderColor: showMyPermsOnly ? theme.interactive.primary : theme.interactive.inactive,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Ionicons 
+              name={showMyPermsOnly ? "person" : "person-outline"} 
+              size={24} 
+              color={showMyPermsOnly ? theme.ui.white : theme.interactive.primary} 
+            />
+          </Pressable>
+
+          {/* Pole Filter Dropdown */}
+          <View style={{ flex: 1, position: 'relative', zIndex: 1001 }}>
+            <Pressable
+              onPress={() => setShowPoleDropdown(!showPoleDropdown)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: selectedPoles.length > 0 ? theme.interactive.primary : theme.ui.white,
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 10,
+                borderWidth: 1,
+                borderColor: selectedPoles.length > 0 ? theme.interactive.primary : theme.interactive.inactive,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <Ionicons 
+                  name="filter-outline" 
+                  size={20} 
+                  color={selectedPoles.length > 0 ? theme.text.primary : theme.text.secondary} 
+                />
+                <NormalText style={{ 
+                  marginLeft: 8, 
+                  color: selectedPoles.length > 0 ? theme.text.primary : theme.text.secondary,
+                  fontSize: 16,
+              }}>
+                {selectedPoles.length > 0 
+                  ? `Pôles (${selectedPoles.length})` 
+                  : 'Pôle'}
+              </NormalText>
+            </View>
+            <Ionicons 
+              name={showPoleDropdown ? "chevron-up" : "chevron-down"} 
+              size={20} 
+              color={selectedPoles.length > 0 ? theme.text.primary : theme.text.secondary} 
+            />
+          </Pressable>
+
+          {/* Dropdown Menu */}
+          {showPoleDropdown && (
+            <View style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              backgroundColor: theme.ui.white,
+              borderRadius: 8,
+              marginTop: 4,
+              borderWidth: 1,
+              borderColor: theme.interactive.inactive,
+              maxHeight: 300,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+              zIndex: 1002,
+            }}>
+              <ScrollView>
+                {/* Clear all button */}
+                {selectedPoles.length > 0 && (
+                  <Pressable
+                    onPress={() => {
+                        setSelectedPoles([]);
+                        setShowPoleDropdown(false);
+                    }}
+                    style={{
+                      padding: 12,
+                      borderBottomWidth: 1,
+                      borderBottomColor: theme.interactive.inactive,
+                      backgroundColor: theme.background.secondary,
+                    }}
+                  >
+                    <ThemedText style={{ color: theme.interactive.primary, fontSize: 14, fontWeight: '600' }}>
+                      Effacer tous les filtres
+                    </ThemedText>
+                  </Pressable>
+                )}
+                
+                {availablePoles.map((pole) => {
+                  const isSelected = selectedPoles.includes(pole);
+                  const poleColor = permStyle[pole].color;
+                  const poleIcon = permStyle[pole].icon;
+                  
+                  return (
+                    <Pressable
+                      key={pole}
+                      onPress={() => togglePole(pole)}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        padding: 12,
+                        borderBottomWidth: 1,
+                        borderBottomColor: theme.interactive.inactive,
+                        backgroundColor: isSelected ? `${poleColor}20` : 'transparent',
+                      }}
+                    >
+                      <View style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: 4,
+                        backgroundColor: poleColor,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginRight: 12,
+                      }}>
+                        <Ionicons name={poleIcon as any} size={16} color={theme.ui.white} />
+                      </View>
+                      <NormalText style={{ 
+                        flex: 1, 
+                        fontSize: 16,
+                      }}>
+                        {pole}
+                      </NormalText>
+                      {isSelected && (
+                        <Ionicons name="checkmark-circle" size={24} color={poleColor} />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
+          </View>
+
+          {/* Organizer Filter Dropdown */}
+          <View style={{ flex: 1, position: 'relative', zIndex: 1001 }}>
+            <Pressable
+              onPress={() => setShowOrganizerDropdown(!showOrganizerDropdown)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: selectedOrganizers.length > 0 ? theme.interactive.primary : theme.ui.white,
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 10,
+                borderWidth: 1,
+                borderColor: selectedOrganizers.length > 0 ? theme.interactive.primary : theme.interactive.inactive,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <Ionicons 
+                  name="people-outline" 
+                  size={20} 
+                  color={selectedOrganizers.length > 0 ? theme.text.primary : theme.text.secondary} 
+                />
+                <NormalText style={{ 
+                  marginLeft: 8, 
+                  color: selectedOrganizers.length > 0 ? theme.text.primary : theme.text.secondary,
+                  fontSize: 16,
+              }}>
+                {selectedOrganizers.length > 0 
+                  ? `Orga (${selectedOrganizers.length})` 
+                  : 'Orga'}
+              </NormalText>
+            </View>
+            <Ionicons 
+              name={showOrganizerDropdown ? "chevron-up" : "chevron-down"} 
+              size={20} 
+              color={selectedOrganizers.length > 0 ? theme.text.primary : theme.text.secondary} 
+            />
+          </Pressable>
+
+          {/* Dropdown Menu */}
+          {showOrganizerDropdown && (
+            <View style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              backgroundColor: theme.ui.white,
+              borderRadius: 8,
+              marginTop: 4,
+              borderWidth: 1,
+              borderColor: theme.interactive.inactive,
+              maxHeight: 300,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+              zIndex: 1002,
+            }}>
+              <ScrollView>
+                {/* Clear all button */}
+                {selectedOrganizers.length > 0 && (
+                  <Pressable
+                    onPress={() => {
+                        setSelectedOrganizers([]);
+                        setShowOrganizerDropdown(false);
+                    }}
+                    style={{
+                      padding: 12,
+                      borderBottomWidth: 1,
+                      borderBottomColor: theme.interactive.inactive,
+                      backgroundColor: theme.background.secondary,
+                    }}
+                  >
+                    <ThemedText style={{ color: theme.interactive.primary, fontSize: 14, fontWeight: '600' }}>
+                      Effacer tous les filtres
+                    </ThemedText>
+                  </Pressable>
+                )}
+                
+                {availableOrganizers.map((organizer) => {
+                  const isSelected = selectedOrganizers.includes(organizer);
+                  
+                  return (
+                    <Pressable
+                      key={organizer}
+                      onPress={() => toggleOrganizer(organizer)}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        padding: 12,
+                        borderBottomWidth: 1,
+                        borderBottomColor: theme.interactive.inactive,
+                        backgroundColor: isSelected ? `${theme.interactive.primary}20` : 'transparent',
+                      }}
+                    >
+                      <View style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 16,
+                        backgroundColor: theme.interactive.primary,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginRight: 12,
+                      }}>
+                        <ThemedText style={{ color: theme.ui.white, fontSize: 14, fontWeight: '600' }}>
+                          {organizer.charAt(0).toUpperCase()}
+                        </ThemedText>
+                      </View>
+                      <NormalText style={{ 
+                        flex: 1, 
+                        fontSize: 16,
+                      }}>
+                        {organizer}
+                      </NormalText>
+                      {isSelected && (
+                        <Ionicons name="checkmark-circle" size={24} color={theme.interactive.primary} />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
+          </View>
+        </View>
+      </View>
+
+      {/* Day selector and view toggle */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, paddingTop: 8 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 8, flex: 1 }}>
           {days.map((day) => (
             <Pressable
