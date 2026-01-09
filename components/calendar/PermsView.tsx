@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
-import { CalendarPermEventCard } from '@/components/CalendarEventCard';
+import { CalendarPermEventCard, CalendarPermEventHorizontalCard } from '@/components/CalendarEventCard';
 import { ThemedText } from '@/components/ThemedText';
 import { timeToMinutes } from '@/services/calendar.service';
 import theme from '@/constants/theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const SLOT_HEIGHT = 40;
 
@@ -144,6 +145,8 @@ export const PermsView: React.FC<PermsViewProps> = ({
   onDaySelect,
   onPermPress,
 }) => {
+  const [isHorizontal, setIsHorizontal] = useState(false);
+
   // Apply perm-specific colors and column assignment
   const permsWithColors = eventsPerms.map(perm => ({
     ...perm,
@@ -169,13 +172,54 @@ export const PermsView: React.FC<PermsViewProps> = ({
     return { ...perm, span };
   });
 
+  // Assign rows for horizontal view
+  const assignRowsHorizontal = () => {
+    const userPerms: any[] = [];
+    const otherPerms: any[] = [];
+
+    permsWithColors.forEach(perm => {
+      if (perm.metadata?.organizer === userName) {
+        userPerms.push(perm);
+      } else {
+        otherPerms.push(perm);
+      }
+    });
+
+    // Sort by time
+    const sortByTime = (a: any, b: any) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+    userPerms.sort(sortByTime);
+    otherPerms.sort(sortByTime);
+
+    const rows: any[][] = [userPerms];
+
+    // Assign other perms to rows (each row contains non-overlapping perms)
+    for (const perm of otherPerms) {
+      let placed = false;
+      for (let i = 1; i < rows.length; i++) {
+        const hasOverlap = rows[i].some(
+          p => timeToMinutes(p.endTime) > timeToMinutes(perm.startTime) &&
+               timeToMinutes(p.startTime) < timeToMinutes(perm.endTime)
+        );
+        if (!hasOverlap) {
+          rows[i].push(perm);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        rows.push([perm]);
+      }
+    }
+
+    return rows;
+  };
+
+  const horizontalRows = isHorizontal ? assignRowsHorizontal() : [];
+
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 50, paddingHorizontal: 10 }}>
-      <View style={{ padding: 10 }}>
-        <ThemedText style={{ fontSize: 20, color: theme.text.primary, marginBottom: 15, textAlign: 'center' }}>
-          Planning des Perms
-        </ThemedText>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 8 }}>
+    <View style={{ flex: 1, paddingBottom: 50, paddingHorizontal: 10 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 8, flex: 1 }}>
           {days.map((day) => (
             <Pressable
               key={day}
@@ -200,8 +244,26 @@ export const PermsView: React.FC<PermsViewProps> = ({
             </Pressable>
           ))}
         </View>
+        
+        <Pressable
+          onPress={() => setIsHorizontal(!isHorizontal)}
+          style={{
+            backgroundColor: theme.interactive.primary,
+            padding: 8,
+            borderRadius: 8,
+          }}
+        >
+          <Ionicons 
+            name={isHorizontal ? "phone-portrait-outline" : "phone-landscape-outline"} 
+            size={24} 
+            color={theme.ui.white} 
+          />
+        </Pressable>
+      </View>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 50, paddingHorizontal: 10 }}>
+      {!isHorizontal ? (
+        // Vertical View (existing)
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 10 }}>
           <View style={{ flexDirection: 'row' }}>
             <View style={{ width: 60 }}>
               {timeSlots.map((time, idx) => (
@@ -225,7 +287,83 @@ export const PermsView: React.FC<PermsViewProps> = ({
             </View>
           </View>
         </ScrollView>
-      </View>
-    </ScrollView>
+      ) : (
+        // Horizontal View 
+        <ScrollView 
+          style={{ flex: 1 }} 
+          horizontal={true}
+          contentContainerStyle={{ paddingVertical: 10 }}
+        >
+          <ScrollView 
+            style={{ flexDirection: 'column' }}
+            contentContainerStyle={{ paddingHorizontal: 10 }}
+          >
+            <View>
+              {/* Header with time labels */}
+              <View style={{ flexDirection: 'row', height: 40, marginBottom: 5 }}>
+                <ScrollView 
+                  horizontal={true}
+                  contentContainerStyle={{ paddingHorizontal: 10 }}
+                >
+                  {timeSlots.map((time, idx) => (
+                    <View 
+                      key={idx} 
+                      style={{ 
+                        width: SLOT_HEIGHT, 
+                        justifyContent: 'center', 
+                        alignItems: 'center',
+                      }}
+                    >
+                      <ThemedText 
+                        style={{ 
+                          fontSize: 12, 
+                          color: theme.text.primary,
+                          width: 60,
+                        }}
+                      >
+                        {time}
+                      </ThemedText>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+
+              {/* Content area with fixed labels and scrollable perms */}
+              <View style={{ flexDirection: 'row' }}>
+                {/* Scrollable perm rows */}
+                <ScrollView 
+                  horizontal={true}
+                  contentContainerStyle={{ paddingHorizontal: 10 }}
+                >
+                  <View>
+                    {horizontalRows.map((row, rowIdx) => (
+                      <View 
+                        key={rowIdx} 
+                        style={{ 
+                          height: 80, 
+                          position: 'relative',
+                          marginBottom: 0,
+                        }}
+                      >
+                        {row.map((perm) => (
+                          <CalendarPermEventHorizontalCard
+                            key={perm.id}
+                            event={perm}
+                            minHour={minHour}
+                            slotHeight={SLOT_HEIGHT}
+                            onPress={onPermPress}
+                            fieldToDisplay={['organizer', 'perm']}
+                          />
+                        ))}
+                      </View>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+            </View>
+          </ScrollView>
+        </ScrollView>
+      )}
+    </View>
   );
 };

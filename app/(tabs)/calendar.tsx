@@ -119,14 +119,14 @@ const ScheduleScreen = () => {
                 backgroundColor: activeView === 'calendrier' ? theme.interactive.primary : '',
               },styles.tabButton]}
             >
-              <NormalText
+              <ThemedText
                 style={{
                   color: activeView === 'calendrier' ? theme.ui.white : theme.text.secondary,
                   fontSize: 16,
                 }}
               >
                 Calendrier
-              </NormalText>
+              </ThemedText>
             </Pressable>
             <Pressable
               onPress={() => setActiveView('perms')}
@@ -134,14 +134,14 @@ const ScheduleScreen = () => {
                 backgroundColor: activeView === 'perms' ? theme.interactive.primary : '',
               },styles.tabButton]}
             >
-              <NormalText
+              <ThemedText
                 style={{
                   color: activeView === 'perms' ? theme.ui.white : theme.text.secondary,
                   fontSize: 16,
                 }}
               >
                 Perms
-              </NormalText>
+              </ThemedText>
             </Pressable>
             <Pressable
               onPress={() => setActiveView('logistique')}
@@ -149,14 +149,14 @@ const ScheduleScreen = () => {
                 backgroundColor: activeView === 'logistique' ? theme.interactive.primary : '',
               },styles.tabButton]}
             >
-              <NormalText
+              <ThemedText
                 style={{
                   color: activeView === 'logistique' ? theme.ui.white : theme.text.secondary,
                   fontSize: 16,
                 }}
               >
                 Logistique
-              </NormalText>
+              </ThemedText>
             </Pressable>
           </View>
         )}
