@@ -27,12 +27,26 @@ export const CALENDAR_CONFIGS = {
     iconField: 'icon',
   } as CalendarTransformConfig,
   
-  meals: {
+  meals: { 
     titleField: 'title',
     descriptionFields: ['description', 'info'],
-    categoryName: 'meal',
+    categoryName: 'meal', 
     defaultColor: theme.categories.meals,
     iconField: 'icon',
+  } as CalendarTransformConfig,
+
+  drinks: {
+    titleField: 'name',
+    descriptionFields: ['description'],
+    categoryName: 'drink',
+    // defaultColor: theme.categories.drinks,
+  } as CalendarTransformConfig,
+
+  perms: {
+    titleField: 'pole',
+    descriptionFields: ['organizer', 'perm'],
+    categoryName: 'perm',
+    defaultColor: 'red',
   } as CalendarTransformConfig,
 };
 
@@ -66,6 +80,10 @@ export interface CalendarDataInput {
   color?: string;
   location?: string;
   icon?: string;
+  perm?: string;
+  organizer?: string;
+  pole?: string;
+  // Additional fields
   [key: string]: any; // Allow any additional fields
 }
 

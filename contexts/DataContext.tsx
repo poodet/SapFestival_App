@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Artist, Activity, MenuItem, FestivalData } from '@/types/data';
+import { Artist, Activity, MenuItem, FestivalData, DrinkItem, Perm } from '@/types/data';
 import { fetchFestivalData } from '@/services/data.service';
 import { saveCachedData, loadCachedData, getCacheTimestamp } from '@/services/cache.service';
 
@@ -12,6 +12,8 @@ type DataContextType = {
   artists: Artist[];
   activities: Activity[];
   menuItems: MenuItem[];
+  drinkItems: DrinkItem[];
+  perms: Perm[];
   isLoading: boolean;
   isRefreshing: boolean;
   error: Error | null;
@@ -30,16 +32,20 @@ export function DataProvider({ children }: DataProviderProps) {
     artists: fallbackArtists,
     activities: fallbackActivities,
     menuItems: fallbackMenuItems,
+    drinkItems: [],
+    perms: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
+  const DEFAULT_FORCE_REFRESH = true;
+
   /**
    * Load data from cache first, then fetch from Google Sheets
    */
-  const loadData = async (forceRefresh = false) => {
+  const loadData = async (forceRefresh = DEFAULT_FORCE_REFRESH) => {
     try {
       // Show loading only on initial load, not on refresh
       if (!forceRefresh) {
@@ -108,6 +114,8 @@ export function DataProvider({ children }: DataProviderProps) {
         artists: data.artists,
         activities: data.activities,
         menuItems: data.menuItems,
+        drinkItems: data.drinkItems,
+        perms: data.perms,
         isLoading,
         isRefreshing,
         error,
@@ -119,14 +127,14 @@ export function DataProvider({ children }: DataProviderProps) {
     </DataContext.Provider>
   );
 }
-
+ 
 export function useFestivalData() {
   const context = useContext(DataContext);
   if (context === undefined) {
     throw new Error('useFestivalData must be used within a DataProvider');
   }
-  return context;
-}
+  return context; 
+} 
 
 // Convenience hooks for specific data types
 export function useArtists() {
@@ -142,4 +150,14 @@ export function useActivities() {
 export function useMenuItems() {
   const { menuItems, isLoading, isRefreshing, error, refetch, lastUpdate } = useFestivalData();
   return { menuItems, isLoading, isRefreshing, error, refetch, lastUpdate };
+}
+
+export function useDrinkItems() {
+  const { drinkItems, isLoading, isRefreshing, error, refetch, lastUpdate } = useFestivalData();
+  return { drinkItems, isLoading, isRefreshing, error, refetch, lastUpdate };
+};
+
+export function usePerms() {
+  const { perms, isLoading, isRefreshing, error, refetch, lastUpdate } = useFestivalData();
+  return { perms, isLoading, isRefreshing, error, refetch, lastUpdate };
 }

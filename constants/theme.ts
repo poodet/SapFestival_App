@@ -8,10 +8,8 @@
 export const theme = {
   // Typography
   fonts: {
-    regular: 'Oliver-Regular',
-    // You can add more font weights/styles here if needed
-    // bold: 'Oliver-Bold',
-    // italic: 'Oliver-Italic',
+    themed: 'Oliver-Regular',
+    normal: 'System',
   },
 
   // General app colors
@@ -73,3 +71,11 @@ export const legacyColors = {
 } as const;
 
 export default theme;
+
+// Utility to add transparency to hex colors
+export function addOpacity(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}

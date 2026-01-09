@@ -1,18 +1,17 @@
 // components/ScreenTitle.tsx
 import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, TextStyle } from 'react-native';
 import theme from '@/constants/theme';
 import ThemedText from '@/components/ThemedText';
 
 interface ScreenTitleProps {
   children: string;
+  style?: TextStyle;
 }
 
-export default function ScreenTitle({ children }: ScreenTitleProps) {
+export default function ScreenTitle({ children, style }: ScreenTitleProps) {
   return (
-    <View style={styles.container}>
-      <ThemedText style={styles.title}>{children}</ThemedText>
-    </View>
+      <ThemedText style={[ styles.container, styles.title, style]}>{children}</ThemedText>
   );
 }
 
@@ -22,6 +21,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
   },
   title: {
     fontSize: 80,

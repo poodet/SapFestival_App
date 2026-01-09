@@ -1,4 +1,4 @@
-import { Artist, Activity, MenuItem, FestivalData } from '@/types/data';
+import { Artist, Activity, MenuItem, FestivalData, DrinkItem, Perm } from '@/types/data';
 import imageMapper from '@/components/imageMapper';
 
 /**
@@ -24,8 +24,11 @@ const GOOGLE_SHEETS_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1
 // To find GID: open each tab in browser and check the URL parameter "gid=XXXXXXX"
 const SHEET_GIDS = {
   artists: '1175497249',        // Replace with actual GID for "artistes" tab
-  activities: '0',     // Replace with actual GID for "activités" tab  
-  menuItems: '478953779',      // Replace with actual GID for "repas" tab
+  activities: '0',    
+  menuItems: '478953779',     
+  drinkItems: '868886322',
+  perms: '2136235132',
+
 };
 
 // Construct URLs for each tab
@@ -33,6 +36,8 @@ const GOOGLE_SHEETS_URLS = {
   artists: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.artists}&single=true&output=csv`,
   activities: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.activities}&single=true&output=csv`,
   menuItems: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.menuItems}&single=true&output=csv`,
+  drinkItems: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.drinkItems}&single=true&output=csv`,
+  perms: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.perms}&single=true&output=csv`,
 };
 
 /**
@@ -42,20 +47,23 @@ function parseCSV(csv: string): any[] {
   const lines = csv.split('\n').filter(line => line.trim());
   if (lines.length === 0) return [];
 
+  const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
+
   const headers = lines[0].split(',').map(h => h.trim());
   const data = [];
 
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split(',').map(v => v.trim());
+    // keep commas within quotes, keep entire string together, do not keep only last word :
+    // const values = lines[i].match(regex)?.map(v => v.replace(/^"|"$/g, '').trim()) || [];
     const obj: any = {};
     
     headers.forEach((header, index) => {
-      obj[header] = values[index] || '';
+      obj[header] = values[index] || ''; 
     });
-    
+     
     data.push(obj);
   }
-
   return data;
 }
 
@@ -127,35 +135,62 @@ function transformMenuItems(data: any[]): MenuItem[] {
   }));
 }
  
-/**
+function transformDrinkItems(data: any[]): DrinkItem[] {
+  return data.map((row, index) => (
+    {
+    id: index || 0,
+    name: row.nom || '',
+    description: row.description || '',
+    category: row.catégorie || '',
+  })); 
+} 
+
+function transformPerms(data: any[]): Perm[] {
+  return data.map((row, index) => (
+    {
+    id: index || 0,
+    organizer: row.orga || '',
+    pole: row.pole || '',
+    perm: row.perm || '',
+    //Obtain date start from "jour début" and "heure début"
+    date_start: row['jour début'] + ' ' + row['heure début'] || '',
+    date_end: (row['jour fin'] !== '' ? row['jour fin'] : row['jour début']) + ' ' + row['heure fin'] || '',
+  }));
+}
+  
+/** 
  * Fetch all festival data from Google Sheets
  */
 export async function fetchFestivalData(): Promise<FestivalData> {
   try {
-    const [artistsData, activitiesData, menuItemsData] = await Promise.all([
+    const [artistsData, activitiesData, menuItemsData, drinkItemsData, permsData] = await Promise.all([
       fetchSheetData(GOOGLE_SHEETS_URLS.artists),
       fetchSheetData(GOOGLE_SHEETS_URLS.activities),
       fetchSheetData(GOOGLE_SHEETS_URLS.menuItems),
-    ]);
+      fetchSheetData(GOOGLE_SHEETS_URLS.drinkItems),
+      fetchSheetData(GOOGLE_SHEETS_URLS.perms),
+    ]); 
+  
 
-
-    const objects = {
+    const objects = { 
       artists: transformArtists(artistsData),
       activities: transformActivities(activitiesData),
-      menuItems: transformMenuItems(menuItemsData),
-    };
-    console.log("artist", objects);
+      menuItems: transformMenuItems(menuItemsData), 
+      drinkItems: transformDrinkItems(drinkItemsData),
+      perms: transformPerms(permsData),
+    }; 
+    console.log('✅ Fetched festival data successfully:', objects);
     return objects;
   } catch (error) {
-    console.error('Error fetching festival data:', error);
+    console.error('Error fetching festival data:', error); 
     throw error;
-  }
-}
+  } 
+} 
 
-/**
+/** 
  * Fetch artists data only
  */
-export async function fetchArtists(): Promise<Artist[]> {
+export async function fetchArtists(): Promise<Artist[]> { 
   const data = await fetchSheetData(GOOGLE_SHEETS_URLS.artists);
   return transformArtists(data);
 }
@@ -174,5 +209,15 @@ export async function fetchActivities(): Promise<Activity[]> {
 export async function fetchMenuItems(): Promise<MenuItem[]> {
   const data = await fetchSheetData(GOOGLE_SHEETS_URLS.menuItems);
   return transformMenuItems(data);
+}
+
+export async function fetchDrinkItems(): Promise<DrinkItem[]> {
+  const data = await fetchSheetData(GOOGLE_SHEETS_URLS.drinkItems);
+  return transformDrinkItems(data);
+}
+
+export async function fetchPerms(): Promise<Perm[]> {
+  const data = await fetchSheetData(GOOGLE_SHEETS_URLS.perms);
+  return transformPerms(data);
 }
  

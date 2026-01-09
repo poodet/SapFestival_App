@@ -18,7 +18,7 @@ export type Activity = {
   inscription: string;
   max_attendees: number;
   icon: string;
-  date_start: string;
+  date_start: string; 
   date_end: string;
   info: string;
   siPluie?: string;
@@ -35,8 +35,26 @@ export type MenuItem = {
   moment_name: string;
 };
 
+export type DrinkItem = {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+}
+
+export type Perm = {
+  id: number;
+  organizer: string;
+  pole: string;
+  perm: string;
+  date_start: string;
+  date_end: string;
+}
+
 export type FestivalData = {
   artists: Artist[];
-  activities: Activity[];
+  activities: Activity[]; 
   menuItems: MenuItem[];
+  drinkItems: DrinkItem[];
+  perms: Perm[];
 };

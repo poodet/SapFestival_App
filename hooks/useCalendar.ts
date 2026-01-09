@@ -137,6 +137,18 @@ export function useFestivalCalendar(
   );
 }
 
+export function usePermCalendar(
+  perms: any[],
+  options: UseCalendarOptions = {}
+): CalendarEventsByDay {
+  return useMergedCalendar(
+    [
+      { data: perms, config: CALENDAR_CONFIGS.perms }
+    ],
+    { ...options, sortByTime: true }
+  );
+}
+
 /**
  * Hook to get events for a specific day
  */

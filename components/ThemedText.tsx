@@ -16,7 +16,21 @@ export function ThemedText(props: TextProps) {
   return (
     <Text
       style={[
-        { fontFamily: theme.fonts.regular },
+        { fontFamily: theme.fonts.themed },
+        style,
+      ]}
+      {...otherProps}
+    />
+  );
+}
+
+export function NormalText(props: TextProps) {
+  const { style, ...otherProps } = props;
+
+  return (
+    <Text
+      style={[
+        { fontFamily: theme.fonts.normal, fontWeight: 'normal' },
         style,
       ]}
       {...otherProps}
