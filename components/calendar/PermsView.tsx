@@ -124,6 +124,47 @@ const assignColumnsPerms = (events: any[], userName: string) => {
   return { positionedEvents, columnCount: columns.length };
 };
 
+// Standard column assignment - distributes all perms equally without user prioritization
+// TODO - use this function in assignColumnsPerms to avoid code duplication
+const assignColumnsStandard = (events: any[]) => {
+  const sortByTime = (a: any, b: any) => {
+    const timeDiff = timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+    return timeDiff !== 0 ? timeDiff : 0;
+  };
+
+  const sortedEvents = [...events].sort(sortByTime);
+  const columns: any[][] = [];
+
+  for (const event of sortedEvents) {
+    let placed = false;
+    for (let i = 0; i < columns.length; i++) {
+      if (
+        !columns[i].some(
+          e =>
+            timeToMinutes(e.endTime) > timeToMinutes(event.startTime) &&
+            timeToMinutes(e.startTime) < timeToMinutes(event.endTime)
+        )
+      ) {
+        columns[i].push(event);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      columns.push([event]);
+    }
+  }
+
+  const positionedEvents: any[] = [];
+  for (let i = 0; i < columns.length; i++) {
+    for (const event of columns[i]) {
+      positionedEvents.push({ ...event, column: i });
+    }
+  }
+
+  return { positionedEvents, columnCount: columns.length };
+};
+
 interface PermsViewProps {
   eventsPerms: any[];
   selectedDay: string;
@@ -240,8 +281,11 @@ export const PermsView: React.FC<PermsViewProps> = ({
     icon: getPermIcon(perm.metadata?.pole || perm.title),
   }));
 
+  // Use standard column assignment when showing only user's perms for better readability
   const { positionedEvents: positionedPerms, columnCount: columnCountPerms } = 
-    assignColumnsPerms(permsWithColors, userName);
+    showMyPermsOnly 
+      ? assignColumnsStandard(permsWithColors)
+      : assignColumnsPerms(permsWithColors, userName);
 
   const extendedPerms = positionedPerms.map((perm) => {
     let span = 1;
