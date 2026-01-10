@@ -1,8 +1,9 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet, View } from 'react-native';
+import { Pressable, Text, StyleSheet, View, Image } from 'react-native';
 import theme from '@/constants/theme';
-import { timeToMinutes } from '@/services/calendar.service';
+import { CALENDAR_CONFIGS, timeToMinutes } from '@/services/calendar.service';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { getOrganizerImage } from './organizerImageMapper';
 
 interface CalendarEvent {
   id: string | number;
@@ -157,7 +158,7 @@ export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
 
   // Determine space for details
   const numericHeight = typeof height === 'number' ? height : (end - start) * (slotHeight / 30);
-  const hasSpaceForDetails = numericHeight >= 60;
+  const hasSpaceForIcon = numericHeight >= 60;
   const maxDetailLines = Math.max(0, Math.floor((numericHeight - 40) / 18));
 
   // Get display value for a field (with abbreviation for narrow cards)
@@ -169,6 +170,10 @@ export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
     return value;
   };
 
+  // Check if organizer has a profile image
+  const organizerName = event.metadata?.organizer;
+  const organizerImage = organizerName ? getOrganizerImage(organizerName) : undefined;
+  
   return (
     <Pressable
       onPress={() => onPress(event)}
@@ -180,25 +185,39 @@ export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
           width,
           height,
           backgroundColor: event.bgColor,
-          flexDirection: isHorizontal ? 'row' : 'column',
-          justifyContent: isHorizontal ? 'center' : 'flex-start',
+          flexDirection: isHorizontal ? (isNarrow ? 'column' : 'row') : 'column',
+          justifyContent: isHorizontal ? 'start' : 'flex-start',
         },
       ]}
     >
       {/* Icon */}
-      <View style={{ alignItems: isHorizontal ? 'flex-start' : 'center' }}>
-        <Ionicons name={event.icon} size={24} color={theme.text.primary} />
-      </View>
+      {hasSpaceForIcon && event.icon && (
+        <View style={{ alignItems: isHorizontal ? 'flex-start' : 'center' }}>
+          <Ionicons name={event.icon} size={24} color={theme.text.primary} />
+        </View>
+      )}
 
       {/* Fields */}
-      {hasSpaceForDetails && fieldToDisplay && (
+      { fieldToDisplay && (
         <View style={{ 
-          alignItems: isHorizontal ? 'flex-end' : 'center', 
-          flex: isHorizontal ? 1 : undefined,
-          alignSelf: isHorizontal ? 'center' : undefined,
+          alignItems: isHorizontal ? 'flex-start' : 'center', 
+          alignSelf: isHorizontal ? undefined : undefined,
         }}>
-          {fieldToDisplay.map((field, index) =>
-            index < maxDetailLines ? (
+          {fieldToDisplay.map((field, index) => {
+            // Show profile image for organizer field if available
+            if (field === 'organizer' && organizerImage ) {
+              return (
+                <Image
+                  key={field}
+                  source={organizerImage}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              );
+            }
+             
+            // Otherwise show text
+            return index < maxDetailLines ? (
               <Text
                 key={field}
                 style={[
@@ -210,8 +229,8 @@ export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
               >
                 {getFieldValue(field)}
               </Text>
-            ) : null
-          )}
+            ) : null;
+          })}
         </View>
       )}
     </Pressable>
@@ -237,6 +256,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: theme.text.primary,
     textAlign: 'center',
+  },
+  profileImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: theme.text.primary,
   },
 });
 

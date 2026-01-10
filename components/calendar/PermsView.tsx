@@ -751,7 +751,6 @@ export const PermsView: React.FC<PermsViewProps> = ({
             {/* Fixed time header */}
             <View style={{ flexDirection: 'row', height: 40, paddingHorizontal: 10 }}>
               {/* Pole label spacer */}
-              <View style={{ width: 100 }} />
               
               {/* Time slots */}
               {timeSlots.map((time, idx) => (
@@ -779,39 +778,6 @@ export const PermsView: React.FC<PermsViewProps> = ({
             {/* Vertically scrollable content area */}
             <ScrollView style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', paddingHorizontal: 10 }}>
-                {/* Fixed pole labels column */}
-                <View style={{ width: 100 }}>
-                  {poles.map((pole, idx) => {
-                    const subColCount = poleSubColumnCounts.get(idx) || 1;
-                    const poleHeight = CARD_HEIGHT * subColCount;
-
-                    return (
-                      <View
-                        key={pole}
-                        style={{
-                          height: poleHeight,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          backgroundColor: getPermColor(pole),
-                          marginVertical: 2,
-                          borderRadius: 4,
-                          paddingHorizontal: 4,
-                        }}
-                      >
-                        <ThemedText
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 'bold',
-                            color: theme.text.primary,
-                            textAlign: 'center',
-                          }}
-                        >
-                          {pole}
-                        </ThemedText>
-                      </View>
-                    );
-                  })}
-                </View>
 
                 {/* Perm rows */}
                 <View>
