@@ -12,6 +12,10 @@ interface CalendarEvent {
   bgColor: string;
   column: number;
   span: number;
+  subColumn?: number;
+  subColumnCount?: number;
+  columnOffset?: number;
+  totalUnitColumns?: number;
   category?: string;
   metadata?: any;
 }
@@ -101,6 +105,10 @@ interface PermEventCardProps extends CalendarEventCardProps {
   event: CalendarEvent & { icon?: string };
 }
 
+// Constants for consistent card sizing
+export const CARD_WIDTH = 40;
+export const CARD_HEIGHT = 70;
+
 export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
   event,
   columnCount,
@@ -120,20 +128,31 @@ export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
   let height: number | string;
   let isNarrow: boolean;
 
+  // Handle sub-columns for overlapping events within the same pole
+  const subColumn = event.subColumn ?? 0;
+  const subColumnCount = event.subColumnCount ?? 1;
+  const columnOffset = event.columnOffset ?? 0;
+
   if (isHorizontal) {
     // Horizontal: time determines position, row determines vertical placement
     left = (start - minHour * 60) * (slotHeight / 30);
     width = (end - start) * (slotHeight / 30);
-    height = '90%';
-    top = 0;
+    
+    // Fixed height for all cards
+    height = CARD_HEIGHT;
+    top = subColumn * CARD_HEIGHT;
+    
     isNarrow = typeof width === 'number' && width < 100;
   } else {
-    // Vertical: traditional column-based layout
+    // Vertical: column-based layout with fixed card width
     top = (start - minHour * 60) * (slotHeight / 30) + 20;
     height = (end - start) * (slotHeight / 30);
-    width = `${(100 / columnCount) * event.span}%`;
-    left = `${(100 / columnCount) * event.column}%`;
-    isNarrow = event.span === 1;
+    
+    // Fixed width for all cards
+    width = CARD_WIDTH;
+    left = (columnOffset + subColumn) * CARD_WIDTH;
+    
+    isNarrow = subColumnCount > 1;
   }
 
   // Determine space for details
