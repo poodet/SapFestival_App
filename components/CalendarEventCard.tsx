@@ -32,6 +32,12 @@ const getInitials = (fullName: string): string => {
   return parts.map(part => part.charAt(0) + '.').join(' ');
 };
 
+const getSmallerName = (fullName: string): string => {
+  const parts = fullName.trim().split(' ');
+  if (parts.length === 1) return parts[0];
+  return parts[0] + ' ' + parts[1].charAt(0) + '.';
+}
+
 export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
   event,
   columnCount,
@@ -82,41 +88,64 @@ export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
 
 
 /**
- * CalendarPermEventCard for Perm Component
+ * CalendarPermEventCard - Unified Perm Card Component
  * 
- * Displays a calendar event card specifically for Perm items. Each pole has its own color.
- * - Show "pole" field as title with icon
- * - show "organizer" and "perm" fields as details
- * - If the card is narrow (span 1), show initials of organizer instead of full name
+ * Displays a calendar event card for Perm items in both vertical and horizontal orientations.
+ * - Vertical: uses column/span positioning (traditional calendar view)
+ * - Horizontal: uses time-based positioning (timeline view)
+ * - Shows pole icon always, adapts text display based on available space
+ * - Displays organizer initials/abbreviated names when space is limited
  */
-export const CalendarPermEventCard: React.FC<CalendarEventCardProps> = ({
+interface PermEventCardProps extends CalendarEventCardProps {
+  isHorizontal?: boolean;
+  event: CalendarEvent & { icon?: string };
+}
+
+export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
   event,
   columnCount,
   minHour,
   slotHeight,
   onPress,
   fieldToDisplay,
+  isHorizontal = false,
 }) => {
-  // Calculate position and dimensions
   const start = timeToMinutes(event.startTime);
   const end = timeToMinutes(event.endTime);
-  const top = (start - minHour * 60) * (slotHeight / 30) + 20;
-  const height = (end - start) * (slotHeight / 30);
-  const width = `${(100 / columnCount) * event.span}%`;
-  const left = `${(100 / columnCount) * event.column}%`;
 
-  // Determine if there's space for details (minimum 60px for title + details)
-  const hasSpaceForDetails = height >= 60;
-  const maxDetailLines = Math.max(0, Math.floor((height - 40) / 18)); // Estimate lines based on available space
-  const isNarrow = event.span === 1; // Only 1 column available
+  // Calculate dimensions based on orientation
+  let top: number | string;
+  let left: number | string;
+  let width: number | string;
+  let height: number | string;
+  let isNarrow: boolean;
 
+  if (isHorizontal) {
+    // Horizontal: time determines position, row determines vertical placement
+    left = (start - minHour * 60) * (slotHeight / 30);
+    width = (end - start) * (slotHeight / 30);
+    height = '90%';
+    top = 0;
+    isNarrow = typeof width === 'number' && width < 100;
+  } else {
+    // Vertical: traditional column-based layout
+    top = (start - minHour * 60) * (slotHeight / 30) + 20;
+    height = (end - start) * (slotHeight / 30);
+    width = `${(100 / columnCount) * event.span}%`;
+    left = `${(100 / columnCount) * event.column}%`;
+    isNarrow = event.span === 1;
+  }
 
+  // Determine space for details
+  const numericHeight = typeof height === 'number' ? height : (end - start) * (slotHeight / 30);
+  const hasSpaceForDetails = numericHeight >= 60;
+  const maxDetailLines = Math.max(0, Math.floor((numericHeight - 40) / 18));
 
-  // Get display value for a field
+  // Get display value for a field (with abbreviation for narrow cards)
   const getFieldValue = (field: string): string => {
     const value = event.metadata?.[field] || '';
-    if (isNarrow && field === 'organizer' && value) {
-      return getInitials(value);
+    if (field === 'organizer' && value) {
+      return isNarrow ? getInitials(value) : getSmallerName(value);
     }
     return value;
   };
@@ -132,113 +161,40 @@ export const CalendarPermEventCard: React.FC<CalendarEventCardProps> = ({
           width,
           height,
           backgroundColor: event.bgColor,
+          flexDirection: isHorizontal ? 'row' : 'column',
+          justifyContent: isHorizontal ? 'center' : 'flex-start',
         },
       ]}
     >
-      <Text style={styles.eventTitle} >
+      {/* Icon */}
+      <View style={{ alignItems: isHorizontal ? 'flex-start' : 'center' }}>
         <Ionicons name={event.icon} size={24} color={theme.text.primary} />
-        {isNarrow ? '' : event.title}
-
-      </Text>
-      {hasSpaceForDetails && fieldToDisplay && fieldToDisplay.map((field, index) => (
-        index < maxDetailLines && (
-          <Text
-            key={field}
-            style={styles.eventDetail}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {getFieldValue(field)}
-          </Text>
-        )
-      ))}
-    </Pressable>
-  );
-};
-
-/**
- * CalendarPermEventHorizontalCard for Horizontal Perm View
- * 
- * Displays a horizontal calendar event card for Perm items in timeline view.
- * - Width represents duration
- * - Left position represents start time
- * - Shows icon always, title only if width allows
- */
-interface HorizontalCardProps {
-  event: CalendarEvent & { icon?: string };
-  minHour: number;
-  slotHeight: number;
-  onPress: (event: CalendarEvent) => void;
-  fieldToDisplay?: string[];
-}
-
-export const CalendarPermEventHorizontalCard: React.FC<HorizontalCardProps> = ({
-  event,
-  minHour,
-  slotHeight,
-  onPress,
-  fieldToDisplay,
-}) => {
-  const start = timeToMinutes(event.startTime);
-  const end = timeToMinutes(event.endTime);
-  const left = (start - minHour * 60) * (slotHeight / 30);
-  const width = (end - start) * (slotHeight / 30);
-  const isNarrow = width < 100; // Minimum width to show title
-
-  // Get display value for a field
-  const getFieldValue = (field: string): string => {
-    const value = event.metadata?.[field] || '';
-    if (isNarrow && field === 'organizer' && value) {
-      return getInitials(value);
-    }
-    return value;
-  };
-
-  return (
-    <Pressable
-      onPress={() => onPress(event)}
-      style={{
-        position: 'absolute',
-        left,
-        width,
-        height: '90%',
-        backgroundColor: event.bgColor,
-        borderRadius: 4,
-        padding: 4,
-        borderWidth: 1,
-        borderColor: theme.background.primary,
-        justifyContent: 'center',
-        flexDirection: 'row',
-      }}
-    >
-
-      <View style={{ alignItems: 'start' }}>
-        <Ionicons name={event.icon} size={24} color={theme.text.primary}/>
-        {!isNarrow && (
-          <Text
-            style={[styles.eventTitle, { fontSize: 14}]}
-            numberOfLines={1}
-          >
-            {event.title}
-          </Text>
-        )}
       </View>
 
-      {fieldToDisplay &&
-      <View style={{ alignItems: 'center', flex: 1, alignSelf: 'center' }}>
-
-      {fieldToDisplay.map((field, index) => (
-        <Text
-          key={field}
-          style={{ fontSize: 10, color: theme.text.primary, alignSelf: 'end' }}
-          numberOfLines={1}
-        >
-          {getFieldValue(field)}
-        </Text>
-      ))}
-      </View>
-      }
-      
+      {/* Fields */}
+      {hasSpaceForDetails && fieldToDisplay && (
+        <View style={{ 
+          alignItems: isHorizontal ? 'flex-end' : 'center', 
+          flex: isHorizontal ? 1 : undefined,
+          alignSelf: isHorizontal ? 'center' : undefined,
+        }}>
+          {fieldToDisplay.map((field, index) =>
+            index < maxDetailLines ? (
+              <Text
+                key={field}
+                style={[
+                  styles.eventDetail,
+                  isHorizontal && { fontSize: 10, alignSelf: 'flex-end' }
+                ]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {getFieldValue(field)}
+              </Text>
+            ) : null
+          )}
+        </View>
+      )}
     </Pressable>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, ScrollView, Pressable, TextInput } from 'react-native';
-import { CalendarPermEventCard, CalendarPermEventHorizontalCard } from '@/components/CalendarEventCard';
+import { CalendarPermEventCard } from '@/components/CalendarEventCard';
 import { NormalText, ThemedText } from '@/components/ThemedText';
 import { timeToMinutes } from '@/services/calendar.service';
 import theme from '@/constants/theme';
@@ -71,98 +71,76 @@ export const getPermIcon = (permName: string): string => {
   return 'help-circle-outline'; // Default icon for unknown types
 };
 
-// Custom column assignment for perms - user's perms in first column
-const assignColumnsPerms = (events: any[], userName: string) => {
-  const userPerms: any[] = [];
-  const otherPerms: any[] = [];
-
-  events.forEach(event => {
-    if (event.metadata?.organizer === userName) {
-      userPerms.push(event);
-    } else {
-      otherPerms.push(event);
-    }
-  });
-
+/**
+ * Unified column/row assignment for perms
+ * Works for both vertical (columns) and horizontal (rows) views
+ * - When prioritizeUser=true, user's perms go in first column/row
+ * - Otherwise, distributes all perms equally
+ */
+const assignPositions = (events: any[], userName: string, prioritizeUser: boolean = true) => {
   const sortByTime = (a: any, b: any) => {
     const timeDiff = timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
     return timeDiff !== 0 ? timeDiff : 0;
   };
 
-  userPerms.sort(sortByTime);
-  otherPerms.sort(sortByTime);
+  let positions: any[][] = [];
+  let eventsToPlace: any[] = [];
 
-  const columns: any[][] = [userPerms];
+  if (prioritizeUser) {
+    // Separate user and other perms
+    const userPerms: any[] = [];
+    const otherPerms: any[] = [];
 
-  for (const event of otherPerms) {
+    events.forEach(event => {
+      if (event.metadata?.organizer === userName) {
+        userPerms.push(event);
+      } else {
+        otherPerms.push(event);
+      }
+    });
+
+    userPerms.sort(sortByTime);
+    otherPerms.sort(sortByTime);
+
+    positions = [userPerms];
+    eventsToPlace = otherPerms;
+  } else {
+    // Standard distribution
+    eventsToPlace = [...events].sort(sortByTime);
+  }
+
+  // Place remaining events in non-overlapping positions
+  for (const event of eventsToPlace) {
     let placed = false;
-    for (let i = 1; i < columns.length; i++) {
+    const startColumn = prioritizeUser ? 1 : 0;
+    
+    for (let i = startColumn; i < positions.length; i++) {
       if (
-        !columns[i].some(
+        !positions[i].some(
           e =>
             timeToMinutes(e.endTime) > timeToMinutes(event.startTime) &&
             timeToMinutes(e.startTime) < timeToMinutes(event.endTime)
         )
       ) {
-        columns[i].push(event);
+        positions[i].push(event);
         placed = true;
         break;
       }
     }
     if (!placed) {
-      columns.push([event]);
+      positions.push([event]);
     }
   }
 
+  // Convert to positioned events with column index
   const positionedEvents: any[] = [];
-  for (let i = 0; i < columns.length; i++) {
-    for (const event of columns[i]) {
+  for (let i = 0; i < positions.length; i++) {
+    for (const event of positions[i]) {
       positionedEvents.push({ ...event, column: i });
     }
   }
 
-  return { positionedEvents, columnCount: columns.length };
-};
-
-// Standard column assignment - distributes all perms equally without user prioritization
-// TODO - use this function in assignColumnsPerms to avoid code duplication
-const assignColumnsStandard = (events: any[]) => {
-  const sortByTime = (a: any, b: any) => {
-    const timeDiff = timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
-    return timeDiff !== 0 ? timeDiff : 0;
-  };
-
-  const sortedEvents = [...events].sort(sortByTime);
-  const columns: any[][] = [];
-
-  for (const event of sortedEvents) {
-    let placed = false;
-    for (let i = 0; i < columns.length; i++) {
-      if (
-        !columns[i].some(
-          e =>
-            timeToMinutes(e.endTime) > timeToMinutes(event.startTime) &&
-            timeToMinutes(e.startTime) < timeToMinutes(event.endTime)
-        )
-      ) {
-        columns[i].push(event);
-        placed = true;
-        break;
-      }
-    }
-    if (!placed) {
-      columns.push([event]);
-    }
-  }
-
-  const positionedEvents: any[] = [];
-  for (let i = 0; i < columns.length; i++) {
-    for (const event of columns[i]) {
-      positionedEvents.push({ ...event, column: i });
-    }
-  }
-
-  return { positionedEvents, columnCount: columns.length };
+  return { positionedEvents, columnCount: positions.length };
 };
 
 interface PermsViewProps {
@@ -274,22 +252,24 @@ export const PermsView: React.FC<PermsViewProps> = ({
     return filtered;
   }, [eventsPerms, searchText, selectedPoles, selectedOrganizers, showMyPermsOnly, userName]);
 
-  // Apply perm-specific colors and column assignment
+  // Apply perm-specific colors and unified positioning
   const permsWithColors = filteredPerms.map(perm => ({
     ...perm,
     bgColor: getPermColor(perm.metadata?.pole || perm.title),
     icon: getPermIcon(perm.metadata?.pole || perm.title),
   }));
 
-  // Use standard column assignment when showing only user's perms for better readability
-  const { positionedEvents: positionedPerms, columnCount: columnCountPerms } = 
-    showMyPermsOnly 
-      ? assignColumnsStandard(permsWithColors)
-      : assignColumnsPerms(permsWithColors, userName);
+  // Use unified positioning - prioritize user unless showing only their perms
+  const { positionedEvents: positionedPerms, columnCount } = assignPositions(
+    permsWithColors,
+    userName,
+    !showMyPermsOnly // Don't prioritize when showing only user's perms
+  );
 
-  const extendedPerms = positionedPerms.map((perm) => {
+  // Calculate span for each event (how many columns/rows it can expand into)
+  const permsWithSpan = positionedPerms.map((perm) => {
     let span = 1;
-    for (let i = perm.column + 1; i < columnCountPerms; i++) {
+    for (let i = perm.column + 1; i < columnCount; i++) {
       const overlapping = positionedPerms.some(
         (p) =>
           p.column === i &&
@@ -301,50 +281,6 @@ export const PermsView: React.FC<PermsViewProps> = ({
     }
     return { ...perm, span };
   });
-
-  // Assign rows for horizontal view
-  const assignRowsHorizontal = () => {
-    const userPerms: any[] = [];
-    const otherPerms: any[] = [];
-
-    permsWithColors.forEach(perm => {
-      if (perm.metadata?.organizer === userName) {
-        userPerms.push(perm);
-      } else {
-        otherPerms.push(perm);
-      }
-    });
-
-    // Sort by time
-    const sortByTime = (a: any, b: any) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
-    userPerms.sort(sortByTime);
-    otherPerms.sort(sortByTime);
-
-    const rows: any[][] = [userPerms];
-
-    // Assign other perms to rows (each row contains non-overlapping perms)
-    for (const perm of otherPerms) {
-      let placed = false;
-      for (let i = 1; i < rows.length; i++) {
-        const hasOverlap = rows[i].some(
-          p => timeToMinutes(p.endTime) > timeToMinutes(perm.startTime) &&
-               timeToMinutes(p.startTime) < timeToMinutes(perm.endTime)
-        );
-        if (!hasOverlap) {
-          rows[i].push(perm);
-          placed = true;
-          break;
-        }
-      }
-      if (!placed) {
-        rows.push([perm]);
-      }
-    }
-
-    return rows;
-  };
-
-  const horizontalRows = isHorizontal ? assignRowsHorizontal() : [];
 
   return (
     <View style={{ flex: 1, paddingBottom: 50, paddingHorizontal: 10 }}>
@@ -399,7 +335,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
           >
             <Ionicons 
               name={showMyPermsOnly ? "person" : "person-outline"} 
-              size={24} 
+              size={20} 
               color={showMyPermsOnly ? theme.ui.white : theme.interactive.primary} 
             />
           </Pressable>
@@ -703,7 +639,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
       </View>
 
       {!isHorizontal ? (
-        // Vertical View (existing)
+        // Vertical View
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 10 }}>
           <View style={{ flexDirection: 'row' }}>
             <View style={{ width: 60 }}>
@@ -714,22 +650,23 @@ export const PermsView: React.FC<PermsViewProps> = ({
               ))}
             </View>
             <View style={{ flex: 1, position: 'relative' }}>
-              {extendedPerms.sort((a, b) => a.column - b.column).map((event) => (
+              {permsWithSpan.sort((a, b) => a.column - b.column).map((event) => (
                 <CalendarPermEventCard
                   key={event.id}
                   event={event}
-                  columnCount={columnCountPerms}
+                  columnCount={columnCount}
                   minHour={minHour}
                   slotHeight={SLOT_HEIGHT}
                   onPress={onPermPress}
                   fieldToDisplay={['organizer', 'perm']}
+                  isHorizontal={false}
                 />
               ))}
             </View>
           </View>
         </ScrollView>
       ) : (
-        // Horizontal View 
+        // Horizontal View
         <ScrollView 
           style={{ flex: 1 }} 
           horizontal={true}
@@ -769,35 +706,40 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 </ScrollView>
               </View>
 
-              {/* Content area with fixed labels and scrollable perms */}
+              {/* Content area - rows of perms */}
               <View style={{ flexDirection: 'row' }}>
-                {/* Scrollable perm rows */}
                 <ScrollView 
                   horizontal={true}
                   contentContainerStyle={{ paddingHorizontal: 10 }}
                 >
                   <View>
-                    {horizontalRows.map((row, rowIdx) => (
-                      <View 
-                        key={rowIdx} 
-                        style={{ 
-                          height: 80, 
-                          position: 'relative',
-                          marginBottom: 0,
-                        }}
-                      >
-                        {row.map((perm) => (
-                          <CalendarPermEventHorizontalCard
-                            key={perm.id}
-                            event={perm}
-                            minHour={minHour}
-                            slotHeight={SLOT_HEIGHT}
-                            onPress={onPermPress}
-                            fieldToDisplay={['organizer', 'perm']}
-                          />
-                        ))}
-                      </View>
-                    ))}
+                    {/* Group perms by row (column becomes row in horizontal view) */}
+                    {Array.from({ length: columnCount }, (_, rowIdx) => {
+                      const rowPerms = permsWithSpan.filter(p => p.column === rowIdx);
+                      return (
+                        <View 
+                          key={rowIdx} 
+                          style={{ 
+                            height: 80, 
+                            position: 'relative',
+                            marginBottom: 0,
+                          }}
+                        >
+                          {rowPerms.map((perm) => (
+                            <CalendarPermEventCard
+                              key={perm.id}
+                              event={perm}
+                              columnCount={1}
+                              minHour={minHour}
+                              slotHeight={SLOT_HEIGHT}
+                              onPress={onPermPress}
+                              fieldToDisplay={['organizer', 'perm']}
+                              isHorizontal={true}
+                            />
+                          ))}
+                        </View>
+                      );
+                    })}
                   </View>
                 </ScrollView>
               </View>
