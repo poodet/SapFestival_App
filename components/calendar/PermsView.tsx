@@ -336,36 +336,73 @@ export const PermsView: React.FC<PermsViewProps> = ({
     <View style={{ flex: 1, paddingBottom: 10, paddingHorizontal: 10 }}>
       {/* Search and Filter Bar */}
       <View style={{ paddingHorizontal: 8, paddingVertical: 8, gap: 8, zIndex: 1000 }}>
-        {/* Search Input */}
-        <View style={{ 
-          flexDirection: 'row', 
-          alignItems: 'center',
-          backgroundColor: theme.ui.white,
-          borderRadius: 8,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderWidth: 1,
-          borderColor: theme.interactive.inactive,
-        }}>
-          <Ionicons name="search-outline" size={20} color={theme.text.secondary} />
-          <TextInput
-            style={{
-              flex: 1,
-              marginLeft: 8,
-              fontSize: 16,
-              paddingVertical: 4,
-            }}
-            placeholder="Rechercher une perm..."
-            placeholderTextColor={theme.text.secondary}
-            value={searchText}
-            onChangeText={setSearchText}
-          />
-          {searchText.length > 0 && (
-            <Pressable onPress={() => setSearchText('')}>
-              <Ionicons name="close-circle" size={20} color={theme.text.secondary} />
+        <View style={{ flexDirection: 'row',  justifyContent: 'space-between' }}>
+          {/* Search Input */}
+          <View style={{ 
+            flexDirection: 'row', 
+            alignItems: 'center',
+            backgroundColor: theme.ui.white,
+            borderRadius: 8,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            borderWidth: 1,
+            borderColor: theme.interactive.inactive,
+            flex: 1,
+            overflow: 'hidden',
+          }}>
+            <Ionicons name="search-outline" size={20} color={theme.text.secondary} />
+            <TextInput
+              style={{
+                flex: 1,
+                marginLeft: 8,
+                fontSize: 16,
+                paddingVertical: 4,
+                minWidth: 0,
+              }}
+              placeholder="Rechercher..."
+              placeholderTextColor='grey'
+              value={searchText}
+              onChangeText={setSearchText}
+              numberOfLines={1}
+            />
+            {searchText.length > 0 && (
+              <Pressable onPress={() => setSearchText('')}>
+                <Ionicons name="close-circle" size={20} color={theme.text.secondary} />
+              </Pressable>
+            )}
+
+          </View>
+
+
+
+        {/* Day selector - compact version above calendar */}
+        <View style={{ flexDirection: 'row', justifyContent: 'end', padding: 8, flex: 1 }}>
+          {days.map((day) => (
+            <Pressable
+              key={day}
+              onPress={() => onDaySelect(day)}
+              style={{
+                marginHorizontal: 1,
+                backgroundColor: theme.ui.white,
+                padding: 5,
+                borderRadius: 8,
+                borderWidth: 5,
+                borderColor: selectedDay === day ? theme.interactive.primary : theme.background.primary,
+                alignSelf: 'center',
+              }}
+            >
+              <ThemedText
+                style={{
+                  color: selectedDay === day ? theme.interactive.primary : theme.interactive.inactive,
+                  fontSize: 18,
+                }}
+              >
+                {day.slice(0, 3)}
+              </ThemedText>
             </Pressable>
-          )}
+          ))}
         </View>
+      </View>
 
         {/* Filter Row: My Perms Toggle + Pole Filter Dropdown */}
         <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -407,13 +444,8 @@ export const PermsView: React.FC<PermsViewProps> = ({
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                <Ionicons 
-                  name="filter-outline" 
-                  size={20} 
-                  color={selectedPoles.length > 0 ? theme.text.primary : theme.text.secondary} 
-                />
+
                 <NormalText style={{ 
-                  marginLeft: 8, 
                   color: selectedPoles.length > 0 ? theme.text.primary : theme.text.secondary,
                   fontSize: 16,
               }}>
@@ -533,13 +565,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                <Ionicons 
-                  name="people-outline" 
-                  size={20} 
-                  color={selectedOrganizers.length > 0 ? theme.text.primary : theme.text.secondary} 
-                />
                 <NormalText style={{ 
-                  marginLeft: 8, 
                   color: selectedOrganizers.length > 0 ? theme.text.primary : theme.text.secondary,
                   fontSize: 16,
               }}>
@@ -641,52 +667,28 @@ export const PermsView: React.FC<PermsViewProps> = ({
             </View>
           )}
           </View>
+
+          {/* View Mode Toggle */}
+          <Pressable
+            onPress={toggleMode}
+            style={{
+              backgroundColor: theme.interactive.primary,
+              borderRadius: 8,
+              paddingHorizontal: 12,
+              paddingVertical: 10,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Ionicons 
+              name={isHorizontal ? "phone-portrait-outline" : "phone-landscape-outline"} 
+              size={20} 
+              color={theme.ui.white} 
+            />
+          </Pressable>
         </View>
       </View>
 
-      {/* Day selector and view toggle */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, paddingTop: 8 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 8, flex: 1 }}>
-          {days.map((day) => (
-            <Pressable
-              key={day}
-              onPress={() => onDaySelect(day)}
-              style={{
-                marginHorizontal: 8,
-                backgroundColor: theme.ui.white,
-                padding: 5,
-                borderRadius: 8,
-                borderWidth: 5,
-                borderColor: selectedDay === day ? theme.interactive.primary : theme.background.primary,
-              }}
-            >
-              <ThemedText
-                style={{
-                  color: selectedDay === day ? theme.interactive.primary : theme.interactive.inactive,
-                  fontSize: 20,
-                }}
-              >
-                {day}
-              </ThemedText>
-            </Pressable>
-          ))}
-        </View>
-        
-        <Pressable
-          onPress={toggleMode}
-          style={{
-            backgroundColor: theme.interactive.primary,
-            padding: 8,
-            borderRadius: 8,
-          }}
-        >
-          <Ionicons 
-            name={isHorizontal ? "phone-portrait-outline" : "phone-landscape-outline"} 
-            size={24} 
-            color={theme.ui.white} 
-          />
-        </Pressable>
-      </View>
 
       {!isHorizontal ? (
         // Vertical View - Pole headers fixed vertically, scroll horizontally in sync with calendar
@@ -718,12 +720,14 @@ export const PermsView: React.FC<PermsViewProps> = ({
                         alignItems: 'center', 
                         justifyContent: 'center',
                         backgroundColor: getPermColor(pole),
-                        marginHorizontal: 1,
                         borderRadius: 4,
+                        flexDirection: 'column',
+                        gap: 4,
                       }}
                     >
+                      <Ionicons name={getPermIcon(pole) as any} size={16} color={theme.ui.white} />
                       <ThemedText style={{ fontSize: 14, fontWeight: 'bold', color: theme.ui.white }}>
-                        {pole}
+                        {pole.substring(0, 3)}
                       </ThemedText>
                     </View>
                   );
@@ -754,6 +758,21 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 style={{ flex: 1 }}
               >
                 <View style={{ position: 'relative', minWidth: totalUnitColumns * CARD_WIDTH }}>
+                  {/* Time slot lines */}
+                  {timeSlots.map((time, idx) => (
+                    <View
+                      key={`line-${idx}`}
+                      style={{
+                        position: 'absolute',
+                        top: idx * SLOT_HEIGHT + SLOT_HEIGHT / 2,
+                        left: 0,
+                        right: 0,
+                        height: 1,
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                      }}
+                    />
+                  ))}
+                  
                   {/* Perm cards */}
                   {permsWithSpan.map((event) => (
                     <CalendarPermEventCard
@@ -763,7 +782,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                       minHour={minHour}
                       slotHeight={SLOT_HEIGHT}
                       onPress={onPermPress}
-                      fieldToDisplay={['organizer', 'perm']}
+                      fieldToDisplay={['organizer']}
                       isHorizontal={false}
                     />
                   ))}
@@ -776,48 +795,52 @@ export const PermsView: React.FC<PermsViewProps> = ({
         // Horizontal View - Pole labels fixed horizontally, scroll vertically in sync with calendar
         <View style={{ flex: 1, flexDirection: 'row' }}>
           {/* Fixed pole labels column */}
-          <View>
+          <View style={{ width: 60 }}>
             {/* Spacer for time header */}
-            <View style={{ height: 40, width: 90 }} />
+            <View style={{ height: 40 }} />
             
             {/* Pole labels - synced vertical scroll */}
-            <ScrollView 
-              ref={horizontalModeHeaderScrollRef}
-              scrollEnabled={false} 
-              showsVerticalScrollIndicator={false}
-              style={{ flex: 1 }}
-            >
-              <View style={{ paddingHorizontal: 5 }}>
-                {poles.map((pole, rowIdx) => {
-                  const subColCount = poleSubColumnCounts.get(rowIdx) || 1;
-                  const poleHeight = CARD_HEIGHT * subColCount;
+            <View style={{ flex: 1 }}>
+              <ScrollView 
+                ref={horizontalModeHeaderScrollRef}
+                scrollEnabled={false} 
+                showsVerticalScrollIndicator={false}
+              >
+                <View style={{ paddingHorizontal: 5 }}>
+                  {poles.map((pole, rowIdx) => {
+                    const subColCount = poleSubColumnCounts.get(rowIdx) || 1;
+                    const poleHeight = CARD_HEIGHT * subColCount;
 
-                  return (
-                    <View
-                      key={pole}
-                      style={{
-                        height: poleHeight,
-                        width: 80,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: getPermColor(pole),
-                        marginVertical: 2,
-                        borderRadius: 4,
-                      }}
-                    >
-                      <ThemedText style={{ 
-                        fontSize: 12, 
-                        fontWeight: 'bold', 
-                        color: theme.ui.white,
-                        textAlign: 'center',
-                      }}>
-                        {pole}
-                      </ThemedText>
-                    </View>
-                  );
-                })}
-              </View>
-            </ScrollView>
+                    return (
+                      <View
+                        key={pole}
+                        style={{
+                          height: poleHeight,
+                          width: 50,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: getPermColor(pole),
+                          marginVertical: 2,
+                          borderRadius: 4,
+                          flexDirection: 'column',
+                          gap: 2,
+                        }}
+                      >
+                        <Ionicons name={getPermIcon(pole) as any} size={16} color={theme.ui.white} />
+                        <ThemedText style={{ 
+                          fontSize: 12, 
+                          fontWeight: 'bold', 
+                          color: theme.ui.white,
+                          textAlign: 'center',
+                        }}>
+                          {pole}
+                        </ThemedText>
+                      </View>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </View>
           </View>
           
           {/* Scrollable content area */}
@@ -854,8 +877,23 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 onScroll={handleHorizontalModeScroll}
               >
                 <View style={{ flexDirection: 'row', paddingHorizontal: 10 }}>
-                  {/* Perm rows */}
-                  <View>
+                  {/* Perm rows with background */}
+                  <View style={{ position: 'relative' }}>
+                    {/* Time slot vertical lines */}
+                    {timeSlots.map((time, idx) => (
+                      <View
+                        key={`vline-${idx}`}
+                        style={{
+                          position: 'absolute',
+                          left: idx * SLOT_HEIGHT,
+                          top: 0,
+                          bottom: 0,
+                          width: 1,
+                          backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        }}
+                      />
+                    ))}
+                    
                     {poles.map((pole, rowIdx) => {
                       const rowPerms = permsWithSpan.filter(p => p.column === rowIdx);
                       const subColCount = poleSubColumnCounts.get(rowIdx) || 1;
@@ -878,7 +916,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                               minHour={minHour}
                               slotHeight={SLOT_HEIGHT}
                               onPress={onPermPress}
-                              fieldToDisplay={['organizer', 'perm']}
+                              fieldToDisplay={['organizer']}
                               isHorizontal={true}
                             />
                           ))}

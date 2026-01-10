@@ -15,7 +15,7 @@ export const PermModal: React.FC<PermModalProps> = ({ visible, selectedEvent, on
   }
 
   return (
-    <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
+    <Modal animationType="none" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Pressable onPress={onClose} style={styles.closeIconButton}>

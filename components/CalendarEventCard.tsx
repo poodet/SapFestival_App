@@ -191,11 +191,11 @@ export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
       ]}
     >
       {/* Icon */}
-      {hasSpaceForIcon && event.icon && (
+      {/* {hasSpaceForIcon && event.icon && (
         <View style={{ alignItems: isHorizontal ? 'flex-start' : 'center' }}>
           <Ionicons name={event.icon} size={24} color={theme.text.primary} />
         </View>
-      )}
+      )} */}
 
       {/* Fields */}
       { fieldToDisplay && (
