@@ -200,7 +200,9 @@ export const PermsView: React.FC<PermsViewProps> = ({
 
   // Refs to reset scroll position when switching modes
   const verticalModeHorizontalScrollRef = useRef<ScrollView>(null);
+  const verticalModeHeaderScrollRef = useRef<ScrollView>(null);
   const horizontalModeOuterScrollRef = useRef<ScrollView>(null);
+  const horizontalModeHeaderScrollRef = useRef<ScrollView>(null);
 
   // Toggle horizontal/vertical mode and reset scroll
   const toggleMode = () => {
@@ -208,9 +210,22 @@ export const PermsView: React.FC<PermsViewProps> = ({
       // Switching to vertical - reset the horizontal scroll in vertical mode
       setTimeout(() => {
         verticalModeHorizontalScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
+        verticalModeHeaderScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
       }, 0);
     }
     setIsHorizontal(!isHorizontal);
+  };
+
+  // Sync horizontal scroll between header and calendar in vertical mode
+  const handleVerticalModeScroll = (event: any) => {
+    const scrollX = event.nativeEvent.contentOffset.x;
+    verticalModeHeaderScrollRef.current?.scrollTo({ x: scrollX, y: 0, animated: false });
+  };
+
+  // Sync vertical scroll between header and calendar in horizontal mode
+  const handleHorizontalModeScroll = (event: any) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    horizontalModeHeaderScrollRef.current?.scrollTo({ x: 0, y: scrollY, animated: false });
   };
 
   // Get all available poles from permStyle
@@ -318,7 +333,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
   }));
 
   return (
-    <View style={{ flex: 1, paddingBottom: 50, paddingHorizontal: 10 }}>
+    <View style={{ flex: 1, paddingBottom: 10, paddingHorizontal: 10 }}>
       {/* Search and Filter Bar */}
       <View style={{ paddingHorizontal: 8, paddingVertical: 8, gap: 8, zIndex: 1000 }}>
         {/* Search Input */}
@@ -674,147 +689,208 @@ export const PermsView: React.FC<PermsViewProps> = ({
       </View>
 
       {!isHorizontal ? (
-        // Vertical View - Time labels fixed, calendar scrolls horizontally, both scroll vertically
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 10 }}>
-          <View style={{ flexDirection: 'row' }}>
-            {/* Fixed time labels */}
-            <View style={{ width: 60 }}>
-              {timeSlots.map((time, idx) => (
-                <View key={idx} style={{ height: SLOT_HEIGHT, justifyContent: 'center' }}>
-                  <ThemedText style={{ fontSize: 16, color: theme.text.primary }}>{time}</ThemedText>
-                </View>
-              ))}
-            </View>
+        // Vertical View - Pole headers fixed vertically, scroll horizontally in sync with calendar
+        <View style={{ flex: 1, paddingHorizontal: 10 }}>
+          {/* Fixed pole headers row - synced horizontal scroll */}
+          <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+            {/* Spacer for time labels */}
+            <View style={{ width: 60 }} />
             
-            {/* Horizontally scrollable calendar */}
+            {/* Pole headers - scroll horizontally, fixed vertically */}
             <ScrollView
-              ref={verticalModeHorizontalScrollRef}
+              ref={verticalModeHeaderScrollRef}
               horizontal={true}
-              showsHorizontalScrollIndicator={true}
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={false}
               style={{ flex: 1 }}
             >
-              <View style={{ position: 'relative', minWidth: totalUnitColumns * CARD_WIDTH }}>
-                {/* Pole column headers */}
-                <View style={{ 
-                  flexDirection: 'row', 
-                  height: 30, 
-                  position: 'absolute', 
-                  top: -30, 
-                  left: 0, 
-                  zIndex: 10,
-                }}>
-                  {poles.map((pole, idx) => {
-                    const subColCount = poleSubColumnCounts.get(idx) || 1;
-                    const poleWidth = CARD_WIDTH * subColCount;
-                    
-                    return (
-                      <View 
-                        key={pole} 
-                        style={{ 
-                          width: poleWidth,
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          backgroundColor: getPermColor(pole),
-                          marginHorizontal: 1,
-                          borderRadius: 4,
-                        }}
-                      >
-                        <ThemedText style={{ fontSize: 12, fontWeight: 'bold', color: theme.text.primary }}>
-                          {pole}
-                        </ThemedText>
-                      </View>
-                    );
-                  })}
-                </View>
-                
-                {/* Perm cards */}
-                {permsWithSpan.map((event) => (
-                  <CalendarPermEventCard
-                    key={event.id}
-                    event={event}
-                    columnCount={columnCount}
-                    minHour={minHour}
-                    slotHeight={SLOT_HEIGHT}
-                    onPress={onPermPress}
-                    fieldToDisplay={['organizer', 'perm']}
-                    isHorizontal={false}
-                  />
+              <View style={{ flexDirection: 'row', minWidth: totalUnitColumns * CARD_WIDTH }}>
+                {poles.map((pole, idx) => {
+                  const subColCount = poleSubColumnCounts.get(idx) || 1;
+                  const poleWidth = CARD_WIDTH * subColCount;
+                  
+                  return (
+                    <View 
+                      key={pole} 
+                      style={{ 
+                        width: poleWidth,
+                        height: 40,
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        backgroundColor: getPermColor(pole),
+                        marginHorizontal: 1,
+                        borderRadius: 4,
+                      }}
+                    >
+                      <ThemedText style={{ fontSize: 14, fontWeight: 'bold', color: theme.ui.white }}>
+                        {pole}
+                      </ThemedText>
+                    </View>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </View>
+          
+          {/* Scrollable content area */}
+          <ScrollView style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row' }}>
+              {/* Fixed time labels */}
+              <View style={{ width: 60 }}>
+                {timeSlots.map((time, idx) => (
+                  <View key={idx} style={{ height: SLOT_HEIGHT, justifyContent: 'center' }}>
+                    <ThemedText style={{ fontSize: 16, color: theme.text.primary }}>{time}</ThemedText>
+                  </View>
                 ))}
               </View>
-            </ScrollView>
-          </View>
-        </ScrollView>
-      ) : (
-        // Horizontal View - Simple nested scrolling
-        <ScrollView ref={horizontalModeOuterScrollRef} horizontal={true} style={{ flex: 1 }}>
-          <View>
-            {/* Fixed time header */}
-            <View style={{ flexDirection: 'row', height: 40, paddingHorizontal: 10 }}>
-              {/* Pole label spacer */}
               
-              {/* Time slots */}
-              {timeSlots.map((time, idx) => (
-                <View
-                  key={idx}
-                  style={{
-                    width: SLOT_HEIGHT,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <ThemedText
-                    style={{
-                      fontSize: 12,
-                      color: theme.text.primary,
-                      width: 60,
-                    }}
-                  >
-                    {time}
-                  </ThemedText>
+              {/* Horizontally scrollable calendar */}
+              <ScrollView
+                ref={verticalModeHorizontalScrollRef}
+                horizontal={true}
+                showsHorizontalScrollIndicator={true}
+                scrollEventThrottle={16}
+                onScroll={handleVerticalModeScroll}
+                style={{ flex: 1 }}
+              >
+                <View style={{ position: 'relative', minWidth: totalUnitColumns * CARD_WIDTH }}>
+                  {/* Perm cards */}
+                  {permsWithSpan.map((event) => (
+                    <CalendarPermEventCard
+                      key={event.id}
+                      event={event}
+                      columnCount={columnCount}
+                      minHour={minHour}
+                      slotHeight={SLOT_HEIGHT}
+                      onPress={onPermPress}
+                      fieldToDisplay={['organizer', 'perm']}
+                      isHorizontal={false}
+                    />
+                  ))}
                 </View>
-              ))}
+              </ScrollView>
             </View>
+          </ScrollView>
+        </View>
+      ) : (
+        // Horizontal View - Pole labels fixed horizontally, scroll vertically in sync with calendar
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          {/* Fixed pole labels column */}
+          <View>
+            {/* Spacer for time header */}
+            <View style={{ height: 40, width: 90 }} />
+            
+            {/* Pole labels - synced vertical scroll */}
+            <ScrollView 
+              ref={horizontalModeHeaderScrollRef}
+              scrollEnabled={false} 
+              showsVerticalScrollIndicator={false}
+              style={{ flex: 1 }}
+            >
+              <View style={{ paddingHorizontal: 5 }}>
+                {poles.map((pole, rowIdx) => {
+                  const subColCount = poleSubColumnCounts.get(rowIdx) || 1;
+                  const poleHeight = CARD_HEIGHT * subColCount;
 
-            {/* Vertically scrollable content area */}
-            <ScrollView style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', paddingHorizontal: 10 }}>
-
-                {/* Perm rows */}
-                <View>
-                  {poles.map((pole, rowIdx) => {
-                    const rowPerms = permsWithSpan.filter(p => p.column === rowIdx);
-                    const subColCount = poleSubColumnCounts.get(rowIdx) || 1;
-                    const poleHeight = CARD_HEIGHT * subColCount;
-
-                    return (
-                      <View
-                        key={pole}
-                        style={{
-                          height: poleHeight,
-                          position: 'relative',
-                          marginVertical: 2,
-                        }}
-                      >
-                        {rowPerms.map((perm) => (
-                          <CalendarPermEventCard
-                            key={perm.id}
-                            event={perm}
-                            columnCount={1}
-                            minHour={minHour}
-                            slotHeight={SLOT_HEIGHT}
-                            onPress={onPermPress}
-                            fieldToDisplay={['organizer', 'perm']}
-                            isHorizontal={true}
-                          />
-                        ))}
-                      </View>
-                    );
-                  })}
-                </View>
+                  return (
+                    <View
+                      key={pole}
+                      style={{
+                        height: poleHeight,
+                        width: 80,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: getPermColor(pole),
+                        marginVertical: 2,
+                        borderRadius: 4,
+                      }}
+                    >
+                      <ThemedText style={{ 
+                        fontSize: 12, 
+                        fontWeight: 'bold', 
+                        color: theme.ui.white,
+                        textAlign: 'center',
+                      }}>
+                        {pole}
+                      </ThemedText>
+                    </View>
+                  );
+                })}
               </View>
             </ScrollView>
           </View>
-        </ScrollView>
+          
+          {/* Scrollable content area */}
+          <ScrollView ref={horizontalModeOuterScrollRef} horizontal={true} style={{ flex: 1 }}>
+            <View>
+              {/* Fixed time header */}
+              <View style={{ flexDirection: 'row', height: 40, paddingHorizontal: 10 }}>
+                {timeSlots.map((time, idx) => (
+                  <View
+                    key={idx}
+                    style={{
+                      width: SLOT_HEIGHT,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <ThemedText
+                      style={{
+                        fontSize: 12,
+                        color: theme.text.primary,
+                        width: 60,
+                      }}
+                    >
+                      {time}
+                    </ThemedText>
+                  </View>
+                ))}
+              </View>
+
+              {/* Vertically scrollable content area */}
+              <ScrollView 
+                style={{ flex: 1 }}
+                scrollEventThrottle={16}
+                onScroll={handleHorizontalModeScroll}
+              >
+                <View style={{ flexDirection: 'row', paddingHorizontal: 10 }}>
+                  {/* Perm rows */}
+                  <View>
+                    {poles.map((pole, rowIdx) => {
+                      const rowPerms = permsWithSpan.filter(p => p.column === rowIdx);
+                      const subColCount = poleSubColumnCounts.get(rowIdx) || 1;
+                      const poleHeight = CARD_HEIGHT * subColCount;
+
+                      return (
+                        <View
+                          key={pole}
+                          style={{
+                            height: poleHeight,
+                            position: 'relative',
+                            marginVertical: 2,
+                          }}
+                        >
+                          {rowPerms.map((perm) => (
+                            <CalendarPermEventCard
+                              key={perm.id}
+                              event={perm}
+                              columnCount={1}
+                              minHour={minHour}
+                              slotHeight={SLOT_HEIGHT}
+                              onPress={onPermPress}
+                              fieldToDisplay={['organizer', 'perm']}
+                              isHorizontal={true}
+                            />
+                          ))}
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </ScrollView>
+        </View>
       )}
     </View>
   );
