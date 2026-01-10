@@ -31,9 +31,6 @@ const AboutScreen = () => {
     }
   };
 
-  // Debug: log user state
-  console.log('Current user:', user);
-
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>INFOS</ScreenTitle>
