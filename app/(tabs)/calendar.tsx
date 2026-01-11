@@ -236,7 +236,6 @@ const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
     backgroundColor: theme.background.primary,
-    marginBottom: 50,
   },
   tabButton: {
     marginHorizontal: 4,

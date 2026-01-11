@@ -6,6 +6,7 @@ import Head from 'expo-router/head';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
 import { HighlightProvider } from '../contexts/HighlightContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -92,12 +93,14 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <HighlightProvider>
-          <RootLayoutNav />
-        </HighlightProvider>
-      </DataProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <DataProvider>
+          <HighlightProvider>
+            <RootLayoutNav />
+          </HighlightProvider>
+        </DataProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }

@@ -3,7 +3,7 @@ import { View, ScrollView, Pressable, TextInput, Dimensions, Image } from 'react
 import { CalendarPermEventCard, CARD_HEIGHT, CARD_WIDTH, getInitials, getSmallerName } from '@/components/CalendarEventCard';
 import { NormalText, ThemedText } from '@/components/ThemedText';
 import { timeToMinutes } from '@/services/calendar.service';
-import theme from '@/constants/theme';
+import {theme, layout} from '@/constants/theme'; 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getOrganizerImage } from '../organizerImageMapper';
 
@@ -351,7 +351,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
   }));
 
   return (
-    <View style={{ flex: 1, paddingBottom: 10, paddingHorizontal: 10 }}>
+    <View style={{ flex: 1, paddingHorizontal: 10 }}>
       {/* Search and Filter Bar */}
       <View style={{ paddingHorizontal: 8, paddingBottom: 8, gap: 8, zIndex: 1000 }}>
         <View style={{ flexDirection: 'row',  justifyContent: 'space-between', gap : 8 }}>
@@ -728,7 +728,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
           </View>
           
           {/* Scrollable content area */}
-          <ScrollView style={{ flex: 1 }}>
+          <ScrollView style={{ flex: 1,  paddingBottom: layout.tabBar.contentPadding }}>
             <View style={{ flexDirection: 'row' }}>
               {/* Fixed time labels */}
               <View style={{ width: 60 }}>
@@ -796,6 +796,8 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 ref={horizontalModeHeaderScrollRef}
                 scrollEnabled={false} 
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: layout.tabBar.contentPadding }}
+                
               >
                 <View style={{ paddingHorizontal: 5 }}>
                   {poles.map((pole, rowIdx) => {
@@ -866,6 +868,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 style={{ flex: 1 }}
                 scrollEventThrottle={16}
                 onScroll={handleHorizontalModeScroll}
+                contentContainerStyle={{ paddingBottom: layout.tabBar.contentPadding }}
               >
                 <View style={{ flexDirection: 'row', paddingHorizontal: 10 }}>
                   {/* Perm rows with background */}

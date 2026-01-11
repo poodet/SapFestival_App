@@ -14,7 +14,7 @@ import {
 import Animated from 'react-native-reanimated';
 import ScreenTitle from '@/components/screenTitle';
 import { useActivities } from '@/contexts/DataContext';
-import theme from '@/constants/theme';
+import {theme, layout} from '@/constants/theme'; 
 import { extractDayName, extractTime } from '@/services/calendar.service';
 import { useHighlightItem } from '@/hooks/useHighlightItem';
 import ThemedText from '@/components/ThemedText';
@@ -186,7 +186,6 @@ const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
     backgroundColor: theme.background.primary,
-    marginBottom: 50,
   },
   container: {
     flex: 1,
@@ -195,7 +194,7 @@ const styles = StyleSheet.create({
   list: {
     paddingVertical: 20,
     alignItems: 'stretch',
-    paddingBottom : 50
+    paddingBottom: layout.tabBar.contentPadding,
   },
   card: {
     backgroundColor: theme.background.secondary,

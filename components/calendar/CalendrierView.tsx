@@ -3,7 +3,7 @@ import { View, ScrollView } from 'react-native';
 import { CalendarEventCard } from '@/components/CalendarEventCard';
 import { ThemedText } from '@/components/ThemedText';
 import { timeToMinutes } from '@/services/calendar.service';
-import theme from '@/constants/theme';
+import theme, { layout } from '@/constants/theme';
 
 const SLOT_HEIGHT = 40;
 
@@ -121,7 +121,7 @@ export const CalendrierView: React.FC<CalendrierViewProps> = ({
           REPAS
         </ThemedText>
       </View>
-      <ScrollView contentContainerStyle={{ paddingBottom: 50, paddingHorizontal: 10 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: layout.tabBar.contentPadding, paddingHorizontal: 10 }}>
         <View style={{ flexDirection: 'row' }}>
           <View style={{ width: 60 }}>
             {timeSlots.map((time, idx) => (

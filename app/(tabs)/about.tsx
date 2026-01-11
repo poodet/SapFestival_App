@@ -6,7 +6,7 @@ import FullScreenImageModal from '@/components/imageModal';
 import ScreenTitle from '@/components/screenTitle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import theme from '@/constants/theme';
+import {theme, layout} from '@/constants/theme'; 
 
 
 const AboutScreen = () => {
@@ -153,10 +153,10 @@ const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
     backgroundColor: theme.background.primary,
-    marginBottom : 50,
   },
   container: {
-    padding:24,
+    padding: 24,
+    paddingBottom: layout.tabBar.contentPadding + 24,
   },
   section: {
     marginBottom: 20,

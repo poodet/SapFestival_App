@@ -1,43 +1,40 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import theme from '@/constants/theme';
-
-// import { useNavigation } from '@react-navigation/native';
+import {theme, addOpacity, layout} from '@/constants/theme';
 
 export default function TabLayout() {
-
-  // const navigation = useNavigation();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.background.primary,
+        // Tab bar appearance
+        tabBarActiveTintColor: theme.interactive.primary,
+        tabBarInactiveTintColor: theme.interactive.inactive,
         tabBarShowLabel: false,
-        headerStyle: {
-          // backgroundColor: theme.background.primary,
-        },
-        headerShown: false,
-        headerShadowVisible: false,
-        headerTintColor: '#F2784B',
         tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: theme.background.secondary,  // ou la couleur de ton thème
+          backgroundColor: addOpacity(theme.background.secondary, 0.3),
           borderRadius: 20,
-          height: 70,
+          height: layout.tabBar.height,
+          borderTopWidth: 0,
           elevation: 5,
           shadowColor: theme.ui.black,
           shadowOffset: { width: 0, height: 5 },
           shadowOpacity: 0.1,
           shadowRadius: 10,
-          borderTopWidth: 0, // supprimer la ligne de séparation par défaut
+          marginHorizontal: layout.tabBar.marginHorizontal,
+          marginBottom: layout.tabBar.marginBottom,
+          position: 'absolute',
+          backdropFilter: 'blur(10px)',
         },
         tabBarItemStyle: {
-          // flex: 1,
-          justifyContent: 'center', // Centre verticalement
-          alignItems: 'center', // Centre horizontalement
-          paddingTop: 5, // Décale l'icône vers le haut pour éviter le rognage en bas
+          paddingTop: 5,
         },
-
+        
+        // Screen appearance
+        headerShown: false,
+        headerShadowVisible: false,
+        sceneContainerStyle: {
+          backgroundColor: theme.background.primary,
+        },
       }}
     >
       <Tabs.Screen

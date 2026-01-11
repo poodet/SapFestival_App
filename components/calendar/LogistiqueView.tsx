@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
-import theme from '@/constants/theme';
+import theme, { layout } from '@/constants/theme';
 
 export const LogistiqueView: React.FC = () => {
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 50, paddingHorizontal: 10 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: layout.tabBar.contentPadding, paddingHorizontal: 10 }}>
       <View style={{ padding: 10 }}>
         <ThemedText style={{ fontSize: 20, color: theme.text.primary, marginBottom: 15, textAlign: 'center' }}>
           Logistique

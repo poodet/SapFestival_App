@@ -10,13 +10,13 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "backgroundColor": "#5a9adb",
+      "backgroundColor": "#f7afce",
       "favicon": "./assets/images/favicon.png"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/favicon.png",
-        "backgroundColor": "#5a9adb"
+        "backgroundColor": "#f7afce"
       },
       "package": "com.guillaumebnd.SAP_Festival"
     },
@@ -33,7 +33,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#5a9adb"
+          "backgroundColor": "#f7afce"
         }
       ],
       [

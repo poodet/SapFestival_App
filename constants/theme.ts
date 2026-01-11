@@ -5,6 +5,19 @@
  * Update these values to change the artistic direction/theme for each festival edition.
  */
 
+// Layout constants
+export const layout = {
+  tabBar: {
+    height: 56,
+    marginBottom: 10,
+    marginHorizontal: 16,
+    // Total space needed for content padding (height + margin + extra space)
+    get contentPadding() {
+      return this.height + this.marginBottom + 14;
+    },
+  },
+} as const;
+
 export const theme = {
   // Typography
   fonts: {
@@ -22,8 +35,8 @@ export const theme = {
 
   // Interactive elements (selected icons, clicked buttons, etc.)
   interactive: {
-    primary: '#0b8c35',      // Primary action color (green) - selected state
-    secondary: '#5a9adb',    // Secondary action color (blue) - default state
+    primary: '#5a9adb',      // Primary action color (green) - selected state
+    secondary: '#0b8c35',    // Secondary action color (blue) - default state
     text: '#053688',         // Text for links/buttons (dark blue)
     inactive: '#6d6161',     // Inactive/disabled state (gray)
   },
@@ -39,7 +52,7 @@ export const theme = {
   // Text colors
   text: {
     primary: '#fff',         // White text (on dark backgrounds)
-    secondary: '#131313c6',       // Black text (on light backgrounds)
+    secondary: '#303030c6',       // Black text (on light backgrounds)
     inactive: '#6d6161',     // Gray text for inactive elements
   },
 

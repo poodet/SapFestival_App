@@ -16,7 +16,10 @@ export function ThemedText(props: TextProps) {
   return (
     <Text
       style={[
-        { fontFamily: theme.fonts.themed },
+        { 
+          fontFamily: theme.fonts.themed,
+          textAlign: 'center',
+        },
         style,
       ]}
       {...otherProps}
@@ -30,7 +33,11 @@ export function NormalText(props: TextProps) {
   return (
     <Text
       style={[
-        { fontFamily: theme.fonts.normal, fontWeight: 'normal' },
+        {
+          fontFamily: theme.fonts.normal, 
+          fontWeight: 'normal',
+          textAlign: 'center',
+        },
         style,
       ]}
       {...otherProps}

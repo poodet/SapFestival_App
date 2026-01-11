@@ -18,7 +18,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import imageMapper from '@/components/imageMapper';
 import ScreenTitle from '@/components/screenTitle';
 import { useArtists } from '@/contexts/DataContext';
-import theme from '@/constants/theme'; 
+import {theme, layout} from '@/constants/theme'; 
 import { useHighlightItem } from '@/hooks/useHighlightItem';
 import ThemedText from '@/components/ThemedText';
 
@@ -131,11 +131,10 @@ const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
     backgroundColor: theme.background.primary,
-    marginBottom: 50,
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 50,
+    paddingBottom: layout.tabBar.contentPadding,
   },
   scrollToTopButton: {
     position: 'absolute',
