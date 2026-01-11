@@ -11,12 +11,12 @@ export default function Root({ children }: PropsWithChildren) {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no, viewport-fit=cover" />
 
         {/* PWA Primary Tags */}
         <meta name="application-name" content="SAP Festival" />
         <meta name="description" content="SAP Festival - Official App" />
-        <meta name="theme-color" content="#5a9adb" />
+        <meta name="theme-color" content="#f7afce" />
         
         {/* Link the PWA manifest file. */}
         <link rel="manifest" href="/manifest.json" />
