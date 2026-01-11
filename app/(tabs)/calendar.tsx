@@ -55,7 +55,7 @@ const ScheduleScreen = () => {
     setModalVisible(true);
   };
 
-  const openModal = (event: any) => {
+  const highlightEvent = (event: any) => {
     // Navigate to activities screen if it's an activity event
     let pathName = '';
     if (event.category === 'artist') {
@@ -200,7 +200,7 @@ const ScheduleScreen = () => {
             selectedDay={selectedDay}
             minHour={minHour}
             timeSlots={timeSlots}
-            onEventPress={openModal}
+            onEventPress={highlightEvent}
           />
         )}
 

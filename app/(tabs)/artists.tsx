@@ -21,6 +21,7 @@ import { useArtists } from '@/contexts/DataContext';
 import {theme, layout} from '@/constants/theme'; 
 import { useHighlightItem } from '@/hooks/useHighlightItem';
 import ThemedText from '@/components/ThemedText';
+import { extractTime, extractDayName } from '@/services/calendar.service';
 
 const { width } = Dimensions.get('window');
 
@@ -110,7 +111,9 @@ export default function ArtistsScreen() {
                 <View style={styles.cardBody}>
                   <View style={styles.cardHeader}>
                     <ThemedText style={styles.cardTitle}>{item.name}</ThemedText>
-                    <Text style={[styles.cardDescription, { textAlign: 'right' }]}>{item.duration}</Text>
+                    <Text style={[styles.cardDescription, { textAlign: 'right' }]}>
+                      {extractDayName(item.date_start) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)}
+                    </Text>
                   </View>
                   <Text style={styles.cardDescription}>{item.bio}</Text>
                 </View>
@@ -158,8 +161,7 @@ const styles = StyleSheet.create({
   },
   highlightedCard: {
     borderWidth: 3,
-    borderColor: theme.interactive.secondary,
-    shadowColor: theme.interactive.secondary,
+    borderColor: theme.interactive.primary,
     shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
     shadowRadius: 12,
     elevation: Platform.OS === 'android' ? 8 : 0,

@@ -9,13 +9,13 @@ import { ImageRequireSource } from 'react-native';
  * Each image must be explicitly required with a literal string path.
  */
 const organizerImageMapper: Record<string, ImageRequireSource> = {
-  'antoinematras': require('@/data/img/antoinematras.jpg'),
-  'guillaumebernard': require('@/data/img/guillaumebernard.jpg'),
-  'joachimhonegger': require('@/data/img/joachimhonegger.jpg'),
-  'josephabeau': require('@/data/img/josephabeau.jpg'),
-  'paulinedadon': require('@/data/img/paulinedadon.jpg'),
-  'paulineodet': require('@/data/img/paulineodet.jpg'),
-  'romainguy': require('@/data/img/romainguy.jpg'),
+  'antoinematras': require('@/assets/images/orga/antoinematras.jpg'),
+  'guillaumebernard': require('@/assets/images/orga/guillaumebernard.jpg'),
+  'joachimhonegger': require('@/assets/images/orga/joachimhonegger.jpg'),
+  'josephabeau': require('@/assets/images/orga/josephabeau.jpg'),
+  'paulinedadon': require('@/assets/images/orga/paulinedadon.jpg'),
+  'paulineodet': require('@/assets/images/orga/paulineodet.jpg'),
+  'romainguy': require('@/assets/images/orga/romainguy.jpg'),
 };
 
 /**

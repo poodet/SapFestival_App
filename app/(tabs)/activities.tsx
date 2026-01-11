@@ -213,8 +213,7 @@ const styles = StyleSheet.create({
   },
   highlightedCard: {
     borderWidth: 3,
-    borderColor: theme.interactive.secondary,
-    shadowColor: theme.interactive.secondary,
+    borderColor: theme.interactive.primary,
     shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
     shadowRadius: 12,
     elevation: Platform.OS === 'android' ? 8 : 0,

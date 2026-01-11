@@ -47,7 +47,7 @@ export default function FoodDrinkScreen() {
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}> 
         <ScreenTitle>A manger</ScreenTitle>
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <View style={{ justifyContent: 'center', alignItems: 'center' , flex: 1}}>
           <ActivityIndicator size="large" color={theme.background.secondary} />
           <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading menu...</Text>
         </View>
@@ -59,7 +59,7 @@ export default function FoodDrinkScreen() {
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>A manger</ScreenTitle>
 
-      <View style={styles.container}>
+      <View style={{ flexShrink: 1 }}>
         <FlatList
           ref={flatListRef}
           data={menuItems}
@@ -94,12 +94,12 @@ export default function FoodDrinkScreen() {
               </Animated.View>
             );
           }}
-          contentContainerStyle={styles.list}
+          // contentContainerStyle={styles.list}
         />
       </View>
 
-      <ScreenTitle style={{paddingTop:10}}>A Boire</ScreenTitle>
-      <View style={styles.container}>
+      <ScreenTitle >A Boire</ScreenTitle>
+      <View style={{ flex: 1 }}>
         {isDrinksLoading ? (
           <View style={{ justifyContent: 'center', alignItems: 'center', padding: 40 }}>
             <ActivityIndicator size="large" color={theme.background.secondary} />
@@ -144,10 +144,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.background.primary,
   },
-  container: {
-    flex: 1,
-    backgroundColor: theme.background.primary,
-  },
   list: {
     alignItems: 'stretch',
     paddingBottom: layout.tabBar.contentPadding,
@@ -169,8 +165,7 @@ const styles = StyleSheet.create({
   },
   highlightedCard: {
     borderWidth: 3,
-    borderColor: theme.interactive.secondary,
-    shadowColor: theme.interactive.secondary,
+    borderColor: theme.interactive.primary,
     shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
     shadowRadius: 12,
     elevation: Platform.OS === 'android' ? 8 : 0,
@@ -181,7 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'baseline',
     gap: 4,
-    marginVertical: 2,
+    marginVertical: 1,
   },
   categoryTitle: {
     fontSize: width < 350 ? 16 : 20,

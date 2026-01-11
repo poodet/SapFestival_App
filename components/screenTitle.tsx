@@ -14,11 +14,11 @@ export default function ScreenTitle({ children, style }: ScreenTitleProps) {
       <ThemedText style={[
         {
           backgroundColor: theme.background.primary,
-          paddingTop: 20,
+          paddingTop: 5,
           alignItems: 'center',
           justifyContent: 'center',
           alignSelf: 'center',
-          fontSize: 70,
+          fontSize: 50,
           color: theme.text.primary,
           fontWeight: '500',
           textShadow: '4px 5px 0px #0000007d'

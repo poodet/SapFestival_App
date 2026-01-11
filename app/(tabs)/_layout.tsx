@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {theme, addOpacity, layout} from '@/constants/theme';
+import { BlurView } from 'expo-blur';
 
 export default function TabLayout() {
   return (
@@ -11,11 +12,11 @@ export default function TabLayout() {
         tabBarInactiveTintColor: theme.interactive.inactive,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: addOpacity(theme.background.secondary, 0.3),
-          borderRadius: 20,
+          backgroundColor: 'transparent',
+          borderRadius: 0,
           height: layout.tabBar.height,
           borderTopWidth: 0,
-          elevation: 5,
+          elevation: 0,
           shadowColor: theme.ui.black,
           shadowOffset: { width: 0, height: 5 },
           shadowOpacity: 0.1,
@@ -23,8 +24,19 @@ export default function TabLayout() {
           marginHorizontal: layout.tabBar.marginHorizontal,
           marginBottom: layout.tabBar.marginBottom,
           position: 'absolute',
-          backdropFilter: 'blur(10px)',
         },
+        tabBarBackground: () => (
+          <BlurView
+            intensity={80}
+            tint="white"
+            style={{
+              flex: 1,
+              backgroundColor: addOpacity(theme.background.secondary, 0.3),
+              borderRadius: 20,
+              overflow: 'hidden',
+            }}
+          />
+        ),
         tabBarItemStyle: {
           paddingTop: 5,
         },
