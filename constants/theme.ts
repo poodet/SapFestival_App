@@ -39,7 +39,7 @@ export const theme = {
   // Text colors
   text: {
     primary: '#fff',         // White text (on dark backgrounds)
-    secondary: '#000',       // Black text (on light backgrounds)
+    secondary: '#131313c6',       // Black text (on light backgrounds)
     inactive: '#6d6161',     // Gray text for inactive elements
   },
 

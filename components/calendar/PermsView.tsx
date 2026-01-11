@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { View, ScrollView, Pressable, TextInput } from 'react-native';
-import { CalendarPermEventCard, CARD_HEIGHT, CARD_WIDTH } from '@/components/CalendarEventCard';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { View, ScrollView, Pressable, TextInput, Dimensions, Image } from 'react-native';
+import { CalendarPermEventCard, CARD_HEIGHT, CARD_WIDTH, getInitials, getSmallerName } from '@/components/CalendarEventCard';
 import { NormalText, ThemedText } from '@/components/ThemedText';
 import { timeToMinutes } from '@/services/calendar.service';
 import theme from '@/constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { getOrganizerImage } from '../organizerImageMapper';
 
 const SLOT_HEIGHT = 40;
 
@@ -204,17 +205,34 @@ export const PermsView: React.FC<PermsViewProps> = ({
   const horizontalModeOuterScrollRef = useRef<ScrollView>(null);
   const horizontalModeHeaderScrollRef = useRef<ScrollView>(null);
 
-  // Toggle horizontal/vertical mode and reset scroll
-  const toggleMode = () => {
-    if (isHorizontal) {
-      // Switching to vertical - reset the horizontal scroll in vertical mode
-      setTimeout(() => {
-        verticalModeHorizontalScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
-        verticalModeHeaderScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
-      }, 0);
-    }
-    setIsHorizontal(!isHorizontal);
-  };
+  // Detect orientation changes and update view mode automatically
+  useEffect(() => {
+    const updateOrientation = () => {
+      const { width, height } = Dimensions.get('window');
+      const newIsHorizontal = width > height;
+      
+      if (newIsHorizontal !== isHorizontal) {
+        if (!newIsHorizontal) {
+          // Switching to vertical - reset the horizontal scroll in vertical mode
+          setTimeout(() => {
+            verticalModeHorizontalScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
+            verticalModeHeaderScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
+          }, 0);
+        }
+        setIsHorizontal(newIsHorizontal);
+      }
+    };
+
+    // Initial check
+    updateOrientation();
+
+    // Listen for dimension changes
+    const subscription = Dimensions.addEventListener('change', updateOrientation);
+
+    return () => {
+      subscription?.remove();
+    };
+  }, [isHorizontal]);
 
   // Sync horizontal scroll between header and calendar in vertical mode
   const handleVerticalModeScroll = (event: any) => {
@@ -335,8 +353,8 @@ export const PermsView: React.FC<PermsViewProps> = ({
   return (
     <View style={{ flex: 1, paddingBottom: 10, paddingHorizontal: 10 }}>
       {/* Search and Filter Bar */}
-      <View style={{ paddingHorizontal: 8, paddingVertical: 8, gap: 8, zIndex: 1000 }}>
-        <View style={{ flexDirection: 'row',  justifyContent: 'space-between' }}>
+      <View style={{ paddingHorizontal: 8, paddingBottom: 8, gap: 8, zIndex: 1000 }}>
+        <View style={{ flexDirection: 'row',  justifyContent: 'space-between', gap : 8 }}>
           {/* Search Input */}
           <View style={{ 
             flexDirection: 'row', 
@@ -344,11 +362,9 @@ export const PermsView: React.FC<PermsViewProps> = ({
             backgroundColor: theme.ui.white,
             borderRadius: 8,
             paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderWidth: 1,
-            borderColor: theme.interactive.inactive,
             flex: 1,
             overflow: 'hidden',
+            display: 'none',
           }}>
             <Ionicons name="search-outline" size={20} color={theme.text.secondary} />
             <TextInput
@@ -356,7 +372,6 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 flex: 1,
                 marginLeft: 8,
                 fontSize: 16,
-                paddingVertical: 4,
                 minWidth: 0,
               }}
               placeholder="Rechercher..."
@@ -375,33 +390,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
 
 
 
-        {/* Day selector - compact version above calendar */}
-        <View style={{ flexDirection: 'row', justifyContent: 'end', padding: 8, flex: 1 }}>
-          {days.map((day) => (
-            <Pressable
-              key={day}
-              onPress={() => onDaySelect(day)}
-              style={{
-                marginHorizontal: 1,
-                backgroundColor: theme.ui.white,
-                padding: 5,
-                borderRadius: 8,
-                borderWidth: 5,
-                borderColor: selectedDay === day ? theme.interactive.primary : theme.background.primary,
-                alignSelf: 'center',
-              }}
-            >
-              <ThemedText
-                style={{
-                  color: selectedDay === day ? theme.interactive.primary : theme.interactive.inactive,
-                  fontSize: 18,
-                }}
-              >
-                {day.slice(0, 3)}
-              </ThemedText>
-            </Pressable>
-          ))}
-        </View>
+
       </View>
 
         {/* Filter Row: My Perms Toggle + Pole Filter Dropdown */}
@@ -413,22 +402,19 @@ export const PermsView: React.FC<PermsViewProps> = ({
               backgroundColor: showMyPermsOnly ? theme.interactive.primary : theme.ui.white,
               borderRadius: 8,
               paddingHorizontal: 12,
-              paddingVertical: 10,
-              borderWidth: 1,
-              borderColor: showMyPermsOnly ? theme.interactive.primary : theme.interactive.inactive,
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
             <Ionicons 
               name={showMyPermsOnly ? "person" : "person-outline"} 
-              size={20} 
-              color={showMyPermsOnly ? theme.ui.white : theme.interactive.primary} 
+              size={16} 
+              color={showMyPermsOnly ? theme.ui.white : theme.text.secondary} 
             />
           </Pressable>
 
           {/* Pole Filter Dropdown */}
-          <View style={{ flex: 1, position: 'relative', zIndex: 1001 }}>
+          <View style={{  position: 'relative', zIndex: 1001 }}>
             <Pressable
               onPress={() => setShowPoleDropdown(!showPoleDropdown)}
               style={{
@@ -438,9 +424,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 backgroundColor: selectedPoles.length > 0 ? theme.interactive.primary : theme.ui.white,
                 borderRadius: 8,
                 paddingHorizontal: 12,
-                paddingVertical: 10,
-                borderWidth: 1,
-                borderColor: selectedPoles.length > 0 ? theme.interactive.primary : theme.interactive.inactive,
+                paddingVertical: 8,
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
@@ -467,13 +451,13 @@ export const PermsView: React.FC<PermsViewProps> = ({
               position: 'absolute',
               top: '100%',
               left: 0,
-              right: 0,
               backgroundColor: theme.ui.white,
               borderRadius: 8,
               marginTop: 4,
               borderWidth: 1,
               borderColor: theme.interactive.inactive,
               maxHeight: 300,
+              // minWidth: 200,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.25,
@@ -549,7 +533,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
           </View>
 
           {/* Organizer Filter Dropdown */}
-          <View style={{ flex: 1, position: 'relative', zIndex: 1001 }}>
+          <View style={{  position: 'relative', zIndex: 1001 }}>
             <Pressable
               onPress={() => setShowOrganizerDropdown(!showOrganizerDropdown)}
               style={{
@@ -559,9 +543,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 backgroundColor: selectedOrganizers.length > 0 ? theme.interactive.primary : theme.ui.white,
                 borderRadius: 8,
                 paddingHorizontal: 12,
-                paddingVertical: 10,
-                borderWidth: 1,
-                borderColor: selectedOrganizers.length > 0 ? theme.interactive.primary : theme.interactive.inactive,
+                paddingVertical: 8,
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
@@ -587,7 +569,6 @@ export const PermsView: React.FC<PermsViewProps> = ({
               position: 'absolute',
               top: '100%',
               left: 0,
-              right: 0,
               backgroundColor: theme.ui.white,
               borderRadius: 8,
               marginTop: 4,
@@ -600,6 +581,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
               shadowRadius: 3.84,
               elevation: 5,
               zIndex: 1002,
+              minWidth: 140,
             }}>
               <ScrollView>
                 {/* Clear all button */}
@@ -632,30 +614,31 @@ export const PermsView: React.FC<PermsViewProps> = ({
                       style={{
                         flexDirection: 'row',
                         alignItems: 'center',
-                        padding: 12,
+                        paddingVertical: 12,
+                        paddingHorizontal: 8,
+                        gap: 8,
                         borderBottomWidth: 1,
                         borderBottomColor: theme.interactive.inactive,
                         backgroundColor: isSelected ? `${theme.interactive.primary}20` : 'transparent',
                       }}
                     >
-                      <View style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 16,
-                        backgroundColor: theme.interactive.primary,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginRight: 12,
-                      }}>
-                        <ThemedText style={{ color: theme.ui.white, fontSize: 14, fontWeight: '600' }}>
-                          {organizer.charAt(0).toUpperCase()}
-                        </ThemedText>
-                      </View>
+                      <Image
+                        source={getOrganizerImage(organizer)}
+                        style={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: 12,
+                              borderWidth: 1,
+                              borderColor: theme.text.primary,
+                        }}
+                        resizeMode="cover"
+                      />
+
                       <NormalText style={{ 
                         flex: 1, 
                         fontSize: 16,
                       }}>
-                        {organizer}
+                        {getSmallerName(organizer)}
                       </NormalText>
                       {isSelected && (
                         <Ionicons name="checkmark-circle" size={24} color={theme.interactive.primary} />
@@ -668,24 +651,32 @@ export const PermsView: React.FC<PermsViewProps> = ({
           )}
           </View>
 
-          {/* View Mode Toggle */}
-          <Pressable
-            onPress={toggleMode}
-            style={{
-              backgroundColor: theme.interactive.primary,
-              borderRadius: 8,
-              paddingHorizontal: 12,
-              paddingVertical: 10,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Ionicons 
-              name={isHorizontal ? "phone-portrait-outline" : "phone-landscape-outline"} 
-              size={20} 
-              color={theme.ui.white} 
-            />
-          </Pressable>
+                  {/* Day selector - compact version above calendar */}
+        <View style={{ flexDirection: 'row', justifyContent: 'end', flex: 1 }}>
+          {days.map((day) => (
+            <Pressable
+              key={day}
+              onPress={() => onDaySelect(day)}
+              style={{
+                backgroundColor: theme.ui.white,
+                padding: 5,
+                borderRadius: 8,
+                borderWidth: 5,
+                borderColor: selectedDay === day ? theme.interactive.primary : theme.background.primary,
+                alignSelf: 'center',
+              }}
+            >
+              <ThemedText
+                style={{
+                  color: selectedDay === day ? theme.interactive.primary : theme.interactive.inactive,
+                  fontSize: 16,
+                }}
+              >
+                {day.slice(0, 3)}
+              </ThemedText>
+            </Pressable>
+          ))}
+        </View>
         </View>
       </View>
 

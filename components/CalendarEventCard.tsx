@@ -31,13 +31,13 @@ interface CalendarEventCardProps {
 }
 
 // Helper to get initials from full name
-const getInitials = (fullName: string): string => {
+export const getInitials = (fullName: string): string => {
   const parts = fullName.trim().split(' ');
   if (parts.length === 1) return parts[0].charAt(0) + '.';
   return parts.map(part => part.charAt(0) + '.').join(' ');
 };
 
-const getSmallerName = (fullName: string): string => {
+export const getSmallerName = (fullName: string): string => {
   const parts = fullName.trim().split(' ');
   if (parts.length === 1) return parts[0];
   return parts[0] + ' ' + parts[1].charAt(0) + '.';
@@ -108,7 +108,7 @@ interface PermEventCardProps extends CalendarEventCardProps {
 
 // Constants for consistent card sizing
 export const CARD_WIDTH = 40;
-export const CARD_HEIGHT = 70;
+export const CARD_HEIGHT = 40;
 
 export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
   event,
