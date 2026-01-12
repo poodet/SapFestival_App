@@ -17,6 +17,7 @@ import * as Font from 'expo-font';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import imageMapper from '@/components/imageMapper';
 import ScreenTitle from '@/components/screenTitle';
+import InfoHeaderButton from '@/components/InfoHeaderButton';
 import { useArtists } from '@/contexts/DataContext';
 import {theme, layout} from '@/constants/theme'; 
 import { useHighlightItem } from '@/hooks/useHighlightItem';
@@ -52,6 +53,7 @@ export default function ArtistsScreen() {
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}>
         <ScreenTitle>ARTISTES</ScreenTitle>
+        <InfoHeaderButton />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.background.secondary} />
           <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading artists...</Text>
@@ -63,6 +65,7 @@ export default function ArtistsScreen() {
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>ARTISTES</ScreenTitle>
+      <InfoHeaderButton />
       <FlatList
         ref={flatListRef}
         data={artists}

@@ -111,9 +111,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="about"
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'information-circle' : 'information-circle'} color={color} size={30} />
-          ),
+          href: null, // Hidden - now accessible via header button
         }}
       />
     </Tabs>

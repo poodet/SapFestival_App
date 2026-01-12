@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ScreenTitle from '@/components/screenTitle';
+import InfoHeaderButton from '@/components/InfoHeaderButton';
 import * as Font from 'expo-font';
 import {
   View,
@@ -97,6 +98,7 @@ const ScheduleScreen = () => {
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}>
         <ScreenTitle>LINE UP</ScreenTitle>
+        <InfoHeaderButton />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.text.primary} />
           <Text style={{ color: theme.text.primary, marginTop: 10, fontFamily: 'Oliver-Regular' }}>
@@ -109,6 +111,7 @@ const ScheduleScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
+      <InfoHeaderButton />
       <View style={{ flex: 1, paddingTop: insets.top }}>
         {/* View switcher for organisateur role */}
         {user?.role === 'organisateur' && (
@@ -238,14 +241,15 @@ const styles = StyleSheet.create({
     backgroundColor: theme.background.primary,
   },
   tabButton: {
-    marginHorizontal: 4,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    marginHorizontal: 2,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
     borderRadius: 8,
   },
   tabContainer: {
     flexDirection: 'row', 
     justifyContent: 'center', 
+    marginRight: 50, // Leave room for frog button. TODO - frog button should be in header, and not above all views.
     padding: 8, 
     marginTop: 10,
     backgroundColor: addOpacity(theme.background.secondary, 0.5),

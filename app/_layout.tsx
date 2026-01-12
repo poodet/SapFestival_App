@@ -19,7 +19,7 @@ declare global {
 }
 
 function RootLayoutNav() {
-  const { user, loading } = useAuth();
+  const { user, loading, isGuest } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -66,8 +66,8 @@ function RootLayoutNav() {
 
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (!user && !inAuthGroup) {
-      // Redirect to login if not authenticated
+    if (!user && !isGuest && !inAuthGroup) {
+      // Redirect to login if not authenticated and not in guest mode
       router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
       // Redirect to app if already authenticated
@@ -85,6 +85,14 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen 
+          name="info" 
+          options={{ 
+            headerShown: false,
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }} 
+        />
         <Stack.Screen name="+not-found" />
       </Stack>
     </>

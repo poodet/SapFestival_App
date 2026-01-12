@@ -3,6 +3,7 @@ import { View, StyleSheet, SafeAreaView, ActivityIndicator, Text, FlatList, Refr
 import Animated from 'react-native-reanimated';
 import * as Font from 'expo-font';
 import ScreenTitle from '@/components/screenTitle';
+import InfoHeaderButton from '@/components/InfoHeaderButton';
 import { useMenuItems, useDrinkItems } from '@/contexts/DataContext';
 import { MenuItem, DrinkItem } from '@/types/data';
 import { useHighlightItem } from '@/hooks/useHighlightItem';
@@ -47,6 +48,7 @@ export default function FoodDrinkScreen() {
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}> 
         <ScreenTitle>A manger</ScreenTitle>
+        <InfoHeaderButton />
         <View style={{ justifyContent: 'center', alignItems: 'center' , flex: 1}}>
           <ActivityIndicator size="large" color={theme.background.secondary} />
           <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading menu...</Text>
@@ -58,6 +60,7 @@ export default function FoodDrinkScreen() {
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>A manger</ScreenTitle>
+      <InfoHeaderButton />
 
       <View style={{ flexShrink: 1 }}>
         <FlatList

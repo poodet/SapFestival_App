@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ScreenTitle from '@/components/screenTitle';
+import InfoHeaderButton from '@/components/InfoHeaderButton';
 import { useActivities } from '@/contexts/DataContext';
 import {theme, layout} from '@/constants/theme'; 
 import { extractDayName, extractTime } from '@/services/calendar.service';
@@ -97,6 +98,7 @@ export default function ActivityScreen() {
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}>
         <ScreenTitle>ACTIVITIES</ScreenTitle>
+        <InfoHeaderButton />
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={theme.background.secondary} />
           <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading activities...</Text>
@@ -108,6 +110,7 @@ export default function ActivityScreen() {
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>ACTIVITES</ScreenTitle>
+      <InfoHeaderButton />
       <View style={styles.container}>
         <FlatList
           ref={flatListRef}
