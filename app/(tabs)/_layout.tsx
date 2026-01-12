@@ -27,11 +27,11 @@ export default function TabLayout() {
         },
         tabBarBackground: () => (
           <BlurView
-            intensity={80}
+            intensity={60}
             tint="white"
             style={{
               flex: 1,
-              backgroundColor: addOpacity(theme.background.secondary, 0.3),
+              backgroundColor: addOpacity(theme.background.secondary, 0.5),
               borderRadius: 20,
               overflow: 'hidden',
             }}
@@ -59,7 +59,7 @@ export default function TabLayout() {
         name="b2b"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'fast-food-sharp' : 'fast-food-outline'} color={color} size={30} />
+            <Ionicons name={focused ? 'fast-food-sharp' : 'fast-food-sharp'} color={color} size={30} />
           ),
         }}
       />
@@ -67,7 +67,7 @@ export default function TabLayout() {
         name="artists"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'mic' : 'mic-outline'} color={color} size={30}/>
+            <Ionicons name={focused ? 'musical-notes' : 'musical-notes'} color={color} size={30}/>
           ),
         }}
       />
@@ -75,7 +75,7 @@ export default function TabLayout() {
         name="calendar"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} color={color} size={30}/>
+            <Ionicons name={focused ? 'calendar' : 'calendar'} color={color} size={30} fontWeight="bold"/>
           ),
         }}
       />
@@ -83,7 +83,7 @@ export default function TabLayout() {
         name="activities"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'trophy' : 'trophy-outline'} color={color} size={30}/>
+            <Ionicons name={focused ? 'trophy' : 'trophy'} color={color} size={30}/>
           ),
         }}
       />
@@ -112,7 +112,7 @@ export default function TabLayout() {
         name="about"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={30} />
+            <Ionicons name={focused ? 'information-circle' : 'information-circle'} color={color} size={30} />
           ),
         }}
       />

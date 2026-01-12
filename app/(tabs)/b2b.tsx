@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   drinkName: {
     fontSize: width < 350 ? 14 : 16,
-    fontWeight: '600',
+    // fontWeight: '600',
     color: theme.background.dark,
     flexShrink: 1,
   },
