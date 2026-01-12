@@ -10,7 +10,7 @@ import ThemedText from '@/components/ThemedText';
 import ScreenTitle from '@/components/screenTitle';
 
 const InfoScreen = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isGuest } = useAuth();
   const router = useRouter();
 
   const [loaded, error] = Font.useFonts({
@@ -27,6 +27,10 @@ const InfoScreen = () => {
     }
   };
 
+  const handleLogin = () => {
+    router.push('/(auth)/login');
+  };
+
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       {/* Header with back button */}
@@ -38,7 +42,7 @@ const InfoScreen = () => {
         <View style={{ width: 80 }} />
       </View>
 
-      {/* User Info & Logout - Show debug version if no user */}
+      {/* User Info & Logout - Show login button if guest */}
       {user ? (
         <View style={styles.userSection}>
           <View style={styles.userInfo}>
@@ -54,9 +58,16 @@ const InfoScreen = () => {
             <Text style={styles.logoutText}>Déconnexion</Text>
           </Pressable>
         </View>
-      ) : ''}
+      ) : isGuest ? (
+        <View style={styles.userSection}>
+          <Pressable style={styles.loginButton} onPress={handleLogin}>
+            <Ionicons name="log-in-outline" size={20} color={theme.text.primary} />
+            <Text style={styles.loginText}>Se connecter</Text>
+          </Pressable>
+        </View>
+      ) : null}
 
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} bounces={false} overScrollMode="never">
         <View style={[styles.section, {}]}>
           <Text style={[styles.cardTitle, { fontWeight: 800, color: '#ff0f0f', textAlign: 'center' }]}>
             🚨 EN CAS D'URGENCE 🚨{"\n"}
@@ -141,10 +152,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    // paddingVertical: 12,
     backgroundColor: theme.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   backButton: {
     flexDirection: 'row',
@@ -265,6 +274,20 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   logoutText: {
+    color: theme.text.primary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  loginButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.interactive.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 6,
+  },
+  loginText: {
     color: theme.text.primary,
     fontSize: 14,
     fontWeight: '600',

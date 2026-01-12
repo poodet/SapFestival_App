@@ -42,7 +42,7 @@ export default function ArtistsScreen() {
     items: artists,
     pulseCount: 2, // Double pulse animation
   });
-
+ 
   const handleScrollToTop = () => {
     if (flatListRef.current) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true });
@@ -70,6 +70,8 @@ export default function ArtistsScreen() {
         ref={flatListRef}
         data={artists}
         keyExtractor={(item) => item.id.toString()}
+        bounces={false}
+        overScrollMode="never"
         onScrollToIndexFailed={(info) => {
           // Handle scroll failure gracefully
           const wait = new Promise(resolve => setTimeout(resolve, 500));

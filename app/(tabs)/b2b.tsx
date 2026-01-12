@@ -67,6 +67,8 @@ export default function FoodDrinkScreen() {
           ref={flatListRef}
           data={menuItems}
           keyExtractor={(item) => item.id.toString()}
+          bounces={false}
+          overScrollMode="never"
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
@@ -112,6 +114,8 @@ export default function FoodDrinkScreen() {
           <FlatList
             data={Object.keys(groupedDrinks)}
             keyExtractor={(category) => category}
+            bounces={false}
+            overScrollMode="never"
             refreshControl={
               <RefreshControl
                 refreshing={isDrinksRefreshing}

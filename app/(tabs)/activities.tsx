@@ -116,6 +116,8 @@ export default function ActivityScreen() {
           ref={flatListRef}
           data={activities}
           keyExtractor={(item) => item.id.toString()}
+          bounces={false}
+          overScrollMode="never"
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}

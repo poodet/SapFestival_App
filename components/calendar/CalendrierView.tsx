@@ -121,7 +121,7 @@ export const CalendrierView: React.FC<CalendrierViewProps> = ({
           REPAS
         </ThemedText>
       </View>
-      <ScrollView contentContainerStyle={{ paddingBottom: layout.tabBar.contentPadding, paddingHorizontal: 10 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: layout.tabBar.contentPadding, paddingHorizontal: 10 }} bounces={false} overScrollMode="never">
         <View style={{ flexDirection: 'row' }}>
           <View style={{ width: 60 }}>
             {timeSlots.map((time, idx) => (
