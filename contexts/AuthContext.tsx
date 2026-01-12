@@ -8,6 +8,8 @@ interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
   loading: boolean;
+  isGuest: boolean;
+  setGuestMode: (isGuest: boolean) => void;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -18,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   const loadUserData = async (fbUser: FirebaseUser) => {
     // Only load user data on client side
@@ -61,6 +64,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await AuthService.logout();
     setUser(null);
     setFirebaseUser(null);
+    setIsGuest(false);
+  };
+
+  const setGuestMode = (guest: boolean) => {
+    setIsGuest(guest);
+    if (guest) {
+      setUser(null);
+      setFirebaseUser(null);
+    }
   };
 
   const refreshUser = async () => {
@@ -70,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, firebaseUser, loading, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, firebaseUser, loading, isGuest, setGuestMode, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

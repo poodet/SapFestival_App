@@ -1,15 +1,19 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, Alert, StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { AuthService } from '../../services/auth.service';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
 import theme from '@/constants/theme';
+import ThemedText from '@/components/ThemedText';
+import ScreenTitle from '@/components/screenTitle';
 
 
 
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { setGuestMode } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,45 +36,74 @@ export default function LoginScreen() {
     }
   };
 
+  const handleContinueWithoutAccount = () => {
+    setGuestMode(true);
+    router.replace('/(tabs)/calendar');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
       >
-        <Text style={styles.title}>SAP Festival 2026</Text>
-        <Text style={styles.subtitle}>Connexion</Text>
+        <View style={styles.logoContainer}>
+          <ScreenTitle style={styles.title}>SAPP</ScreenTitle>
+          <Image 
+            source={require('@/assets/images/Pins.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.subtitle}>Connecte toi !</Text>
+        </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
+        <View style={styles.formContainer}>
+          <View style={{flex:1,alignItems: 'center'}}>
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#999"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Mot de passe"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
 
-        <Pressable 
-          style={[styles.button, loading && styles.buttonDisabled]} 
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? 'Connexion...' : 'Se connecter'}
-          </Text>
-        </Pressable>
+            <TextInput
+              style={styles.input}
+              placeholder="Mot de passe"
+              placeholderTextColor="#999"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
 
-        <Pressable onPress={() => router.push('/(auth)/register')}>
-          <Text style={styles.link}>Pas encore de compte ? S'inscrire</Text>
-        </Pressable>
+            <Pressable 
+              style={[styles.button, styles.loginButton, loading && styles.buttonDisabled]} 
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              <Text style={styles.buttonText}>
+                {loading ? 'Connexion...' : 'Connexion'}
+              </Text>
+            </Pressable>
+          </View>
+
+        {/*  This container should stick to bottom of the screen */}
+          <View style={{ marginTop: 20,alignItems: 'center' }}>
+            <ThemedText style={styles.separator}>OU</ThemedText>
+            <Pressable 
+              style={[styles.button, styles.guestButton, {marginTop: 0}]} 
+              onPress={handleContinueWithoutAccount}
+            >
+              <Text style={styles.guestButtonText}>
+                Je continue sans compte
+              </Text>
+            </Pressable>
+          </View>
+
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -79,54 +112,86 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.ui.white
+    backgroundColor: theme.background.primary
   },
   content: {
     flex: 1,
     padding: 20,
     justifyContent: 'center'
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20
+  },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-    color: theme.interactive.text
+    fontSize: 80,
+    letterSpacing: 4
+  },
+  logo: {
+    width: 180,
+    height: 180,
+    marginBottom: 20
   },
   subtitle: {
-    fontSize: 20,
-    marginBottom: 30,
+    fontSize: 24,
     textAlign: 'center',
-    color: '#666'
+    color: theme.ui.white,
+    fontFamily: theme.fonts.themed
+  },
+  formContainer: {
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'column',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
+    // borderWidth: 2,
+    borderColor: theme.ui.black,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
     fontSize: 16,
-    backgroundColor: theme.ui.white
+    backgroundColor: theme.ui.white,
+    textAlign: 'center',
+    shadowColor: theme.ui.black,
+    shadowOffset: { width: 2, height: 2 },
+     
+  },
+  separator: {
+    textAlign: 'center',
+    fontSize: 18,
+    color: theme.ui.white,
+    marginVertical: 8,
+    fontWeight: 'bold'
   },
   button: {
-    backgroundColor: theme.interactive.primary,
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 10
+    padding: 16,
+    borderRadius: 40,
+    marginTop: 8,
+    // borderWidth: 2,
+    borderColor: theme.ui.black
+  },
+  loginButton: {
+    backgroundColor: theme.interactive.primary
   },
   buttonDisabled: {
     opacity: 0.6
   },
   buttonText: {
-    color: theme.text.primary,
+    color: theme.ui.white,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  guestButton: {
+    backgroundColor: '#b89bb4',
+    marginTop: 12
+  },
+  guestButtonText: {
+    color: theme.ui.white,
     textAlign: 'center',
     fontSize: 16,
     fontWeight: 'bold'
-  },
-  link: {
-    color: theme.interactive.text,
-    textAlign: 'center',
-    marginTop: 15,
-    fontSize: 16
   }
 });
