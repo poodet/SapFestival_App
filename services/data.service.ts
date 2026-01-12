@@ -92,15 +92,15 @@ function transformArtists(data: any[]): Artist[] {
     id: index || 0,
     name: row.nom || '',
     bio: row.description || '',
-    image: row['lien photo'] || '',
+    image: row.nom.toUpperCase().replace(/ /g, '_') || '',
     date_start: row['date debut'] || '',
-    date_end: row['date fin'] || '',
+    date_end: row['date fin'] || '', 
     style: row.genres || '',
   }));
 } 
 
-/**
- * Transform raw CSV data to Activity objects
+/** 
+ * Transform raw CSV data to Activity objects   
  */
 function transformActivities(data: any[]): Activity[] {
   return data.map((row, index) => ({
@@ -183,9 +183,9 @@ export async function fetchFestivalData(): Promise<FestivalData> {
     return objects;
   } catch (error) {
     console.error('Error fetching festival data:', error); 
-    throw error;
+    throw error; 
   } 
-} 
+}  
 
 /** 
  * Fetch artists data only

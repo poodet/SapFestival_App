@@ -8,6 +8,8 @@ import { ImageRequireSource } from 'react-native';
  * Dynamic paths like require(variable) or require(`${path}`) won't work.
  * Each image must be explicitly required with a literal string path.
  */
+
+
 const organizerImageMapper: Record<string, ImageRequireSource> = {
   'antoinematras': require('@/assets/images/orga/antoinematras.jpg'),
   'guillaumebernard': require('@/assets/images/orga/guillaumebernard.jpg'),
@@ -16,6 +18,18 @@ const organizerImageMapper: Record<string, ImageRequireSource> = {
   'paulinedadon': require('@/assets/images/orga/paulinedadon.jpg'),
   'paulineodet': require('@/assets/images/orga/paulineodet.jpg'),
   'romainguy': require('@/assets/images/orga/romainguy.jpg'),
+  'lauralavigne': require('@/assets/images/orga/lauralavigne.jpg'),
+  'vincentarchenault': require('@/assets/images/orga/vincentarchenault.jpg'),
+  'juliettemartelet': require('@/assets/images/orga/juliettemartelet.jpg'),
+  'lydiejay': require('@/assets/images/orga/lydiejay.jpg'),
+  'maximericher': require('@/assets/images/orga/maximericher.jpg'),
+  'pierremoussa': require('@/assets/images/orga/pierremoussa.jpg'),
+  'julesboisse': require('@/assets/images/orga/julesboisse.jpg'),
+  'julestrapadoux': require('@/assets/images/orga/julestrapadoux.jpg'),
+  'valentinfiancette': require('@/assets/images/orga/valentinfiancette.jpg'),
+  'bastienpiegay': require('@/assets/images/orga/bastienpiegay.jpg'),
+  'paulinelacoste': require('@/assets/images/orga/paulinelacoste.jpg'),
+  'louismarcille': require('@/assets/images/orga/louismarcille.jpg'),
 };
 
 /**

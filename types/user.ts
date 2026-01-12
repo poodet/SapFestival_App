@@ -17,8 +17,9 @@ export interface CreateUserData {
   password: string;
   firstName: string;
   lastName: string;
-  ticketId: string;
+  ticketId?: string;
   phone?: string;
+  role?: UserRole;
 }
 
 export interface Ticket {

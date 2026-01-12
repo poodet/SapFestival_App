@@ -11,6 +11,43 @@ import type { CreateUserData, User } from '../types/user';
 
 export class AuthService {
   /**
+   * Create organizer account without ticket validation
+   */
+  static async registerOrganizer(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Promise<User> {
+    if (!auth || !db) {
+      throw new Error('Firebase not initialized');
+    }
+
+    // 1. Create Firebase Auth user
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    // 2. Create user document in Firestore with organizer role
+    const userData: Omit<User, 'id'> = {
+      email,
+      firstName,
+      lastName,
+      ticketId: '', // No ticket for organizers
+      role: 'organisateur',
+      createdAt: new Date(),
+      ticketVerified: true, // Organizers are pre-verified
+      phone: ''
+    };
+
+    await setDoc(doc(db, 'users', userCredential.user.uid), userData);
+
+    return { id: userCredential.user.uid, ...userData };
+  }
+
+  /**
    * Register new user with ticket validation
    */
   static async register(data: CreateUserData): Promise<User> {

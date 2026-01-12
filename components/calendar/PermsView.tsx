@@ -434,7 +434,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                   fontSize: 16,
               }}>
                 {selectedPoles.length > 0 
-                  ? `Pôles (${selectedPoles.length})` 
+                  ? `Pôles` 
                   : 'Pôle'}
               </NormalText>
             </View>
@@ -552,7 +552,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                   fontSize: 16,
               }}>
                 {selectedOrganizers.length > 0 
-                  ? `Orga (${selectedOrganizers.length})` 
+                  ? `Orgas` 
                   : 'Orga'}
               </NormalText>
             </View>
