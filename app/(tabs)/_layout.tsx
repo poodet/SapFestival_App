@@ -13,7 +13,7 @@ export default function TabLayout() {
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: 'transparent',
-          borderRadius: 0,
+          borderRadius: 20,
           height: layout.tabBar.height,
           borderTopWidth: 0,
           elevation: 0,
