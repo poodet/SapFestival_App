@@ -32,7 +32,7 @@ export default function TabLayout() {
             tint="white"
             style={{
               flex: 1,
-              backgroundColor: addOpacity(theme.background.secondary, 0.5),
+              backgroundColor: addOpacity(theme.background.secondary, 0.7),
               borderRadius: 20,
               overflow: 'hidden',
             }}
@@ -60,7 +60,7 @@ export default function TabLayout() {
         name="b2b"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'fast-food-sharp' : 'fast-food-sharp'} color={color} size={30} />
+            <Ionicons name={focused ? 'fast-food-sharp' : 'fast-food-outline'} color={color} size={30} />
           ),
         }}
       />
@@ -68,7 +68,7 @@ export default function TabLayout() {
         name="artists"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'musical-notes' : 'musical-notes'} color={color} size={30}/>
+            <Ionicons name={focused ? 'musical-notes' : 'musical-notes-outline'} color={color} size={30}/>
           ),
         }}
       />
@@ -76,7 +76,7 @@ export default function TabLayout() {
         name="calendar"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar'} color={color} size={30} fontWeight="bold"/>
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} color={color} size={30} fontWeight="bold"/>
           ),
         }}
       />
@@ -84,7 +84,8 @@ export default function TabLayout() {
         name="activities"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'trophy' : 'trophy'} color={color} size={30}/>
+            <Ionicons name={focused ? 'trophy' : 'trophy-outline'} color={color} size={30} 
+            />
           ),
         }}
       />
@@ -92,31 +93,10 @@ export default function TabLayout() {
         name="notifications"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'notifications' : 'notifications-outline'} color={color} size={30}/>
+            <Ionicons name={focused ? 'people' : 'people-outline'} color={color} size={30} />
           ),
         }}
       />
-      {/*<Tabs.Screen
-        name="food"
-        options={{
-          title: 'Menu',
-          tabBarStyle: { display: 'none' },
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'fast-food' : 'fast-food-outline'} color={color} size={24}/>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="map"
-        options={{
-          title: 'Plan',
-          tabBarStyle: { display: 'none' },
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'map' : 'map-outline'} color={color} size={24}/>
-          ),
-        }}
-      />
-      */}
       <Tabs.Screen
         name="about"
         options={{

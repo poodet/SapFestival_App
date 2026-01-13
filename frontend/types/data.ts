@@ -44,11 +44,18 @@ export type DrinkItem = {
 
 export type Perm = {
   id: number;
-  organizer: string;
+  organizer: string; // TODO - refer to Orga type
   pole: string;
   perm: string;
   date_start: string;
   date_end: string;
+}
+
+export type Orga = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  contact: string;
 }
 
 export type FestivalData = {
@@ -57,4 +64,5 @@ export type FestivalData = {
   menuItems: MenuItem[];
   drinkItems: DrinkItem[];
   perms: Perm[];
+  orgas: Orga[];
 };

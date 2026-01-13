@@ -1,4 +1,4 @@
-import { Artist, Activity, MenuItem, FestivalData, DrinkItem, Perm } from '@/types/data';
+import { Artist, Activity, MenuItem, FestivalData, DrinkItem, Perm, Orga } from '@/types/data';
 import imageMapper from '@/components/imageMapper';
 
 /**
@@ -28,6 +28,7 @@ const SHEET_GIDS = {
   menuItems: '478953779',     
   drinkItems: '868886322',
   perms: '2136235132',
+  orgas: '1037932394'
 
 };
  
@@ -38,6 +39,7 @@ const GOOGLE_SHEETS_URLS = {
   menuItems: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.menuItems}&single=true&output=csv`,
   drinkItems: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.drinkItems}&single=true&output=csv`,
   perms: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.perms}&single=true&output=csv`,
+  orgas: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.orgas}&single=true&output=csv`,
 };
 
 /**
@@ -141,7 +143,7 @@ function transformDrinkItems(data: any[]): DrinkItem[] {
     id: index || 0,
     name: row.nom || '',
     description: row.description || '',
-    category: row.catégorie || '',
+    category: row.catégorie || '', 
   })); 
 } 
 
@@ -157,18 +159,29 @@ function transformPerms(data: any[]): Perm[] {
     date_end: (row['jour fin'] !== '' ? row['jour fin'] : row['jour début']) + ' ' + row['heure fin'] || '',
   }));
 }
+
+function transformOrgas(data: any[]): Orga[] {
+  return data.map((row, index) => (
+    {
+    id: index || 0,
+    firstName: row.prénom || '',
+    lastName: row.nom || '',
+    contact: row.contact || '',
+  })); 
+}
   
 /** 
  * Fetch all festival data from Google Sheets
  */
 export async function fetchFestivalData(): Promise<FestivalData> {
   try {
-    const [artistsData, activitiesData, menuItemsData, drinkItemsData, permsData] = await Promise.all([
+    const [artistsData, activitiesData, menuItemsData, drinkItemsData, permsData, orgasData] = await Promise.all([
       fetchSheetData(GOOGLE_SHEETS_URLS.artists),
       fetchSheetData(GOOGLE_SHEETS_URLS.activities),
       fetchSheetData(GOOGLE_SHEETS_URLS.menuItems),
       fetchSheetData(GOOGLE_SHEETS_URLS.drinkItems),
       fetchSheetData(GOOGLE_SHEETS_URLS.perms),
+      fetchSheetData(GOOGLE_SHEETS_URLS.orgas),
     ]); 
   
 
@@ -178,6 +191,7 @@ export async function fetchFestivalData(): Promise<FestivalData> {
       menuItems: transformMenuItems(menuItemsData), 
       drinkItems: transformDrinkItems(drinkItemsData),
       perms: transformPerms(permsData),
+      orgas: transformOrgas(orgasData),
     }; 
     console.log('✅ Fetched festival data successfully:', objects);
     return objects;
@@ -219,5 +233,10 @@ export async function fetchDrinkItems(): Promise<DrinkItem[]> {
 export async function fetchPerms(): Promise<Perm[]> {
   const data = await fetchSheetData(GOOGLE_SHEETS_URLS.perms);
   return transformPerms(data);
+}
+
+export async function fetchOrgas(): Promise<Orga[]> {
+  const data = await fetchSheetData(GOOGLE_SHEETS_URLS.orgas);
+  return transformOrgas(data);
 }
  

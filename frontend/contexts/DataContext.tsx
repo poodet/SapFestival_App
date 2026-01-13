@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Artist, Activity, MenuItem, FestivalData, DrinkItem, Perm } from '@/types/data';
+import { Artist, Activity, MenuItem, FestivalData, DrinkItem, Perm, Orga } from '@/types/data';
 import { fetchFestivalData } from '@/services/data.service';
 import { saveCachedData, loadCachedData, getCacheTimestamp } from '@/services/cache.service';
 
@@ -14,6 +14,7 @@ type DataContextType = {
   menuItems: MenuItem[];
   drinkItems: DrinkItem[];
   perms: Perm[];
+  orgas: Orga[];
   isLoading: boolean;
   isRefreshing: boolean;
   error: Error | null;
@@ -34,6 +35,7 @@ export function DataProvider({ children }: DataProviderProps) {
     menuItems: fallbackMenuItems,
     drinkItems: [],
     perms: [],
+    orgas: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -89,6 +91,9 @@ export function DataProvider({ children }: DataProviderProps) {
           artists: fallbackArtists,
           activities: fallbackActivities,
           menuItems: fallbackMenuItems,
+          drinkItems: [],
+          perms: [],
+          orgas: [],
         });
       }
     } finally {
@@ -116,6 +121,7 @@ export function DataProvider({ children }: DataProviderProps) {
         menuItems: data.menuItems,
         drinkItems: data.drinkItems,
         perms: data.perms,
+        orgas: data.orgas,
         isLoading,
         isRefreshing,
         error,
@@ -160,4 +166,9 @@ export function useDrinkItems() {
 export function usePerms() {
   const { perms, isLoading, isRefreshing, error, refetch, lastUpdate } = useFestivalData();
   return { perms, isLoading, isRefreshing, error, refetch, lastUpdate };
+}
+
+export function useOrgas() {
+  const { orgas, isLoading, isRefreshing, error, refetch, lastUpdate } = useFestivalData();
+  return { orgas, isLoading, isRefreshing, error, refetch, lastUpdate };
 }
