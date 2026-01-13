@@ -16,6 +16,7 @@ SplashScreen.preventAutoHideAsync();
 declare global {
   interface Window {
     OneSignal: any;
+    oneSignalInitialized?: boolean;
   }
 }
 
@@ -43,36 +44,74 @@ function RootLayoutNav() {
     loadFonts();
   }, []);
 
+  // Initialize OneSignal once
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Initialize OneSignal
-      window.OneSignal = window.OneSignal || [];
-      window.OneSignal.push(function () {
-        window.OneSignal.init({
-          appId: "6eb195ca-ecd4-47cf-b9f8-f28e48a109fe",
-          notifyButton: {
-            enable: true,
-          },
-          allowLocalhostAsSecureOrigin: true,
-        });
+    if (typeof window === 'undefined' || window.oneSignalInitialized) return;
 
-        // Set external user ID when user logs in (links OneSignal to Firebase user)
-        if (user) {
-          window.OneSignal.setExternalUserId(user.id);
-          
-          // Get OneSignal player ID and save to Firestore
-          window.OneSignal.getUserId(function(playerId: string) {
-            if (playerId) {
-              // Update user document with OneSignal player ID
-              import('../config/firebase').then(({ db }) => {
-                import('firebase/firestore').then(({ doc, updateDoc }) => {
-                  updateDoc(doc(db, 'users', user.id), {
-                    oneSignalPlayerId: playerId
-                  }).catch(err => console.error('Error saving OneSignal player ID:', err));
-                });
-              });
+    // OneSignal v16 API
+    window.OneSignal = window.OneSignal || [];
+    window.OneSignal.push(async () => {
+      try {
+        await window.OneSignal.init({
+          appId: "6eb195ca-ecd4-47cf-b9f8-f28e48a109fe",
+          allowLocalhostAsSecureOrigin: true,
+          serviceWorkerPath: '/OneSignalSDKWorker.js',
+          serviceWorkerUpdaterPath: '/OneSignalSDKWorker.js',
+          // Disable slidedown prompt (we'll handle subscription separately)
+          promptOptions: {
+            slidedown: {
+              enabled: false
             }
-          });
+          }
+        });
+        
+        window.oneSignalInitialized = true;
+        console.log('✅ OneSignal initialized');
+        
+        // Show native notification prompt
+        await window.OneSignal.Notifications.requestPermission();
+        
+      } catch (err) {
+        console.error('❌ OneSignal initialization failed:', err);
+      }
+    });
+  }, []); // Run once on mount
+
+  // Update user ID when user logs in/out
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.oneSignalInitialized) return;
+
+    if (user) {
+      window.OneSignal.push(async () => {
+        try {
+          // Wait a bit for OneSignal to be fully ready
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Login user with external ID (v16 API)
+          await window.OneSignal.login(user.id);
+          console.log('✅ OneSignal user logged in with external_id:', user.id);
+          
+          // Check subscription status
+          const isPushSupported = await window.OneSignal.Notifications.isPushSupported();
+          const permission = await window.OneSignal.Notifications.permission;
+          const isSubscribed = window.OneSignal.User?.PushSubscription?.optedIn;
+          
+          console.log('🔔 Push supported:', isPushSupported);
+          console.log('🔔 Permission:', permission);
+          console.log('🔔 Subscribed:', isSubscribed);
+          
+        } catch (err) {
+          console.error('❌ Error setting up OneSignal user:', err);
+        }
+      });
+    } else if (user === null) {
+      // User logged out
+      window.OneSignal.push(async () => {
+        try {
+          await window.OneSignal.logout();
+          console.log('✅ OneSignal user logged out');
+        } catch (err) {
+          console.error('Error logging out OneSignal user:', err);
         }
       });
     }
@@ -99,7 +138,7 @@ function RootLayoutNav() {
     <>
       {/* Injection du script OneSignal */}
       <Head>
-        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+        <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" async></script>
       </Head>
 
       <Stack>

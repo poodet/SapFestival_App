@@ -183,15 +183,6 @@ async function sendOneSignalNotification(params: {
 }) {
   const { userId, title, message, type, relatedId, relatedType } = params;
 
-  // Get user's OneSignal player ID from Firestore
-  const userDoc = await admin.firestore().collection('users').doc(userId).get();
-  const userData = userDoc.data();
-
-  if (!userData?.oneSignalPlayerId) {
-    console.log(`User ${userId} has no OneSignal player ID`);
-    return;
-  }
-
   const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
   const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY;
 
@@ -200,13 +191,29 @@ async function sendOneSignalNotification(params: {
     return;
   }
 
+  // check if user exists in oneSignal:
+  const checkUserOptions = {
+    hostname: 'onesignal.com',
+    path: `/api/v1/players?app_id=${ONESIGNAL_APP_ID}&external_user_id=${userId}`,
+    method: 'GET',
+    headers: {
+      'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
+      'Content-Type': 'application/json'
+    }
+  };
+
   try {
-    // Send notification via OneSignal API
-    await axios.post(
+    // Send notification via OneSignal REST API
+    // NOTE Pauline - pour une raison inconnue, les notifications ne fonctionnent pas dans chromium sur mon ordinateur (linux) mais OK sur chrome et firefox
+    const response = await axios.post(
       'https://onesignal.com/api/v1/notifications',
       {
         app_id: ONESIGNAL_APP_ID,
-        include_player_ids: [userData.oneSignalPlayerId],
+        // Use external_id instead of player_ids (v16 best practice)
+        include_aliases: {
+          external_id: [userId]
+        },
+        target_channel: 'push',
         headings: { en: title },
         contents: { en: message },
         data: {
@@ -214,7 +221,7 @@ async function sendOneSignalNotification(params: {
           relatedId,
           relatedType,
         },
-      },
+      }, 
       {
         headers: {
           'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
@@ -224,6 +231,16 @@ async function sendOneSignalNotification(params: {
     );
 
     console.log(`✅ Sent notification to user ${userId}: ${title}`);
+    // console.log("response: ", response);
+    console.log('📊 OneSignal response:', JSON.stringify(response.data, null, 2));
+    
+    // Check if notification was delivered
+    if (response.data.errors && response.data.errors.length > 0) {
+      console.error('⚠️ OneSignal errors:', response.data.errors);
+    }
+    if (response.data.recipients === 0) {
+      console.warn('⚠️ No recipients received the notification. User may not be subscribed.');
+    }
 
     // Save notification to Firestore (for in-app history)
     await admin.firestore().collection('notifications').add({
@@ -238,8 +255,12 @@ async function sendOneSignalNotification(params: {
     });
   } catch (error) {
     console.error('❌ Error sending OneSignal notification:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('OneSignal API error response:', error.response.data);
+    }
   }
 }
+     
 
 /**
  * Check if notification should be sent now
@@ -250,7 +271,7 @@ function shouldSendNotification(
   lastCheck: dayjs.Dayjs
 ): boolean {
   return notifyAt.isAfter(lastCheck) && notifyAt.isBefore(now.add(10, 'minutes'));
-}
+} 
 
 /**
  * Main notification check function
@@ -289,7 +310,7 @@ async function checkNotifications() {
         const eventStart = dayjs(artist.date_start);
         const notifyAt = eventStart.subtract(prefs.minutesBeforeEvent || 30, 'minutes');
 
-        if (shouldSendNotification(now, notifyAt, lastCheck)) {
+        if (shouldSendNotification(now, notifyAt, lastCheck) || true) {
           await sendOneSignalNotification({
             userId: prefs.userId,
             title: `${artist.name} arrive bientôt !`,
@@ -337,7 +358,5 @@ cron.schedule('*/10 * * * *', () => {
 });
 
 // Run immediately on startup
-checkNotifications();
-
-console.log('🚀 Notification service started');
-console.log('⏰ Scheduled to run every 10 minutes');
+checkNotifications(); 
+ 
