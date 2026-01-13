@@ -1,4 +1,22 @@
 services:
+  # Notification backend service
+  sap-festival-notifications:
+    build:
+      context: ./backend/notification
+      dockerfile: Dockerfile
+    container_name: sap-festival-notifications
+    env_file:
+      - ./backend/notification/.env
+    volumes:
+      - ./backend/notification/src:/app/src
+      - ./backend/notification/tsconfig.json:/app/tsconfig.json
+      # Exclude node_modules to avoid conflicts
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - sap-network
+    restart: unless-stopped
+
   sap-festival-app:
     build:
       context: .
