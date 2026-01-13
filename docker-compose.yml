@@ -17,34 +17,34 @@ services:
       - sap-network
     restart: unless-stopped
 
+  # Main app
   sap-festival-app:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: sap-festival-app
     ports:
       - "8081:8081"    # Metro bundler
-      # - "19000:19000"  # Expo DevTools
-      # - "19001:19001"  # Expo DevTools (alternate)
-      # - "19002:19002"  # Expo DevTools (alternate)
+      - "19000:19000"  # Expo DevTools
     volumes:
-      - ./app:/app/app
-      - ./assets:/app/assets
-      - ./components:/app/components
-      - ./sounds:/app/sounds
-      - ./web:/app/web
-      - ./public:/app/public
-      - ./services:/app/services
-      - ./config:/app/config
-      - ./types:/app/types
-      - ./contexts:/app/contexts
-      - ./data:/app/data
-      - ./hooks:/app/hooks
-      - ./constants:/app/constants
-      - ./package.json:/app/package.json
-      - ./package-lock.json:/app/package-lock.json
+      # Mount source code but exclude node_modules
+      - ./frontend/app:/app/app
+      - ./frontend/assets:/app/assets
+      - ./frontend/components:/app/components
+      - ./frontend/config:/app/config
+      - ./frontend/constants:/app/constants
+      - ./frontend/contexts:/app/contexts
+      - ./frontend/data:/app/data
+      - ./frontend/hooks:/app/hooks
+      - ./frontend/services:/app/services
+      - ./frontend/sounds:/app/sounds
+      - ./frontend/types:/app/types
+      - ./frontend/web:/app/web
+      - ./frontend/public:/app/public
+      # Don't mount node_modules (causes issues)
+      # Don't mount package.json (rebuild needed if changed)
     env_file:
-      - .env
+      - ./frontend/.env
     environment:
       - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
       - REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0

@@ -57,7 +57,7 @@ const AboutScreen = () => {
         </View>
       )}
       
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} bounces={false} overScrollMode="never">
 
         <View style={[styles.section,{ }]}>
           <Text style={[styles.cardTitle, {fontWeight: 800, color : '#ff0f0f',textAlign : 'center' }]}>

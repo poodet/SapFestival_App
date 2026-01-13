@@ -23,6 +23,7 @@ import {theme, layout} from '@/constants/theme';
 import { useHighlightItem } from '@/hooks/useHighlightItem';
 import ThemedText from '@/components/ThemedText';
 import { extractTime, extractDayName } from '@/services/calendar.service';
+import { SubscribeButton } from '@/components/SubscribeButton';
 
 const { width } = Dimensions.get('window');
 
@@ -100,6 +101,9 @@ export default function ArtistsScreen() {
                 styles.card,
                 isHighlighted && styles.highlightedCard
               ]}>
+                <View style={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }} >
+                  <SubscribeButton type="artist" id={item.id} compact />
+                </View>
                 <View style={styles.cardTop}>
                   <Image
                     alt=""

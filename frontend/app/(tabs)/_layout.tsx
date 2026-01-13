@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { View, Text, StyleSheet } from 'react-native';
 import {theme, addOpacity, layout} from '@/constants/theme';
 import { BlurView } from 'expo-blur';
 
@@ -87,6 +88,14 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'notifications' : 'notifications-outline'} color={color} size={30}/>
+          ),
+        }}
+      />
       {/*<Tabs.Screen
         name="food"
         options={{
@@ -117,3 +126,27 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+ 
+
+const styles = StyleSheet.create({
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -8,
+    backgroundColor: '#FF3B30',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: theme.ui.white,
+  },
+  badgeText: {
+    color: theme.ui.white,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+});     

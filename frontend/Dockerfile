@@ -11,8 +11,10 @@ RUN apk add --no-cache git
 COPY package*.json ./
 
 # Install dependencies with cache mount for faster rebuilds
-RUN --mount=type=cache,target=/root/.npm \
-    npm install
+# RUN --mount=type=cache,target=/root/.npm \
+    # npm install
+
+RUN npm install 
 
 # Copy the rest of the application
 COPY . .
@@ -28,5 +30,6 @@ EXPOSE 8081 19000 19001 19002
 ENV EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
 ENV REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
 
-# Start Expo with tunnel mode for Docker
+# Start Expo
 CMD ["npx", "expo", "start", "--web", "--host", "lan"]
+

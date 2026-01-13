@@ -6,6 +6,7 @@ import Head from 'expo-router/head';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
 import { HighlightProvider } from '../contexts/HighlightContext';
+import { NotificationProvider } from '../contexts/NotificationContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Keep the splash screen visible while we fetch resources
@@ -44,19 +45,38 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Initialiser OneSignal
+      // Initialize OneSignal
       window.OneSignal = window.OneSignal || [];
       window.OneSignal.push(function () {
         window.OneSignal.init({
-          appId: "645d940c-7705-4509-b175-49bff85c8c34", // Ton vrai App ID
+          appId: "6eb195ca-ecd4-47cf-b9f8-f28e48a109fe",
           notifyButton: {
-            enable: true, // Affiche le bouton flottant d'abonnement
+            enable: true,
           },
-          allowLocalhostAsSecureOrigin: true, // Pour les tests en local
+          allowLocalhostAsSecureOrigin: true,
         });
+
+        // Set external user ID when user logs in (links OneSignal to Firebase user)
+        if (user) {
+          window.OneSignal.setExternalUserId(user.id);
+          
+          // Get OneSignal player ID and save to Firestore
+          window.OneSignal.getUserId(function(playerId: string) {
+            if (playerId) {
+              // Update user document with OneSignal player ID
+              import('../config/firebase').then(({ db }) => {
+                import('firebase/firestore').then(({ doc, updateDoc }) => {
+                  updateDoc(doc(db, 'users', user.id), {
+                    oneSignalPlayerId: playerId
+                  }).catch(err => console.error('Error saving OneSignal player ID:', err));
+                });
+              });
+            }
+          });
+        }
       });
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (loading) return;
@@ -104,9 +124,11 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <AuthProvider>
         <DataProvider>
-          <HighlightProvider>
-            <RootLayoutNav />
-          </HighlightProvider>
+          <NotificationProvider>
+            <HighlightProvider>
+              <RootLayoutNav />
+            </HighlightProvider>
+          </NotificationProvider>
         </DataProvider>
       </AuthProvider>
     </SafeAreaProvider>

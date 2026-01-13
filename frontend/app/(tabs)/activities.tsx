@@ -19,6 +19,7 @@ import {theme, layout} from '@/constants/theme';
 import { extractDayName, extractTime } from '@/services/calendar.service';
 import { useHighlightItem } from '@/hooks/useHighlightItem';
 import ThemedText from '@/components/ThemedText';
+import { SubscribeButton } from '@/components/SubscribeButton';
 
 const { width } = Dimensions.get('window');
 
@@ -137,6 +138,9 @@ export default function ActivityScreen() {
                 ]}>
                   <View style={[styles.cardContent, {flexWrap : 'nowrap',flexDirection:'row'}]}>
                     <ThemedText style={styles.name}>{item.name}</ThemedText>
+                    <View style={{ position: 'absolute', top: 5, right: 5, zIndex: 2 }} >
+                      <SubscribeButton type="activity" id={item.id} compact />
+                    </View>
                   </View>
                   <View style={styles.cardContent}>
                     <Text style={styles.detail}>📅 

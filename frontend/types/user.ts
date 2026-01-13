@@ -10,6 +10,7 @@ export interface User {
   createdAt: Date;
   ticketVerified: boolean;
   phone?: string;
+  oneSignalPlayerId?: string; // OneSignal device ID for push notifications
 }
 
 export interface CreateUserData {

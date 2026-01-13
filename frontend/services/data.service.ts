@@ -30,7 +30,7 @@ const SHEET_GIDS = {
   perms: '2136235132',
 
 };
-
+ 
 // Construct URLs for each tab
 const GOOGLE_SHEETS_URLS = {
   artists: `${GOOGLE_SHEETS_BASE_URL}?gid=${SHEET_GIDS.artists}&single=true&output=csv`,
