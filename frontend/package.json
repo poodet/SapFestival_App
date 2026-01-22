@@ -11,7 +11,7 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "export": "expo export --platform web",
-    "postexport": "cp web/OneSignalSDKWorker.js dist/"
+    "postexport": "cp public/OneSignalSDKWorker.js dist/"
   },
   "jest": {
     "preset": "jest-expo"
