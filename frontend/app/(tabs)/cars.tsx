@@ -180,28 +180,24 @@ export default function CarsScreen() {
     // Validation
     if (!conductorName.trim()) {
       Alert.alert('Erreur', 'Veuillez saisir le nom du conducteur');
+      console.error('Conductor name is empty');
       return;
     }
-    if (!totalSeats || parseInt(totalSeats) <= 0) {
+    if (!totalSeats || parseInt(totalSeats) < 0) {
       Alert.alert('Erreur', 'Veuillez saisir un nombre de places valide');
+      console.error('Total seats is invalid:', totalSeats);
       return;
     }
-    if (!departureLocation.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir le lieu de départ');
-      return;
-    }
-    if (!arrivalLocation.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir le lieu d\'arrivée');
-      return;
-    }
-    if (!departureDay.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir la date de départ');
-      return;
-    }
-    if (!departureTime.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir l\'heure de départ');
-      return;
-    }
+    // if (!departureDay.trim()) {
+    //   Alert.alert('Erreur', 'Veuillez saisir la date de départ');
+    // console.error('Departure day is empty');
+    //   return;
+    // }
+    // if (!departureTime.trim()) {
+    //   Alert.alert('Erreur', 'Veuillez saisir l\'heure de départ');
+    //   console.error('Departure time is empty');
+    //   return;
+    // }
 
     setIsCreating(true);
     try {
@@ -248,26 +244,26 @@ export default function CarsScreen() {
       Alert.alert('Erreur', 'Veuillez saisir le nom du conducteur');
       return;
     }
-    if (!totalSeats || parseInt(totalSeats) <= 0) {
+    if (!totalSeats || parseInt(totalSeats) < 0) {
       Alert.alert('Erreur', 'Veuillez saisir un nombre de places valide');
       return;
     }
-    if (!departureLocation.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir le lieu de départ');
-      return;
-    }
-    if (!arrivalLocation.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir le lieu d\'arrivée');
-      return;
-    }
-    if (!departureDay.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir la date de départ');
-      return;
-    }
-    if (!departureTime.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir l\'heure de départ');
-      return;
-    }
+    // if (!departureLocation.trim()) {
+    //   Alert.alert('Erreur', 'Veuillez saisir le lieu de départ');
+    //   return;
+    // }
+    // if (!arrivalLocation.trim()) {
+    //   Alert.alert('Erreur', 'Veuillez saisir le lieu d\'arrivée');
+    //   return;
+    // }
+    // if (!departureDay.trim()) {
+    //   Alert.alert('Erreur', 'Veuillez saisir la date de départ');
+    //   return;
+    // }
+    // if (!departureTime.trim()) {
+    //   Alert.alert('Erreur', 'Veuillez saisir l\'heure de départ');
+    //   return;
+    // }
 
     setIsCreating(true);
     try {
@@ -443,16 +439,16 @@ export default function CarsScreen() {
           renderItem={({ item }: { item: Covoiturage }) => {
             const availableSeats = item.totalSeats - item.reservedSeats;
             const displayLocation = selectedTripType === 'aller' 
-              ? item.departureLocation 
-              : item.arrivalLocation;
+              ? 'Depart de ' + item.departureLocation 
+              : 'Arrivée à ' + item.arrivalLocation;
             const isUserCovoiturage = user && item.userId === user.id;
 
             return (
-              <View style={styles.card}>
+              <View style={[styles.card, { opacity: availableSeats === 0 ? 0.6 : 1 }]}>
                 {/* Conductor Name with Edit Button */}
                 <View style={[styles.cardRow, { justifyContent: 'space-between' }]}>
                   <View style={[styles.cardRow, { flex: 1 }]}>
-                    <Ionicons name="person" size={20} color={theme.interactive.primary} />
+                    <Ionicons name="car" size={24} color={theme.interactive.primary} />
                     <ThemedText style={styles.conductorName}>
                       {item.conductorName}
                     </ThemedText>
@@ -462,7 +458,7 @@ export default function CarsScreen() {
                       onPress={() => handleOpenEdit(item)}
                       style={styles.editButton}
                     >
-                      <Ionicons name="pencil" size={18} color={theme.interactive.primary} />
+                      <Ionicons name="create-outline" size={18} color={theme.interactive.primary} />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -474,7 +470,7 @@ export default function CarsScreen() {
                     <Ionicons 
                       name="people" 
                       size={18} 
-                      color={availableSeats > 0 ? theme.interactive.secondary : theme.interactive.inactive} 
+                      color={availableSeats > 0 ? theme.interactive.primary : theme.interactive.inactive} 
                     />
                     <Text style={[
                       styles.detailText,
@@ -508,6 +504,7 @@ export default function CarsScreen() {
                     color={theme.text.secondary} 
                   />
                   <Text style={styles.locationText}>
+
                     {displayLocation}
                   </Text>
                 </View>
@@ -517,7 +514,7 @@ export default function CarsScreen() {
                   <View style={styles.contactContainer}>
                     <Ionicons name="information-circle-outline" size={18} color={theme.text.secondary} />
                     <Text style={styles.contactText}>
-                      {item.contactInfo}
+                        Contact: {item.contactInfo}
                     </Text>
                   </View>
                 )}
@@ -530,13 +527,13 @@ export default function CarsScreen() {
         {/* Floating Action Button */}
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => setIsModalVisible(true)}
+          onPress={() => {setIsModalVisible(true); setConductorName(user.firstName + ' ' + user.lastName);}}
           activeOpacity={0.8}
         >
           <Ionicons name="add" size={28} color={theme.ui.white} />
         </TouchableOpacity>
 
-        {/* Create Covoiturage Modal */}
+        {/* Create / edit Covoiturage Modal */}
         <Modal
           visible={isModalVisible}
           animationType="slide"
@@ -613,27 +610,33 @@ export default function CarsScreen() {
                   </View>
                 </View>
 
-                {/* Departure Location */}
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Lieu de départ</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Lieu de départ"
-                    value={departureLocation}
-                    onChangeText={setDepartureLocation}
-                  />
-                </View>
+                { formTripType === 'aller' ?
+                    (
 
-                {/* Arrival Location */}
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Lieu d'arrivée</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Lieu d'arrivée"
-                    value={arrivalLocation}
-                    onChangeText={setArrivalLocation}
-                  />
-                </View>
+                      <View style={styles.formGroup}>
+                            <Text style={styles.label}>Lieu de départ</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Lieu de départ"
+                                value={departureLocation}
+                                onChangeText={setDepartureLocation}
+                            />
+                        </View>
+                    ) :
+                    (
+
+                    <View style={styles.formGroup}>
+                    <Text style={styles.label}>Lieu d'arrivée</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Lieu d'arrivée"
+                        value={arrivalLocation}
+                        onChangeText={setArrivalLocation}
+                    />
+                    </View>
+                    )
+                }
+
 
                 {/* Departure Day and Time */}
                 <View style={styles.formRow}>
@@ -780,7 +783,7 @@ const styles = StyleSheet.create({
     paddingBottom: layout.tabBar.contentPadding,
   },
   card: {
-    backgroundColor: theme.background.secondary,
+    backgroundColor: theme.ui.white,
     paddingHorizontal: width * 0.04,
     paddingVertical: width * 0.03,
     marginBottom: 16,
@@ -807,8 +810,10 @@ const styles = StyleSheet.create({
   },
   editButton: {
     padding: 8,
-    borderRadius: 8,
-    backgroundColor: theme.background.primary,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: theme.interactive.primary,
+    // backgroundColor: theme.background.primary,
   },
   detailsRow: {
     flexDirection: 'row',
@@ -837,9 +842,10 @@ const styles = StyleSheet.create({
   contactContainer: {
     flexDirection: 'row',
     gap: 8,
-    backgroundColor: theme.background.primary,
-    padding: 10,
+    // backgroundColor: theme.background.primary,
+    // padding: 10,
     borderRadius: 8,
+    alignItems: 'center',
   },
   contactText: {
     fontSize: width < 350 ? 12 : 14,
@@ -910,6 +916,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
+    color: theme.text.inactive,
     borderWidth: 1,
     borderColor: theme.interactive.inactive,
   },

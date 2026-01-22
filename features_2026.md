@@ -56,6 +56,8 @@ Suivi de l'avancement:
 
 ### 💛 **Notification**:
 - Possibilité d'envoyer des notifications aux utilisateurs
+    - notif par defaut: envoyer leur perm aux orgas 5min avant le début
+- Possibilité pour un utilisateur de souscrire à une activité / un artiste
 
 ### ❤️ **Gestion des perms**:
 - ✅ Les organistateurs peuvent accéder à leur perms:
@@ -108,6 +110,14 @@ DETAIL : besoin de firebase aussi, mais comme les requetes de lecture viennent d
     - recette des différents cocktails
     - description perm scarabé,...
     - des rappels comme rester vigilant aux verres sur la scène...
+
+### 💛 **Solution de covoiturage**:
+- Une page simple et clair permettant aux gens de s'inscrire en covoiturage:
+    - proposer leur voiture, avec le nb de place et leur contact
+    - se mettre en recherche d'une voiture
+    - faire une demande de joindre une voiture 
+DETAIL : plus on veut de l'automatisation et des features style blablacar, plus ca va prendre du temps de dev, hors c'est pas le but de dev une appli de covoit. 
+
 
 ## 🔨 2. Architecture Techno
 

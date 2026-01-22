@@ -58,6 +58,21 @@ export type Orga = {
   contact: string;
 }
 
+export type Covoiturage = {
+  id: string; // Firebase document ID
+  userId: string; // ID of the user who created this covoiturage
+  conductorName: string;
+  totalSeats: number;
+  reservedSeats: number;
+  departureDate: Date; // Timestamp in Firebase, Date in app
+  departureLocation: string;
+  arrivalLocation: string;
+  tripType: 'aller' | 'retour'; // one-way or return
+  contactInfo: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export type FestivalData = {
   artists: Artist[];
   activities: Activity[]; 
@@ -65,4 +80,5 @@ export type FestivalData = {
   drinkItems: DrinkItem[];
   perms: Perm[];
   orgas: Orga[];
+  covoiturage: Covoiturage[];
 };
