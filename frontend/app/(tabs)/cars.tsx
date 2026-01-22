@@ -305,35 +305,50 @@ export default function CarsScreen() {
   const handleDelete = async () => {
     if (!editingCovoiturage) return;
 
-    Alert.alert(
-      'Confirmer la suppression',
-      'Êtes-vous sûr de vouloir supprimer ce covoiturage ?',
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: async () => {
-            setIsCreating(true);
-            try {
-              await deleteCovoiturage(editingCovoiturage.id);
-              Alert.alert('Succès', 'Covoiturage supprimé avec succès');
-              setIsModalVisible(false);
-              resetForm();
-              refetch();
-            } catch (error) {
-              console.error('Error deleting covoiturage:', error);
-              Alert.alert('Erreur', 'Impossible de supprimer le covoiturage');
-            } finally {
-              setIsCreating(false);
-            }
-          },
-        },
-      ]
-    );
+    setIsCreating(true);
+    try {
+        await deleteCovoiturage(editingCovoiturage.id);
+        Alert.alert('Succès', 'Covoiturage supprimé avec succès');
+        setIsModalVisible(false);
+        resetForm();
+        refetch();
+    } catch (error) {
+        console.error('Error deleting covoiturage:', error);
+        Alert.alert('Erreur', 'Impossible de supprimer le covoiturage');
+    } finally {
+        setIsCreating(false);
+    }
+
+    // TODO- mettre une alerte, mais j'ai pas pu le faire marcher sur mon ios
+    // Alert.alert(
+    //   'Confirmer la suppression',
+    //   'Êtes-vous sûr de vouloir supprimer ce covoiturage ?',
+    //   [
+    //     {
+    //       text: 'Annuler',
+    //       style: 'cancel',
+    //     },
+    //     {
+    //       text: 'Supprimer',
+    //       style: 'destructive',
+    //       onPress: async () => {
+    //         setIsCreating(true);
+    //         try {
+    //           await deleteCovoiturage(editingCovoiturage.id);
+    //           Alert.alert('Succès', 'Covoiturage supprimé avec succès');
+    //           setIsModalVisible(false);
+    //           resetForm();
+    //           refetch();
+    //         } catch (error) {
+    //           console.error('Error deleting covoiturage:', error);
+    //           Alert.alert('Erreur', 'Impossible de supprimer le covoiturage');
+    //         } finally {
+    //           setIsCreating(false);
+    //         }
+    //       },
+    //     },
+    //   ]
+    // );
   };
 
   if (isLoading) {
@@ -353,11 +368,29 @@ export default function CarsScreen() {
 
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
-      <ScreenTitle>COVOIT</ScreenTitle>
+      <ScreenTitle>COVOIT'</ScreenTitle>
       <InfoHeaderButton />
       <View style={styles.container}>
         {/* Filter Bar */}
         <View style={styles.filterBar}>
+
+          {/* Search Input */}
+          <View style={styles.searchContainer}>
+            <Ionicons name="search-outline" size={20} color={theme.text.secondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Rechercher..."
+              placeholderTextColor="grey"
+              value={searchText}
+              onChangeText={setSearchText}
+              numberOfLines={1}
+            />
+            {searchText.length > 0 && (
+              <Pressable onPress={() => setSearchText('')}>
+                <Ionicons name="close-circle" size={20} color={theme.text.secondary} />
+              </Pressable>
+            )}
+          </View>
           {/* Trip Type Buttons */}
           <View style={styles.tripTypeButtons}>
             <Pressable
@@ -394,23 +427,6 @@ export default function CarsScreen() {
             </Pressable>
           </View>
 
-          {/* Search Input */}
-          <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={20} color={theme.text.secondary} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Rechercher..."
-              placeholderTextColor="grey"
-              value={searchText}
-              onChangeText={setSearchText}
-              numberOfLines={1}
-            />
-            {searchText.length > 0 && (
-              <Pressable onPress={() => setSearchText('')}>
-                <Ionicons name="close-circle" size={20} color={theme.text.secondary} />
-              </Pressable>
-            )}
-          </View>
         </View>
 
         {/* Trip List */}
@@ -526,11 +542,16 @@ export default function CarsScreen() {
 
         {/* Floating Action Button */}
         <TouchableOpacity
-          style={styles.fab}
-          onPress={() => {setIsModalVisible(true); setConductorName(user.firstName + ' ' + user.lastName);}}
+          style={styles.addCovoitButton}
+          onPress={() => {
+            setIsModalVisible(true); 
+            setConductorName(user.firstName + ' ' + user.lastName);
+            setFormTripType(selectedTripType)
+        }}
           activeOpacity={0.8}
         >
           <Ionicons name="add" size={28} color={theme.ui.white} />
+          <Ionicons name="car" size={28} color={theme.ui.white} />
         </TouchableOpacity>
 
         {/* Create / edit Covoiturage Modal */}
@@ -733,8 +754,9 @@ const styles = StyleSheet.create({
   },
   filterBar: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
     gap: 12,
+    flexDirection: 'row',
+
   },
   tripTypeButtons: {
     flexDirection: 'row',
@@ -770,6 +792,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     gap: 8,
+    flex: 1,
   },
   searchInput: {
     flex: 1,
@@ -862,11 +885,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: theme.text.secondary,
   },
-  fab: {
+  addCovoitButton: {
     position: 'absolute',
-    right: 20,
+    alignSelf: 'center',
+    // right: 20,
     bottom: layout.tabBar.height + layout.tabBar.marginBottom + 10,
-    width: 60,
+    width: 80,
     height: 60,
     borderRadius: 30,
     backgroundColor: theme.interactive.primary,
@@ -877,6 +901,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    flexDirection: 'row',
   },
   modalOverlay: {
     flex: 1,
