@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   useWindowDimensions,
+
   Image,
   Linking,
   Modal,
@@ -39,7 +40,13 @@ const NotificationsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const { orgas, isLoading: orgasLoading, refetch: refetchOrgas } = useOrgas();
-  
+  console.log('Orgas loaded:', orgas?.length);
+  // const numColumns = 2;
+    // Responsive grid calculation for orga boxes
+  const window = useWindowDimensions();
+  const numColumns = Math.max(1, Math.floor((window.width - 32) / (ORGA_SIZE + ORGA_GAP)));
+
+
   // Use the highlight hook
   const { 
     currentHighlightId, 
@@ -49,14 +56,13 @@ const NotificationsScreen = () => {
   } = useHighlightItem({ 
     items: orgas,
     pulseCount: 2, // Double pulse animation
+    numColumns,
   });
 
   // Selected orga for modal
   const [selectedOrga, setSelectedOrga] = useState<any>(null);
 
-  // Responsive grid calculation for orga boxes
-  const window = useWindowDimensions();
-  const numColumns = Math.max(1, Math.floor((window.width - 32) / (ORGA_SIZE + ORGA_GAP)));
+  // Fixed 2-column grid for reliable scrolling and highlighting
 
   // Use notification context
   const {
@@ -67,7 +73,13 @@ const NotificationsScreen = () => {
     refreshNotifications,
   } = useNotifications();
 
-//   } = useNotifications();
+  // Auto-switch to contact view when navigating with highlight from other screens
+  useEffect(() => {
+    if (currentHighlightId) {
+      setActiveView('contact');
+    }
+  }, [currentHighlightId]);
+
 
   // Handle pull to refresh
   const onRefresh = async () => {
@@ -316,6 +328,19 @@ const NotificationsScreen = () => {
                 // Only set this if more than 1 column to avoid weird single column centering
                 columnWrapperStyle={numColumns > 1 ? { justifyContent: 'flex-start' } : undefined}
                 contentContainerStyle={styles.listContainer}
+                onScrollToIndexFailed={(info) => {
+                  // Handle scroll failure gracefully (account for multi-column grids)
+                  const wait = new Promise(resolve => setTimeout(resolve, 500));
+                  wait.then(() => {
+                    // If using multiple columns, compute the row index
+                    const target = numColumns > 1 ? Math.floor(info.index / numColumns) : info.index;
+                    flatListRef.current?.scrollToIndex({
+                      index: target,
+                      animated: true,
+                      viewPosition: 0.2,
+                    });
+                  });
+                }}
                 refreshControl={
                   <RefreshControl
                     refreshing={orgasLoading}
@@ -333,7 +358,10 @@ const NotificationsScreen = () => {
                       <View style={styles.orgaItemWrapper}>
                         <Pressable
                           onPress={() => setSelectedOrga(item)}
-                          style={styles.orgaBox}
+                          style={[
+                            styles.orgaBox,
+                            isHighlighted && styles.highlightedOrgaBox
+                          ]}
                           android_ripple={{ color: addOpacity(theme.background.secondary, 0.12) }}
                           accessibilityRole="button"
                         >
@@ -519,12 +547,24 @@ const styles = StyleSheet.create({
     borderColor: addOpacity(theme.text.secondary, 0.12),
     alignItems: 'center',
     justifyContent: 'center',
-    // drop shadow
     shadowColor: '#000',
     shadowOffset: { width: 2, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
     elevation: 6,
+  },
+  highlightedOrgaBox: {
+    borderWidth: 3,
+    borderColor: theme.interactive.primary,
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  orgaName: {
+    marginTop: 6,
+    textAlign: 'center',
+    fontSize: 12,
+    flexShrink: 1,
   },
   orgaGradient: {
     width: '100%',

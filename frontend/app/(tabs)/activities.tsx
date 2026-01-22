@@ -13,8 +13,10 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ScreenTitle from '@/components/screenTitle';
+import { useRouter } from 'expo-router';
+import { useHighlight } from '@/contexts/HighlightContext';
 import InfoHeaderButton from '@/components/InfoHeaderButton';
-import { useActivities } from '@/contexts/DataContext';
+import { useActivities, useOrgas } from '@/contexts/DataContext';
 import {theme, layout} from '@/constants/theme'; 
 import { extractDayName, extractTime } from '@/services/calendar.service';
 import { useHighlightItem } from '@/hooks/useHighlightItem';
@@ -29,6 +31,9 @@ export default function ActivityScreen() {
   });
 
   const { activities, isLoading, isRefreshing, refetch } = useActivities();
+  const { orgas } = useOrgas();
+  const router = useRouter();
+  const { setHighlightId } = useHighlight();
   
   // Use the highlight hook
   const { 
@@ -49,10 +54,21 @@ export default function ActivityScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSource, setCurrentSource] = useState<number | null>(null);
 
-  // Placeholder for future implementation
-  const navigateToPersonCard = (person: any) => {
-    // TODO: Implement person card navigation
-    console.log('Navigate to person card:', person);
+  // Navigate to orgas list and highlight matching organizer
+  const navigateToPersonCard = (personName: string) => {
+    // Find the orga that matches the person name
+    const matchingOrga = orgas?.find((orga: any) => {
+      const fullName = `${orga.firstName} ${orga.lastName}`.trim();
+      return fullName === personName.trim();
+    });
+
+    if (matchingOrga) {
+      setHighlightId(matchingOrga.id.toString());
+      router.push('/(tabs)/notifications');
+    } else {
+      // Still navigate but without highlight
+      router.push('/(tabs)/notifications');
+    }
   };
 
   useEffect(() => {
@@ -148,12 +164,19 @@ export default function ActivityScreen() {
                        ' '+ extractDayName(item.date_start) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)
                       }
                     </Text>
-                    <Text style={styles.detail}>📍 {item.location}</Text>
+                    { item.location ? (
+                     <View>
+                      <Text style={styles.detail}>📍 {item.location}</Text>
+                     </View>
+                    ) : null }
                   </View>
                     <View style={[styles.detail, { flexDirection: 'row', justifyContent: 'left' }]}>
                       {/* 🧙🏻‍♀️🧙‍♂️ */}
                       {item.respo.map((person, index) => (
-                        <TouchableOpacity key={index} onPress={() => navigateToPersonCard(person)}>
+                        <TouchableOpacity 
+                        style={{borderWidth: 1, borderColor: theme.interactive.primary, borderRadius: 5, paddingHorizontal: 5, marginRight: 5}}
+                        
+                        key={index} onPress={() => navigateToPersonCard(person)}>
                           <Text style={styles.detail}> {person}  </Text>
                         </TouchableOpacity>
                       ))}

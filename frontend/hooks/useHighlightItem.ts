@@ -101,20 +101,33 @@ export function useHighlightItem(
     animationDuration = 200,
     pulseCount = 2,
   } = options;
+  // const { /* keep backwards compatible */ } = options as any;
+  const numColumns = (options as any).numColumns || 1;
 
   const { highlightId, clearHighlight } = useHighlight();
   const flatListRef = useRef<FlatList>(null);
+  const hasProcessedHighlight = useRef(false);
   
   // Animation value for highlighted card using Reanimated
   const scale = useSharedValue(1);
 
-  // Clear highlight when screen loses focus
+  // Reset the flag when highlightId changes
+  useEffect(() => {
+    if (highlightId) {
+      hasProcessedHighlight.current = false;
+    }
+  }, [highlightId]);
+
+  // Clear highlight when screen loses focus (but not during initial navigation)
   useFocusEffect(
     useCallback(() => {
-      // Cleanup function runs when screen loses focus
+      // Don't clear on focus - only on blur
       return () => {
-        clearHighlight();
-        scale.value = 1; // Reset animation
+        // Only clear if we've actually processed a highlight on this screen
+        if (hasProcessedHighlight.current) {
+          clearHighlight();
+          scale.value = 1; // Reset animation
+        }
       };
     }, [clearHighlight, scale])
   );
@@ -134,11 +147,15 @@ export function useHighlightItem(
           (item) => item.id.toString() === itemId
         );
         
-        if (index !== -1) {
+        const targetIndex = numColumns > 1 ? Math.floor(index / numColumns) : index;
+        console.log('scrollToItem - itemId:', itemId, 'found index:', index, 'numColumns:', numColumns, 'targetIndex:', targetIndex, 'total items:', items.length);
+
+        if (index !== -1 && index < items.length) {
           // Delay to ensure list is rendered
           setTimeout(() => {
+            // When using multiple columns, scrollToIndex expects the row index
             flatListRef.current?.scrollToIndex({
-              index,
+              index: targetIndex,
               animated: true,
               viewPosition,
             });
@@ -157,6 +174,7 @@ export function useHighlightItem(
               );
             }
             scale.value = withSequence(...animationSequence);
+            hasProcessedHighlight.current = true;
           }, animationDelay);
         }
       }
