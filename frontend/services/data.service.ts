@@ -28,8 +28,7 @@ const SHEET_GIDS = {
   menuItems: '478953779',     
   drinkItems: '868886322',
   perms: '2136235132',
-  orgas: '1037932394'
-
+  orgas: '1037932394',
 };
  
 // Construct URLs for each tab
@@ -192,6 +191,7 @@ export async function fetchFestivalData(): Promise<FestivalData> {
       drinkItems: transformDrinkItems(drinkItemsData),
       perms: transformPerms(permsData),
       orgas: transformOrgas(orgasData),
+      covoiturage: [], // Fetched separately from Firebase
     }; 
     console.log('✅ Fetched festival data successfully:', objects);
     return objects;
@@ -239,4 +239,5 @@ export async function fetchOrgas(): Promise<Orga[]> {
   const data = await fetchSheetData(GOOGLE_SHEETS_URLS.orgas);
   return transformOrgas(data);
 }
+
  

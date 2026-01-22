@@ -62,6 +62,7 @@ export const theme = {
     black: '#000',
     border: '#5a9adb',
     shadow: '#000',
+    grey: '#6d6161',
   },
 } as const;
 

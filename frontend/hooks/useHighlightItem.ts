@@ -148,7 +148,7 @@ export function useHighlightItem(
         );
         
         const targetIndex = numColumns > 1 ? Math.floor(index / numColumns) : index;
-        console.log('scrollToItem - itemId:', itemId, 'found index:', index, 'numColumns:', numColumns, 'targetIndex:', targetIndex, 'total items:', items.length);
+        // console.log('scrollToItem - itemId:', itemId, 'found index:', index, 'numColumns:', numColumns, 'targetIndex:', targetIndex, 'total items:', items.length);
 
         if (index !== -1 && index < items.length) {
           // Delay to ensure list is rendered

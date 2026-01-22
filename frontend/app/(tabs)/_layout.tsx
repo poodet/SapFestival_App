@@ -84,8 +84,10 @@ export default function TabLayout() {
         name="activities"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'trophy' : 'trophy-outline'} color={color} size={30} 
-            />
+            <>
+            <Ionicons name={focused ? 'trophy' : 'trophy-outline'} color={color} size={30}  />
+            {/* <Text style= {styles.badgeText}>Activités</Text> */}
+            </>
           ),
         }}
       />
@@ -93,7 +95,21 @@ export default function TabLayout() {
         name="notifications"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'people' : 'people-outline'} color={color} size={30} />
+            <>
+              <Ionicons name={focused ? 'people' : 'people-outline'} color={color} size={30} />
+              {/* <Text style= {styles.badgeText}>Contact</Text> */}
+            </>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="cars"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <>
+              <Ionicons name={focused ? 'car' : 'car-outline'} color={color} size={30} />
+              {/* <Text style= {styles.badgeText}>Contact</Text> */}
+            </>
           ),
         }}
       />
@@ -125,8 +141,8 @@ const styles = StyleSheet.create({
     borderColor: theme.ui.white,
   },
   badgeText: {
-    color: theme.ui.white,
+    color: theme.ui.grey,
     fontSize: 11,
-    fontWeight: '700',
+    // fontWeight: '700',
   },
 });     

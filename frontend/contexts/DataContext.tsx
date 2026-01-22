@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Artist, Activity, MenuItem, FestivalData, DrinkItem, Perm, Orga } from '@/types/data';
+import { Artist, Activity, MenuItem, FestivalData, DrinkItem, Perm, Orga, Covoiturage } from '@/types/data';
 import { fetchFestivalData } from '@/services/data.service';
+import { CovoiturageService } from '@/services/covoiturage.service';
 import { saveCachedData, loadCachedData, getCacheTimestamp } from '@/services/cache.service';
 
 // Import fallback data (your current hardcoded data)
@@ -15,6 +16,7 @@ type DataContextType = {
   drinkItems: DrinkItem[];
   perms: Perm[];
   orgas: Orga[];
+  covoiturage: Covoiturage[];
   isLoading: boolean;
   isRefreshing: boolean;
   error: Error | null;
@@ -36,6 +38,7 @@ export function DataProvider({ children }: DataProviderProps) {
     drinkItems: [],
     perms: [],
     orgas: [],
+    covoiturage: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -73,9 +76,19 @@ export function DataProvider({ children }: DataProviderProps) {
       console.log('🌐 Fetching fresh data from Google Sheets...');
       const freshData = await fetchFestivalData();
       
-      // 3. Update state and cache
-      setData(freshData);
-      await saveCachedData(freshData);
+      // 3. Fetch covoiturage data from Firebase
+      console.log('🔥 Fetching covoiturage data from Firebase...');
+      const covoiturageData = await CovoiturageService.getAllCovoiturage();
+      
+      // 4. Combine data
+      const combinedData = {
+        ...freshData,
+        covoiturage: covoiturageData,
+      };
+      
+      // 5. Update state and cache
+      setData(combinedData);
+      await saveCachedData(combinedData);
       
       const now = new Date();
       setLastUpdate(now);
@@ -94,6 +107,7 @@ export function DataProvider({ children }: DataProviderProps) {
           drinkItems: [],
           perms: [],
           orgas: [],
+          covoiturage: [],
         });
       }
     } finally {
@@ -122,6 +136,7 @@ export function DataProvider({ children }: DataProviderProps) {
         drinkItems: data.drinkItems,
         perms: data.perms,
         orgas: data.orgas,
+        covoiturage: data.covoiturage,
         isLoading,
         isRefreshing,
         error,
@@ -171,4 +186,9 @@ export function usePerms() {
 export function useOrgas() {
   const { orgas, isLoading, isRefreshing, error, refetch, lastUpdate } = useFestivalData();
   return { orgas, isLoading, isRefreshing, error, refetch, lastUpdate };
+}
+
+export function useCovoiturage() {
+  const { covoiturage, isLoading, isRefreshing, error, refetch, lastUpdate } = useFestivalData();
+  return { covoiturage, isLoading, isRefreshing, error, refetch, lastUpdate };
 }

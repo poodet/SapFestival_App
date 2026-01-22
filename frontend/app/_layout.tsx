@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
 import { HighlightProvider } from '../contexts/HighlightContext';
 import { NotificationProvider } from '../contexts/NotificationContext';
+import { CovoiturageProvider } from '../contexts/CovoiturageContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Keep the splash screen visible while we fetch resources
@@ -164,9 +165,11 @@ export default function RootLayout() {
       <AuthProvider>
         <DataProvider>
           <NotificationProvider>
-            <HighlightProvider>
-              <RootLayoutNav />
-            </HighlightProvider>
+            <CovoiturageProvider>
+              <HighlightProvider>
+                <RootLayoutNav />
+              </HighlightProvider>
+            </CovoiturageProvider>
           </NotificationProvider>
         </DataProvider>
       </AuthProvider>
