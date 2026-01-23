@@ -56,6 +56,12 @@ export default function CarsScreen() {
   const [contactInfo, setContactInfo] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  // Validation flags for visual feedback
+  const [invalidTotalSeats, setInvalidTotalSeats] = useState(false);
+  const [invalidLocation, setInvalidLocation] = useState(false);
+  const [invalidDepartureDay, setInvalidDepartureDay] = useState(false);
+  const [invalidDepartureTime, setInvalidDepartureTime] = useState(false);
+  const [invalidContactInfo, setInvalidContactInfo] = useState(false);
 
   // Format date from Date object to DD/MM format
   const formatDate = (date: Date | string | any): string => {
@@ -139,6 +145,12 @@ export default function CarsScreen() {
     setEditingCovoiturage(null);
     setShowDatePicker(false);
     setShowTimePicker(false);
+    // reset validation flags
+    setInvalidTotalSeats(false);
+    setInvalidLocation(false);
+    setInvalidDepartureDay(false);
+    setInvalidDepartureTime(false);
+    setInvalidContactInfo(false);
   };
 
   // Helpers for DateTimePicker
@@ -242,14 +254,60 @@ export default function CarsScreen() {
   // Handle create covoiturage
   const handleCreate = async () => {
     // Validation
+    let hasError = false;
+    // reset previous invalid flags
+    setInvalidTotalSeats(false);
+    setInvalidLocation(false);
+    setInvalidDepartureDay(false);
+    setInvalidDepartureTime(false);
+    setInvalidContactInfo(false);
+
     if (!conductorName.trim()) {
       Alert.alert('Erreur', 'Veuillez saisir le nom du conducteur');
       console.error('Conductor name is empty');
       return;
     }
-    if (!totalSeats || parseInt(totalSeats) < 0) {
+
+    if (!totalSeats || totalSeats.trim() === '') {
+      setInvalidTotalSeats(true);
+      hasError = true;
+    } else if (isNaN(parseInt(totalSeats)) || parseInt(totalSeats) < 0) {
+      setInvalidTotalSeats(true);
       Alert.alert('Erreur', 'Veuillez saisir un nombre de places valide');
       console.error('Total seats is invalid:', totalSeats);
+      return;
+    }
+
+    // Location validation: require departure or arrival depending on trip type
+    if (formTripType === 'aller') {
+      if (!departureLocation || departureLocation.trim() === '') {
+        setInvalidLocation(true);
+        hasError = true;
+      }
+    } else {
+      if (!arrivalLocation || arrivalLocation.trim() === '') {
+        setInvalidLocation(true);
+        hasError = true;
+      }
+    }
+
+    if (!departureDay || departureDay.trim() === '') {
+      setInvalidDepartureDay(true);
+      hasError = true;
+    }
+
+    if (!departureTime || departureTime.trim() === '') {
+      setInvalidDepartureTime(true);
+      hasError = true;
+    }
+
+    if (!contactInfo || contactInfo.trim() === '') {
+      setInvalidContactInfo(true);
+      hasError = true;
+    }
+
+    if (hasError) {
+      Alert.alert('Erreur', 'Veuillez remplir les champs en rouge');
       return;
     }
     // if (!departureDay.trim()) {
@@ -494,116 +552,119 @@ export default function CarsScreen() {
         </View>
 
         {/* Trip List */}
-        <FlatList
-          data={filteredTrips}
-          keyExtractor={(item: Covoiturage) => item.id.toString()}
-          bounces={false}
-          overScrollMode="never"
-          scrollEnabled={!isModalVisible }
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={refetch}
-              tintColor={theme.background.secondary}
-              title="Actualisation..."
-              titleColor={theme.background.secondary}
-            />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="car-outline" size={64} color={theme.text.secondary} />
-              <ThemedText style={styles.emptyText}>
-                Aucun covoiturage disponible
-              </ThemedText>
-            </View>
-          }
-          renderItem={({ item }: { item: Covoiturage }) => {
-            const availableSeats = item.totalSeats - item.reservedSeats;
-            const displayLocation = selectedTripType === 'aller' 
-              ? 'Depart de ' + item.departureLocation 
-              : 'Arrivée à ' + item.arrivalLocation;
-            const isUserCovoiturage = user && item.userId === user.id;
+        <View style={{ flex: 1 }}>
+        
+          <FlatList
+            data={filteredTrips}
+            keyExtractor={(item: Covoiturage) => item.id.toString()}
+            bounces={false}
+            overScrollMode="never"
+            scrollEnabled={!isModalVisible }
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={refetch}
+                tintColor={theme.background.secondary}
+                title="Actualisation..."
+                titleColor={theme.background.secondary}
+              />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Ionicons name="car-outline" size={64} color={theme.text.secondary} />
+                <ThemedText style={styles.emptyText}>
+                  Aucun covoiturage disponible
+                </ThemedText>
+              </View>
+            }
+            renderItem={({ item }: { item: Covoiturage }) => {
+              const availableSeats = item.totalSeats - item.reservedSeats;
+              const displayLocation = selectedTripType === 'aller' 
+                ? 'Depart de ' + item.departureLocation 
+                : 'Arrivée à ' + item.arrivalLocation;
+              const isUserCovoiturage = user && item.userId === user.id;
 
-            return (
-              <View style={[styles.card, { opacity: availableSeats === 0 ? 0.6 : 1 }]}>
-                {/* Conductor Name with Edit Button */}
-                <View style={[styles.cardRow, { justifyContent: 'space-between' }]}>
-                  <View style={[styles.cardRow, { flex: 1 }]}>
-                    <Ionicons name="car" size={24} color={theme.interactive.primary} />
-                    <ThemedText style={styles.conductorName}>
-                      {item.conductorName}
-                    </ThemedText>
+              return (
+                <View style={[styles.card, { opacity: availableSeats === 0 ? 0.6 : 1 }]}>
+                  {/* Conductor Name with Edit Button */}
+                  <View style={[styles.cardRow, { justifyContent: 'space-between' }]}>
+                    <View style={[styles.cardRow, { flex: 1 }]}>
+                      <Ionicons name="car" size={24} color={theme.interactive.primary} />
+                      <ThemedText style={styles.conductorName}>
+                        {item.conductorName}
+                      </ThemedText>
+                    </View>
+                    {isUserCovoiturage && (
+                      <TouchableOpacity
+                        onPress={() => handleOpenEdit(item)}
+                        style={styles.editButton}
+                      >
+                        <Ionicons name="create-outline" size={18} color={theme.interactive.primary} />
+                      </TouchableOpacity>
+                    )}
                   </View>
-                  {isUserCovoiturage && (
-                    <TouchableOpacity
-                      onPress={() => handleOpenEdit(item)}
-                      style={styles.editButton}
-                    >
-                      <Ionicons name="create-outline" size={18} color={theme.interactive.primary} />
-                    </TouchableOpacity>
+
+                  {/* Trip Details */}
+                  <View style={styles.detailsRow}>
+                    {/* Available Seats */}
+                    <View style={styles.detailItem}>
+                      <Ionicons 
+                        name="people" 
+                        size={18} 
+                        color={availableSeats > 0 ? theme.interactive.primary : theme.interactive.inactive} 
+                      />
+                      <Text style={[
+                        styles.detailText,
+                        availableSeats === 0 && styles.detailTextInactive
+                      ]}>
+                        {availableSeats} place{availableSeats !== 1 ? 's' : ''}
+                      </Text>
+                    </View>
+
+                    {/* Date and Time */}
+                    <View style={styles.detailItem}>
+                      <Ionicons name="calendar-outline" size={18} color={theme.text.secondary} />
+                      <Text style={styles.detailText}>
+                        {formatDate(item.departureDate)}
+                      </Text>
+                    </View>
+
+                    <View style={styles.detailItem}>
+                      <Ionicons name="time-outline" size={18} color={theme.text.secondary} />
+                      <Text style={styles.detailText}>
+                        {formatTime(item.departureDate)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Location */}
+                  <View style={styles.cardRow}>
+                    <Ionicons 
+                      name={selectedTripType === 'aller' ? "location-outline" : "flag-outline"} 
+                      size={18} 
+                      color={theme.text.secondary} 
+                    />
+                    <Text style={styles.locationText}>
+
+                      {displayLocation}
+                    </Text>
+                  </View>
+
+                  {/* Contact Info */}
+                  {item.contactInfo && (
+                    <View style={styles.contactContainer}>
+                      <Ionicons name="information-circle-outline" size={18} color={theme.text.secondary} />
+                      <Text style={styles.contactText}>
+                          Contact: {item.contactInfo}
+                      </Text>
+                    </View>
                   )}
                 </View>
-
-                {/* Trip Details */}
-                <View style={styles.detailsRow}>
-                  {/* Available Seats */}
-                  <View style={styles.detailItem}>
-                    <Ionicons 
-                      name="people" 
-                      size={18} 
-                      color={availableSeats > 0 ? theme.interactive.primary : theme.interactive.inactive} 
-                    />
-                    <Text style={[
-                      styles.detailText,
-                      availableSeats === 0 && styles.detailTextInactive
-                    ]}>
-                      {availableSeats} place{availableSeats !== 1 ? 's' : ''}
-                    </Text>
-                  </View>
-
-                  {/* Date and Time */}
-                  <View style={styles.detailItem}>
-                    <Ionicons name="calendar-outline" size={18} color={theme.text.secondary} />
-                    <Text style={styles.detailText}>
-                      {formatDate(item.departureDate)}
-                    </Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Ionicons name="time-outline" size={18} color={theme.text.secondary} />
-                    <Text style={styles.detailText}>
-                      {formatTime(item.departureDate)}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Location */}
-                <View style={styles.cardRow}>
-                  <Ionicons 
-                    name={selectedTripType === 'aller' ? "location-outline" : "flag-outline"} 
-                    size={18} 
-                    color={theme.text.secondary} 
-                  />
-                  <Text style={styles.locationText}>
-
-                    {displayLocation}
-                  </Text>
-                </View>
-
-                {/* Contact Info */}
-                {item.contactInfo && (
-                  <View style={styles.contactContainer}>
-                    <Ionicons name="information-circle-outline" size={18} color={theme.text.secondary} />
-                    <Text style={styles.contactText}>
-                        Contact: {item.contactInfo}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            );
-          }}
-          contentContainerStyle={styles.list}
-        />
+              );
+            }}
+            contentContainerStyle={styles.list}
+          />
+        </View>
 
         {/* Floating Action Button */}
         <TouchableOpacity
@@ -677,6 +738,7 @@ export default function CarsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder="Nom du conducteur"
+                      placeholderTextColor={theme.text.placeholder}
                       value={conductorName}
                       onChangeText={setConductorName}
                     />
@@ -684,8 +746,9 @@ export default function CarsScreen() {
                   <View style={[styles.formGroup, { flex: 1 }]}>
                     <Text style={styles.label}>Places</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, invalidTotalSeats ? { borderColor: '#E74C3C' } : null]}
                       placeholder="Nb"
+                      placeholderTextColor={theme.text.placeholder}
                       value={totalSeats}
                       onChangeText={setTotalSeats}
                       keyboardType="number-pad"
@@ -699,10 +762,11 @@ export default function CarsScreen() {
                       <View style={styles.formGroup}>
                             <Text style={styles.label}>Lieu de départ</Text>
                             <TextInput
-                                style={styles.input}
-                                placeholder="Lieu de départ"
-                                value={departureLocation}
-                                onChangeText={setDepartureLocation}
+                              style={[styles.input, invalidLocation && formTripType === 'aller' ? { borderColor: '#E74C3C' } : null]}
+                              placeholder="Lieu de départ"
+                              placeholderTextColor={theme.text.placeholder}
+                              value={departureLocation}
+                              onChangeText={setDepartureLocation}
                             />
                         </View>
                     ) :
@@ -711,10 +775,11 @@ export default function CarsScreen() {
                     <View style={styles.formGroup}>
                     <Text style={styles.label}>Lieu d'arrivée</Text>
                     <TextInput
-                        style={styles.input}
-                        placeholder="Lieu d'arrivée"
-                        value={arrivalLocation}
-                        onChangeText={setArrivalLocation}
+                      style={[styles.input, invalidLocation && formTripType === 'retour' ? { borderColor: '#E74C3C' } : null]}
+                      placeholder="Lieu d'arrivée"
+                      placeholderTextColor={theme.text.placeholder}
+                      value={arrivalLocation}
+                      onChangeText={setArrivalLocation}
                     />
                     </View>
                     )
@@ -727,7 +792,7 @@ export default function CarsScreen() {
                     <Text style={styles.label}>Jour</Text>
                     <Pressable
                       onPress={() => setShowDatePicker(true)}
-                      style={[styles.input, { justifyContent: 'center' }]}
+                      style={[styles.input, { justifyContent: 'center', borderColor: invalidDepartureDay ? '#E74C3C' : theme.interactive.inactive }]}
                     >
                       <Text style={{ color: departureDay ? theme.text.inactive : '#9b9b9b' }}>
                         {departureDay || 'JJ/MM/AAAA'}
@@ -738,7 +803,7 @@ export default function CarsScreen() {
                     <Text style={styles.label}>Heure</Text>
                     <Pressable
                       onPress={() => setShowTimePicker(true)}
-                      style={[styles.input, { justifyContent: 'center' }]}
+                      style={[styles.input, { justifyContent: 'center', borderColor: invalidDepartureTime ? '#E74C3C' : theme.interactive.inactive }]}
                     >
                       <Text style={{ color: departureTime ? theme.text.inactive : '#9b9b9b' }}>
                         {departureTime || 'HH:MM'}
@@ -772,11 +837,14 @@ export default function CarsScreen() {
                       value={getInitialDateForPicker()}
                       onChange={onChangeTime}
                       onClose={() => setShowTimePicker(false)}
+                      placeholderTextColor={theme.text.placeholder}
+
                     />
                   ) : (
                     <DateTimePicker
                       value={getInitialDateForPicker()}
                       mode="time"
+                      placeholderTextColor={theme.text.placeholder}
                       is24Hour={true}
                       display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                       onChange={onChangeTime}
@@ -788,8 +856,9 @@ export default function CarsScreen() {
                 <View style={styles.formGroup}>
                   <Text style={styles.label}>Contact</Text>
                   <TextInput
-                    style={[styles.input, styles.textArea]}
+                    style={[styles.input, styles.textArea, invalidContactInfo ? { borderColor: '#E74C3C' } : null]}
                     placeholder="Comment me contacter"
+                    placeholderTextColor={theme.text.placeholder}
                     value={contactInfo}
                     onChangeText={setContactInfo}
                     multiline
@@ -859,7 +928,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 12,
     flexDirection: 'row',
-
+    marginBottom: 12,
   },
   tripTypeButtons: {
     flexDirection: 'row',
@@ -991,10 +1060,10 @@ const styles = StyleSheet.create({
   addCovoitButton: {
     position: 'absolute',
     alignSelf: 'center',
-    // right: 20,
-    bottom: layout.tabBar.height + layout.tabBar.marginBottom + 10,
+    right: 20,
+    bottom: layout.tabBar.height + layout.tabBar.marginBottom + 10 ,
     width: 80,
-    height: 60,
+    height: 50,
     borderRadius: 30,
     backgroundColor: theme.interactive.primary,
     justifyContent: 'center',
@@ -1044,7 +1113,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    color: theme.text.inactive,
+    color: theme.text.secondary,
+    // fontWeight: '700',
     borderWidth: 1,
     borderColor: theme.interactive.inactive,
   },

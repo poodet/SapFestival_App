@@ -54,6 +54,7 @@ export const theme = {
     primary: '#fff',         // White text (on dark backgrounds)
     secondary: '#303030c6',       // Black text (on light backgrounds)
     inactive: '#6d6161',     // Gray text for inactive elements
+    placeholder: '#a9a9a9',   // Placeholder text color
   },
 
   // Additional UI colors (used in specific contexts)
