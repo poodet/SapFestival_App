@@ -39,7 +39,7 @@ export default function TabLayout() {
           />
         ),
         tabBarItemStyle: {
-          paddingTop: 5,
+          paddingVertical: 10,
         },
         
         // Screen appearance
@@ -60,7 +60,14 @@ export default function TabLayout() {
         name="b2b"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'fast-food-sharp' : 'fast-food-outline'} color={color} size={30} />
+            <>
+              <Ionicons 
+              name={ 'fast-food-sharp'} 
+              color={focused ? theme.interactive.primary : color} 
+              size={30} 
+              />
+              <Text style= {styles.badgeText}>Menu</Text>
+            </>
           ),
         }}
       />
@@ -68,15 +75,10 @@ export default function TabLayout() {
         name="artists"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'musical-notes' : 'musical-notes-outline'} color={color} size={30}/>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="calendar"
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} color={color} size={30} fontWeight="bold"/>
+            <>
+              <Ionicons name={'musical-notes'} color={focused ? theme.interactive.primary : color} size={30}/>
+              <Text style= {styles.badgeText}>Artistes</Text>
+            </>
           ),
         }}
       />
@@ -85,19 +87,32 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <>
-            <Ionicons name={focused ? 'trophy' : 'trophy-outline'} color={color} size={30}  />
-            {/* <Text style= {styles.badgeText}>Activités</Text> */}
+              <Ionicons name={'trophy'} color={focused ? theme.interactive.primary : color} size={30}  />
+            <Text style= {styles.badgeText}>Activités</Text>
             </>
           ),
         }}
       />
       <Tabs.Screen
+        name="calendar"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <>
+            <Ionicons name={'calendar'} color={focused ? theme.interactive.primary : color} size={30} fontWeight="bold"/>
+              <Text style= {styles.badgeText}>Calendrier</Text>
+            </>
+
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="notifications"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <>
-              <Ionicons name={focused ? 'people' : 'people-outline'} color={color} size={30} />
-              {/* <Text style= {styles.badgeText}>Contact</Text> */}
+              <Ionicons name={'people'} color={focused ? theme.interactive.primary : color} size={30} />
+              <Text style= {styles.badgeText}>Contact</Text>
             </>
           ),
         }}
@@ -107,8 +122,8 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <>
-              <Ionicons name={focused ? 'car' : 'car-outline'} color={color} size={30} />
-              {/* <Text style= {styles.badgeText}>Contact</Text> */}
+              <Ionicons name={'car'} color={focused ? theme.interactive.primary : color} size={30} />
+              <Text style= {styles.badgeText}>Covoit</Text>
             </>
           ),
         }}
