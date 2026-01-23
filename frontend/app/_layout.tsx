@@ -47,6 +47,18 @@ function RootLayoutNav() {
 
   // Initialize OneSignal once
   useEffect(() => {
+    const requiredEnvVars = [
+      'ONESIGNAL_APP_ID',
+      'ONESIGNAL_REST_API_KEY'
+    ];
+
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+    if (missingVars.length > 0 && typeof window !== 'undefined') {
+      console.error('Missing required OneSignal environment variables:', missingVars);
+      console.error('Please check your .env file');
+    }
+
     if (typeof window === 'undefined' || window.oneSignalInitialized) return;
 
     // OneSignal v16 API
@@ -54,7 +66,7 @@ function RootLayoutNav() {
     window.OneSignal.push(async () => {
       try {
         await window.OneSignal.init({
-          appId: "6eb195ca-ecd4-47cf-b9f8-f28e48a109fe",
+          appId: process.env.ONESIGNAL_APP_ID,
           allowLocalhostAsSecureOrigin: true,
           serviceWorkerPath: '/OneSignalSDKWorker.js',
           serviceWorkerUpdaterPath: '/OneSignalSDKWorker.js',
