@@ -19,6 +19,7 @@ import {
 import Animated from 'react-native-reanimated';
 import ScreenTitle from '@/components/screenTitle';
 import InfoHeaderButton from '@/components/InfoHeaderButton';
+import CustomDateTimePicker from '@/components/CustomDateTimePicker';
 import { useCovoiturage } from '@/contexts/DataContext';
 import { useCovoiturageActions } from '@/contexts/CovoiturageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -53,6 +54,8 @@ export default function CarsScreen() {
   const [departureDay, setDepartureDay] = useState('');
   const [departureTime, setDepartureTime] = useState('');
   const [contactInfo, setContactInfo] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   // Format date from Date object to DD/MM format
   const formatDate = (date: Date | string | any): string => {
@@ -134,6 +137,44 @@ export default function CarsScreen() {
     setContactInfo('');
     setIsEditMode(false);
     setEditingCovoiturage(null);
+    setShowDatePicker(false);
+    setShowTimePicker(false);
+  };
+
+  // Helpers for DateTimePicker
+  const getInitialDateForPicker = () => {
+    try {
+      const [day, month, year] = departureDay.split('/');
+      const [hours, minutes] = (departureTime || '').split(':');
+      const d = new Date();
+      const yy = year ? parseInt(year, 10) : d.getFullYear();
+      const mm = month ? parseInt(month, 10) - 1 : d.getMonth();
+      const dd = day ? parseInt(day, 10) : d.getDate();
+      const hh = hours ? parseInt(hours, 10) : d.getHours();
+      const min = minutes ? parseInt(minutes, 10) : d.getMinutes();
+      return new Date(yy, mm, dd, hh, min);
+    } catch (e) {
+      return new Date();
+    }
+  };
+
+  const onChangeDate = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      const day = ('0' + selectedDate.getDate()).slice(-2);
+      const month = ('0' + (selectedDate.getMonth() + 1)).slice(-2);
+      const year = selectedDate.getFullYear();
+      setDepartureDay(`${day}/${month}/${year}`);
+    }
+  };
+
+  const onChangeTime = (event: any, selectedDate?: Date) => {
+    setShowTimePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      const hours = ('0' + selectedDate.getHours()).slice(-2);
+      const minutes = ('0' + selectedDate.getMinutes()).slice(-2);
+      setDepartureTime(`${hours}:${minutes}`);
+    }
   };
 
   // Open edit modal with pre-filled data
@@ -171,8 +212,31 @@ export default function CarsScreen() {
     const minutes = ('0' + dateObj.getMinutes()).slice(-2);
     setDepartureTime(`${hours}:${minutes}`);
     
+
     setContactInfo(covoiturage.contactInfo);
     setIsModalVisible(true);
+  };
+
+  // Open create modal with sensible defaults (moved from inline onPress)
+  const handleOpenCreate = () => {
+    resetForm();
+    setIsEditMode(false);
+    setEditingCovoiturage(null);
+    setIsModalVisible(true);
+    setConductorName(user.firstName + ' ' + user.lastName);
+    setFormTripType(selectedTripType);
+
+    // If a covoiturage already exists for this userID, pre-fill contactInfo
+    const existingTrip = covoiturage?.find((trip: Covoiturage) => trip.userId === user.id);
+    if (existingTrip && existingTrip.contactInfo) {
+      setContactInfo(existingTrip.contactInfo);
+    }
+
+    if (selectedTripType === 'aller') {
+      setDepartureDay('26/06/2026');
+    } else {
+      setDepartureDay('28/06/2026');
+    }
   };
 
   // Handle create covoiturage
@@ -211,7 +275,7 @@ export default function CarsScreen() {
         parseInt(hours),
         parseInt(minutes)
       );
-      
+
       await createCovoiturage({
         conductorName: conductorName.trim(),
         totalSeats: parseInt(totalSeats),
@@ -435,6 +499,7 @@ export default function CarsScreen() {
           keyExtractor={(item: Covoiturage) => item.id.toString()}
           bounces={false}
           overScrollMode="never"
+          scrollEnabled={!isModalVisible }
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
@@ -543,11 +608,7 @@ export default function CarsScreen() {
         {/* Floating Action Button */}
         <TouchableOpacity
           style={styles.addCovoitButton}
-          onPress={() => {
-            setIsModalVisible(true); 
-            setConductorName(user.firstName + ' ' + user.lastName);
-            setFormTripType(selectedTripType)
-        }}
+          onPress={handleOpenCreate}
           activeOpacity={0.8}
         >
           <Ionicons name="add" size={28} color={theme.ui.white} />
@@ -561,7 +622,8 @@ export default function CarsScreen() {
           transparent={true}
           onRequestClose={() => setIsModalVisible(false)}
         >
-          <View style={styles.modalOverlay}>
+          <View style={styles.modalOverlay}
+            onStartShouldSetResponder={() => true}>
             <View style={styles.modalContent}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Modal Title */}
@@ -663,23 +725,64 @@ export default function CarsScreen() {
                 <View style={styles.formRow}>
                   <View style={[styles.formGroup, { flex: 1 }]}>
                     <Text style={styles.label}>Jour</Text>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="JJ/MM/AAAA"
-                      value={departureDay}
-                      onChangeText={setDepartureDay}
-                    />
+                    <Pressable
+                      onPress={() => setShowDatePicker(true)}
+                      style={[styles.input, { justifyContent: 'center' }]}
+                    >
+                      <Text style={{ color: departureDay ? theme.text.inactive : '#9b9b9b' }}>
+                        {departureDay || 'JJ/MM/AAAA'}
+                      </Text>
+                    </Pressable>
                   </View>
                   <View style={[styles.formGroup, { flex: 1 }]}>
                     <Text style={styles.label}>Heure</Text>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="HH:MM"
-                      value={departureTime}
-                      onChangeText={setDepartureTime}
-                    />
+                    <Pressable
+                      onPress={() => setShowTimePicker(true)}
+                      style={[styles.input, { justifyContent: 'center' }]}
+                    >
+                      <Text style={{ color: departureTime ? theme.text.inactive : '#9b9b9b' }}>
+                        {departureTime || 'HH:MM'}
+                      </Text>
+                    </Pressable>
                   </View>
                 </View>
+
+                {showDatePicker && (
+                  Platform.OS === 'web' ? (
+                    <CustomDateTimePicker
+                      mode="date"
+                      value={getInitialDateForPicker()}
+                      onChange={onChangeDate}
+                      onClose={() => setShowDatePicker(false)}
+                    />
+                  ) : (
+                    <DateTimePicker
+                      value={getInitialDateForPicker()}
+                      mode="date"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={onChangeDate}
+                    />
+                  )
+                )}
+
+                {showTimePicker && (
+                  Platform.OS === 'web' ? (
+                    <CustomDateTimePicker
+                      mode="time"
+                      value={getInitialDateForPicker()}
+                      onChange={onChangeTime}
+                      onClose={() => setShowTimePicker(false)}
+                    />
+                  ) : (
+                    <DateTimePicker
+                      value={getInitialDateForPicker()}
+                      mode="time"
+                      is24Hour={true}
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={onChangeTime}
+                    />
+                  )
+                )}
 
                 {/* Contact Info */}
                 <View style={styles.formGroup}>
