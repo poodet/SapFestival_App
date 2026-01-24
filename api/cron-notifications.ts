@@ -85,7 +85,7 @@ function initFirebase() {
  * Check if we should run notifications based on environment and date
  */
 function shouldRunNotificationCheck(): boolean {
-  const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   if (isDev) {
     console.log('📝 Running in DEV mode - checks always enabled');
@@ -389,7 +389,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Security: Check for authorization header to prevent abuse
   const authHeader = req.headers['authorization'];
   const CRON_SECRET = process.env.CRON_SECRET;
-
   if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
     console.warn('⚠️ Unauthorized request to cron endpoint');
     return res.status(401).json({ error: 'Unauthorized' });

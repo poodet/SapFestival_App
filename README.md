@@ -2,20 +2,38 @@
 
 This is an Application project created with Expo and ReactNative. The goal is to create an app for a music festival to display all important information to the customer throughout the weekend.
 
+## 🚀 Production Deployment
 
-## Get started - launch in docker
+**Architecture:**
+- Frontend: Vercel (static export)
+- Backend: Vercel Serverless Function + cron-job.org
 
-Launch this app in docker with:
-```
+**Setup Guide:**
+- 📖 [Vercel Serverless Notifications](docs/VERCEL_SERVERLESS_NOTIFICATIONS.md) - Complete setup and deployment
+
+
+
+## 🐳 Local Development with Docker
+
+Launch both frontend and backend services:
+```bash
 docker compose up --build -d
 ```
 
-access logs with
-```
+Access logs:
+```bash
 docker compose logs -f -t
 ```
 
-## Get started - launch locally
+**What's running:**
+- Frontend: http://localhost:8081 (Metro bundler)
+- Backend: Notification service (runs in background, triggered upon POST request on API endpoint)
+
+**Environment:** Both services run in `NODE_ENV=development` mode
+- Frontend: Hot reload enabled
+- Backend: Checks always run (regardless of date)
+
+## 💻 Local Development without Docker
 
 To build this app I used Expo and react native. 
 

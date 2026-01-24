@@ -1,26 +1,30 @@
 services:
-  # Notification backend service (DEVELOPMENT MODE)
-  # For production deployment, see DEPLOYMENT.md
-  sap-festival-notifications:
+  # Notification API service (DEVELOPMENT MODE)
+  # Simulates Vercel serverless function locally
+  # Uses the SAME /api/cron-notifications.ts file that Vercel deploys (single source of truth)
+  # Test: curl -X POST http://localhost:3001/api/cron-notifications -H "Authorization: Bearer YOUR_SECRET"
+  sap-festival-api:
     build:
-      context: ./backend/notification
-      dockerfile: Dockerfile
-    container_name: sap-festival-notifications
+      context: .
+      dockerfile: dev-server/Dockerfile
+    container_name: sap-festival-api
+    ports:
+      - "3001:3001"
     env_file:
-      - ./backend/notification/.env
+      - ./dev-server/.env
     environment:
-      - NODE_ENV=development  # Always runs checks (every 10 min)
+      - NODE_ENV=development  # Dev mode: checks always run
+      - PORT=3001
     volumes:
-      - ./backend/notification/src:/app/src
-      - ./backend/notification/tsconfig.json:/app/tsconfig.json
-      # Exclude node_modules to avoid conflicts
+      # Mount both dev-server and api folders for hot reload
+      - ./dev-server:/app/dev-server
+      - ./api:/app/api
       - /app/node_modules
-    command: npm run dev
     networks:
       - sap-network
     restart: unless-stopped
     labels:
-      - "description=Notification service - Dev mode (checks always run)"
+      - "description=Notification API - Dev server wrapping /api/cron-notifications.ts"
 
   # Main app (DEVELOPMENT MODE)
   # For production deployment to Vercel, see DEPLOYMENT.md
