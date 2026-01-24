@@ -8,7 +8,7 @@ Suivi de l'avancement:
 - ✅ : Les fonctionnalités déjà développées, disponibles.
 - 🕐 : Les fonctionnalités en cours de développement.
 
-## ✅ 0. Fonctionnalités existantes
+## ✅ 0. Fonctionnalités existantes de l'app SAP 2025
 
 ### **Onglet menu**: 
 - Menu Nourriture: PDF (créé par le pôle DA (Direction Artistique) et intégré manuellement)
