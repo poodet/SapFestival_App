@@ -2,7 +2,16 @@
   "buildCommand": "cd frontend && npm run export",
   "outputDirectory": "frontend/dist",
   "installCommand": "cd frontend && npm install",
+  "functions": {
+    "backend/notification/api/**/*.ts": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/backend/notification/api/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/"
