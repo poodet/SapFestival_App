@@ -1,0 +1,15 @@
+{
+  "name": "sap-festival-api",
+  "version": "1.0.0",
+  "description": "Serverless notification functions",
+  "dependencies": {
+    "@vercel/node": "^3.0.0",
+    "firebase-admin": "^12.0.0",
+    "axios": "^1.6.0",
+    "dayjs": "^1.11.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  }
+}
