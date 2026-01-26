@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ScreenTitle from '@/components/screenTitle';
 import InfoHeaderButton from '@/components/InfoHeaderButton';
 import * as Font from 'expo-font';
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useFestivalData } from '@/contexts/DataContext';
 import { useHighlight } from '@/contexts/HighlightContext';
 import { useFestivalCalendar, useDayEvents, usePermCalendar } from '@/hooks/useCalendar';
@@ -31,6 +32,8 @@ const ScheduleScreen = () => {
   const { user, logout } = useAuth();
   const router = useRouter();
   const { setHighlightId } = useHighlight();
+  const isFocused = useIsFocused();
+  const navigation = useNavigation();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -92,6 +95,21 @@ const ScheduleScreen = () => {
     timeSlots.push(`${displayHour.toString().padStart(2, '0')}:30`);
   }
   timeSlots.push(`${(6).toString().padStart(2, '0')}:00`);
+
+  useEffect(() => {
+    if (isFocused) {
+      setActiveView('calendrier');
+    }
+  }, [isFocused]);
+
+  // Also handle tab presses when the screen is already focused.
+  // React Navigation emits a `tabPress` event even if the tab is focused.
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('tabPress', () => {
+      setActiveView('calendrier');
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   // Show loading indicator while fetching data
   if (isLoading) {
@@ -235,6 +253,10 @@ const ScheduleScreen = () => {
   );
 };
 
+// Ensure that when the calendar tab receives focus, we switch back to the main "calendrier" sub-view
+// (this helps when the user is viewing Perms or Logistique and taps the bottom tab again)
+
+
 const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
@@ -242,18 +264,17 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     marginHorizontal: 2,
-    paddingVertical: 4,
-    paddingHorizontal: 4,
-    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 12,
   },
   tabContainer: {
-    flexDirection: 'row', 
-    justifyContent: 'center', 
-    marginRight: 50, // Leave room for frog button. TODO - frog button should be in header, and not above all views.
-    padding: 8, 
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 8,
     marginTop: 10,
+    marginBottom: 10,
     backgroundColor: addOpacity(theme.background.secondary, 0.5),
-    width: 'fit-content',
     alignSelf: 'center',
     borderRadius: 20,
   }

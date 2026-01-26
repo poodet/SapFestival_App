@@ -130,8 +130,23 @@ export const CalendrierView: React.FC<CalendrierViewProps> = ({
               </View>
             ))}
           </View>
-          <View style={{ flex: 1, position: 'relative' }}>
-            {extendedEvents.sort((a, b) => a.column - b.column).map((event) => (
+              <View style={{ flex: 1, position: 'relative' }}>
+                {/* Time slot lines (matching PermsView style) */}
+                {timeSlots.map((_, idx) => (
+                  <View
+                    key={`line-${idx}`}
+                    style={{
+                      position: 'absolute',
+                      top: idx * SLOT_HEIGHT + SLOT_HEIGHT / 2,
+                      left: 0,
+                      right: 0,
+                      height: 1,
+                      backgroundColor: 'rgba(255, 255, 255, 0.14)',
+                    }}
+                  />
+                ))}
+
+                {extendedEvents.sort((a, b) => a.column - b.column).map((event) => (
               <CalendarEventCard
                 key={event.id}
                 event={event}

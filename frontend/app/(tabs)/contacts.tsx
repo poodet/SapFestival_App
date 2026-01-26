@@ -34,7 +34,7 @@ const ORGA_SIZE = 150; // square size
 const ORGA_GAP = 15; // gap/margin around boxes
 
 
-const NotificationsScreen = () => {
+const ContactScreen = () => {
   const insets = useSafeAreaInsets();
   const [activeView, setActiveView] = useState<ViewType>('contact');
   const [refreshing, setRefreshing] = useState(false);
@@ -634,4 +634,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default NotificationsScreen;
+export default ContactScreen;

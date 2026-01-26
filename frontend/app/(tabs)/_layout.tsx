@@ -107,7 +107,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="notifications"
+        name="contacts"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <>
