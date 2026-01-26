@@ -73,10 +73,15 @@ export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
   const backgroundImage = imageMapper[lookupKey] || imageMapper[lookupKey.toUpperCase()];
   const isArtist = event.category === 'artist';
 
-  // Parallax removed: display a fixed crop of the image inside the card.
-  // `backgroundImage` entries can contain an `offsetY` between 0 and 1
-  // to control which vertical part of the (scaled) image is visible.
-  
+  const getIconEvent = (category: string) => {
+    switch (category) {
+      case 'meal': return 'fast-food-outline';
+      case 'artist': return 'musical-notes-outline';
+      case 'activity': return 'trophy-outline';  
+      default: return 'calendar';
+    }
+  }
+
   return (
     <Pressable
       onPress={() => onPress(event)}
@@ -120,7 +125,12 @@ export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
           })()}
         </View>
       )}
+      {/* Add card header, fixed on top, to display an icon */}
+      <View style={{ position: 'absolute', top: 2, right: 4, zIndex: 2 }} >
+          <Ionicons name={getIconEvent(event.category)} size={18} color={theme.text.primary} />
+      </View>
       <View style={styles.contentContainer}>
+        
         <Text style={styles.eventTitle}>
           {event.title}
         </Text>

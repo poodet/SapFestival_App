@@ -83,7 +83,7 @@ export const CalendrierView: React.FC<CalendrierViewProps> = ({
 
   return (
     <>
-      <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 8 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 8, display: 'none' }}>
         <ThemedText
           style={{
             color: theme.text.primary,

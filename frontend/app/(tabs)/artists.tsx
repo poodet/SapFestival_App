@@ -108,7 +108,7 @@ export default function ArtistsScreen() {
                   <Image
                     alt=""
                     resizeMode="cover"
-                    source={imageMapper[item.image]}
+                    source={imageMapper[item.image]?.src}
                     style={styles.cardImg}
                   />
                   <View style={styles.cardTopPills}>
