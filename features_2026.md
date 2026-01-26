@@ -1,3 +1,5 @@
+# 🐸 Application SAP 2026
+
 Amélioration et fonctionnalités pour l'édition 2026. L'ordre n'est pas établi en fonction des priorités, et il reste à classer les idées ci dessous selon les catégories:
 - ❤️ Prioritaire (= disponibilité obligatoire le jour du SAP)
 - 💛 Secondaire (= cool si on a le temps de les avoir mais pas critique)
@@ -8,7 +10,7 @@ Suivi de l'avancement:
 - ✅ : Les fonctionnalités déjà développées, disponibles.
 - 🕐 : Les fonctionnalités en cours de développement.
 
-## ✅ 0. Fonctionnalités existantes de l'app SAP 2025
+**Fonctionnalités existantes de l'app SAP 2025**:
 
 ### **Onglet menu**: 
 - Menu Nourriture: PDF (créé par le pôle DA (Direction Artistique) et intégré manuellement)
@@ -43,11 +45,13 @@ Suivi de l'avancement:
     - lien vers compte instagram du festival
     - info sur le stand de prévention et gestion des risques
 
+
+
 ## 🌊 1. Experience utilisateur
 
 ### ❤️ **Authentification utilisateur** --> un compte par participant
-- Intégration Firebase Authentication
-- Écran de connexion/inscription
+- ✅ Intégration Firebase Authentication
+- ✅ Écran de connexion
 - Lien avec HelloAsso/Shotgun (webhook, API): 
     - Vérification statut billet via API HelloAsso/Shotgun
     - Code unique par participant, reçu lors de l'achat du billet
@@ -57,13 +61,14 @@ Suivi de l'avancement:
 ### 💛 **Notification**:
 - Possibilité d'envoyer des notifications aux utilisateurs
     - notif par defaut: envoyer leur perm aux orgas 5min avant le début
-- Possibilité pour un utilisateur de souscrire à une activité / un artiste
+- ✅ Possibilité pour un utilisateur de souscrire à une activité / un artiste
 
 ### ❤️ **Gestion des perms**:
 - ✅ Les organistateurs peuvent accéder à leur perms:
     - affichage sous forme de calendrier
     - filtrer par défaut sur leurs perms, possibilité de voirs toutes les perms
 - Notifications au début et à la fin des perms
+- accessible aussi aux bénévoles
 
 
 ### 💚 **Messagerie**:
@@ -101,8 +106,8 @@ DETAIL : besoin de firebase aussi, mais comme les requetes de lecture viennent d
 - mini jeux liés au thème de la DA
 
 ### ❤️ **Présentation équipe**:
-- faire une petite fiche perso par organisateur avec sa description. Quand on clique sur le nom d'un orga dans l'application, ca ouvre sa fiche perso. exemple: 
-    - activité, tu clique sur qui l'organise, tu vois sa tete directement
+- ✅ faire une petite fiche perso par organisateur avec sa description. Quand on clique sur le nom d'un orga dans l'application, ca ouvre sa fiche perso avec infos de contact. exemple: 
+    - ✅ activité, tu clique sur qui l'organise, tu vois sa tete directement
     - Tu est bénévole, en team avec un orga, du clique sur ton binome pour avoir sa tete
 
 ### ❤️ **Instruction bénévoles**:
@@ -112,7 +117,7 @@ DETAIL : besoin de firebase aussi, mais comme les requetes de lecture viennent d
     - des rappels comme rester vigilant aux verres sur la scène...
 
 ### 💛 **Solution de covoiturage**:
-- Une page simple et clair permettant aux gens de s'inscrire en covoiturage:
+- ✅ Une page simple et clair permettant aux gens de s'inscrire en covoiturage:
     - proposer leur voiture, avec le nb de place et leur contact
     - se mettre en recherche d'une voiture
     - faire une demande de joindre une voiture 
@@ -133,7 +138,7 @@ DETAIL : plus on veut de l'automatisation et des features style blablacar, plus 
 ## 🐸 3. Affichage
 
 ### **Adapter à la nouvelle DA**
-- 🕐 Structure adaptative du code au code couleurs de la nouvelle DA (pour pouvoir mettre a jour rapidement tout l'affichage)
+- ✅ Structure adaptative du code au code couleurs de la nouvelle DA (pour pouvoir mettre a jour rapidement tout l'affichage)
 
 ### **Organisation du site**
 - 🕐 Améliorer l'intuitivité et l'organisation des onglets
