@@ -115,7 +115,7 @@ const ScheduleScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}>
-        <ScreenTitle>LINE UP</ScreenTitle>
+        {/* <ScreenTitle>LINE UP</ScreenTitle> */}
         <InfoHeaderButton />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.text.primary} />
@@ -185,7 +185,7 @@ const ScheduleScreen = () => {
         {/* Day selector - only show for calendrier view */}
         {activeView === 'calendrier' && (
           <View>
-            <ScreenTitle style={{ paddingTop: 10 }}>LINE UP</ScreenTitle>
+            {/* <ScreenTitle style={{ paddingTop: 10 }}>LINE UP</ScreenTitle> */}
             <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 8 }}>
               {DAYS.map((day) => (
                 <Pressable

@@ -121,7 +121,8 @@ export default function ArtistsScreen() {
                   <View style={styles.cardHeader}>
                     <ThemedText style={styles.cardTitle}>{item.name}</ThemedText>
                     <Text style={[styles.cardDescription, { textAlign: 'right' }]}>
-                      {extractDayName(item.date_start) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)}
+                      {/* keep only first three letters from day name */}
+                      {extractDayName(item.date_start).substring(0, 3) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)}
                     </Text>
                   </View>
                   <Text style={styles.cardDescription}>{item.bio}</Text>
@@ -209,16 +210,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 1,
     marginBottom: 8,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#1d1d1d',
+    textAlign: 'justify',
+    flex:1,
   },
   cardDescription: {
     fontSize: 14,
     color: '#3c3c3c',
-    textAlign : 'justify'
+    textAlign : 'justify',
+    shrink: 1,
   },
 });

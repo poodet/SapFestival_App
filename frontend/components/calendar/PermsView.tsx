@@ -352,6 +352,15 @@ export const PermsView: React.FC<PermsViewProps> = ({
 
   return (
     <View style={{ flex: 1, paddingHorizontal: 10 }}>
+      {(showPoleDropdown || showOrganizerDropdown) && (
+        <Pressable
+          onPress={() => {
+            setShowPoleDropdown(false);
+            setShowOrganizerDropdown(false);
+          }}
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}
+        />
+      )}
       {/* Search and Filter Bar */}
       <View style={{ paddingHorizontal: 8, paddingBottom: 8, gap: 8, zIndex: 1000 }}>
         <View style={{ flexDirection: 'row',  justifyContent: 'space-between', gap : 8 }}>
@@ -435,6 +444,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
               }}>
                 {selectedPoles.length > 0 
                   ? `Pôles` 
+                  // + ': '+(selectedPoles.length)
                   : 'Pôle'}
               </NormalText>
             </View>
@@ -481,7 +491,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                     }}
                   >
                     <ThemedText style={{ color: theme.interactive.primary, fontSize: 14, fontWeight: '600' }}>
-                      Effacer tous les filtres
+                      Reinitialiser
                     </ThemedText>
                   </Pressable>
                 )}
@@ -553,6 +563,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
               }}>
                 {selectedOrganizers.length > 0 
                   ? `Orgas` 
+                  // + ': '+(selectedOrganizers.length)
                   : 'Orga'}
               </NormalText>
             </View>
@@ -599,7 +610,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                     }}
                   >
                     <ThemedText style={{ color: theme.interactive.primary, fontSize: 14, fontWeight: '600' }}>
-                      Effacer tous les filtres
+                      Reinitialiser
                     </ThemedText>
                   </Pressable>
                 )}

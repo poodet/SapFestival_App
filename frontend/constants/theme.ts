@@ -8,7 +8,7 @@
 // Layout constants
 export const layout = {
   tabBar: {
-    height: 56,
+    height: 70,
     marginBottom: 10,
     marginHorizontal: 16,
     // Total space needed for content padding (height + margin + extra space)

@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.background.dark,
     flexShrink: 1,
+    textAlign: 'justify',
   },
   menuTitle: {
     fontSize: width < 350 ? 14 : 18,

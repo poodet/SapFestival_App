@@ -300,7 +300,8 @@ const styles = StyleSheet.create({
   eventCard: {
     position: 'absolute',
     padding: 4,
-    borderRadius: 6,
+    margin: 1,
+    borderRadius: 12,
     borderWidth: 2,
     borderColor: theme.background.primary,
     overflow: 'hidden',
@@ -322,10 +323,11 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 18,
     textAlign: 'center',
     color: theme.text.primary,
-    textShadow: 'rgb(0 0 0 / 31%) 0px 0px 20px'
+    textShadow: 'rgb(0 0 0 / 46%) 0px 4px 9px;',
+    letterSpacing: '.05em',
   },
   eventDetail: {
     fontSize: 16,
