@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, ActivityIndicator, View, Text } from 'react-nati
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNotifications } from '@/contexts/NotificationContext';
 import theme, { addOpacity } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
 
 type SubscribeButtonProps = {
   type: 'artist' | 'activity';
@@ -52,6 +53,12 @@ export const SubscribeButton = ({ type, id, compact = false }: SubscribeButtonPr
       setIsLoading(false);
     }
   };
+
+  // IF user is not logged in (user is anonymous user), show nothing
+  const userIsAnonymous = useAuth().user === null ;
+  if (userIsAnonymous) {
+    return <View />;
+  }
 
   if (compact) {
     return (
