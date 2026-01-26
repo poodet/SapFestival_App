@@ -14,7 +14,7 @@ export default function TabLayout() {
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: 'transparent',
-          borderRadius: 20,
+          // borderRadius: 20,
           height: layout.tabBar.height,
           borderTopWidth: 0,
           elevation: 0,
@@ -22,8 +22,8 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: 5 },
           shadowOpacity: 0.1,
           shadowRadius: 10,
-          marginHorizontal: layout.tabBar.marginHorizontal,
-          marginBottom: layout.tabBar.marginBottom,
+          // marginHorizontal: layout.tabBar.marginHorizontal,
+          // marginBottom: layout.tabBar.marginBottom,
           position: 'absolute',
         },
         tabBarBackground: () => (
@@ -33,7 +33,7 @@ export default function TabLayout() {
             style={{
               flex: 1,
               backgroundColor: addOpacity(theme.background.secondary, 0.7),
-              borderRadius: 20,
+              // borderRadius: 20,
               overflow: 'hidden',
             }}
           />
