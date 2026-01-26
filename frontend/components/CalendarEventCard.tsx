@@ -1,5 +1,7 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet, View, Image } from 'react-native';
+import { Pressable, Text, StyleSheet, View, Image, Dimensions } from 'react-native';
+// removed reanimated usage for fixed image display
+import imageMapper from '@/components/imageMapper';
 import theme from '@/constants/theme';
 import { CALENDAR_CONFIGS, timeToMinutes } from '@/services/calendar.service';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -28,6 +30,7 @@ interface CalendarEventCardProps {
   slotHeight: number;
   onPress: (event: CalendarEvent) => void;
   fieldToDisplay?: string[];
+  scrollOffset?: any;
 }
 
 // Helper to get initials from full name
@@ -43,6 +46,9 @@ export const getSmallerName = (fullName: string): string => {
   return parts[0] + ' ' + parts[1].charAt(0) + '.';
 }
 
+
+const { width } = Dimensions.get('window');
+
 export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
   event,
   columnCount,
@@ -50,6 +56,7 @@ export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
   slotHeight,
   onPress,
   fieldToDisplay,
+  scrollOffset,
 }) => {
   // Calculate position and dimensions
   const start = timeToMinutes(event.startTime);
@@ -59,6 +66,17 @@ export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
   const width = `${(100 / columnCount) * event.span}%`;
   const left = `${(100 / columnCount) * event.column}%`;
 
+  // If event is Artist and has an image, use it as background
+  const rawImageKey = event.metadata?.image;
+  const lookupKey = typeof rawImageKey === 'string' ? rawImageKey : '';
+  // Try exact key, then uppercase key for robustness
+  const backgroundImage = imageMapper[lookupKey] || imageMapper[lookupKey.toUpperCase()];
+  const isArtist = event.category === 'artist';
+
+  // Parallax removed: display a fixed crop of the image inside the card.
+  // `backgroundImage` entries can contain an `offsetY` between 0 and 1
+  // to control which vertical part of the (scaled) image is visible.
+  
   return (
     <Pressable
       onPress={() => onPress(event)}
@@ -73,19 +91,50 @@ export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
         },
       ]}
     >
-      <Text style={styles.eventTitle} >
-        {event.title}
-      </Text>
-      {fieldToDisplay && fieldToDisplay.map((field, index) => (
-        <Text
-          key={field}
-          style={styles.eventDetail}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {event.metadata?.[field]}
+      {backgroundImage && isArtist && (
+        <View style={styles.imageContainer}>
+          {/* Fixed image crop using mapper offsetY */}
+          {(() => {
+            // Image loads at full size; we shift it vertically to show the desired part
+            // offsetY: 0 = show top of image, 0.5 = center, 1 = show bottom
+            const imgOffset = typeof backgroundImage?.offsetY === 'number' ? backgroundImage.offsetY : 0.5;
+            
+            // We need the image to be tall enough to allow vertical shifting
+            // Use a height multiplier to ensure image covers all offset positions
+            const IMAGE_HEIGHT_MULTIPLIER = 2.5;
+            const fullImageHeight = height * IMAGE_HEIGHT_MULTIPLIER;
+            
+            // Calculate how much we can shift: image extends beyond card bounds
+            const maxShift = fullImageHeight - height;
+            
+            // offsetY determines position: 0 = top (no shift), 1 = bottom (max negative shift)
+            const topOffset = -Math.round(imgOffset * maxShift);
+
+            return (
+              <Image
+                source={backgroundImage.src}
+                style={[styles.cardImg, { height: fullImageHeight, top: topOffset }]}
+                resizeMode="cover"
+              />
+            );
+          })()}
+        </View>
+      )}
+      <View style={styles.contentContainer}>
+        <Text style={styles.eventTitle}>
+          {event.title}
         </Text>
-      ))}
+        {fieldToDisplay && fieldToDisplay.map((field, index) => (
+          <Text
+            key={field}
+            style={styles.eventDetail}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {event.metadata?.[field]}
+          </Text>
+        ))}
+      </View>
     </Pressable>
   );
 };
@@ -246,11 +295,27 @@ const styles = StyleSheet.create({
     borderColor: theme.background.primary,
     overflow: 'hidden',
   },
+  imageContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: 'hidden',
+  },
+  contentContainer: {
+    position: 'relative',
+    zIndex: 1,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   eventTitle: {
     fontWeight: 'bold',
     fontSize: 20,
     textAlign: 'center',
     color: theme.text.primary,
+    textShadow: 'rgb(0 0 0 / 31%) 0px 0px 20px'
   },
   eventDetail: {
     fontSize: 16,
@@ -263,6 +328,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: theme.text.primary,
+  },
+  cardImg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
   },
 });
 

@@ -979,8 +979,8 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: theme.ui.white,
-    paddingHorizontal: width * 0.04,
-    paddingVertical: width * 0.03,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     marginBottom: 16,
     borderRadius: 15,
     shadowColor: theme.ui.black,
