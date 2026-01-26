@@ -192,6 +192,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
   onPermPress,
 }) => {
   const [isHorizontal, setIsHorizontal] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
   const [searchText, setSearchText] = useState('');
   const [selectedPoles, setSelectedPoles] = useState<string[]>([]);
   const [showPoleDropdown, setShowPoleDropdown] = useState(false);
@@ -350,8 +351,17 @@ export const PermsView: React.FC<PermsViewProps> = ({
     totalUnitColumns,
   }));
 
+  const TIME_LABEL_WIDTH = 60; // fixed left column width for time labels
+  const availableCalendarWidth = Math.max(
+    totalUnitColumns * CARD_WIDTH,
+    Math.max(0, containerWidth - TIME_LABEL_WIDTH - 20) // 20 for paddings/margins
+  );
+
   return (
-    <View style={{ flex: 1, paddingHorizontal: 10 }}>
+    <View
+      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+      style={{ flex: 1, paddingHorizontal: 10 }}
+    >
       {(showPoleDropdown || showOrganizerDropdown) && (
         <Pressable
           onPress={() => {
@@ -708,7 +718,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
               scrollEnabled={false}
               style={{ flex: 1 }}
             >
-              <View style={{ flexDirection: 'row', minWidth: totalUnitColumns * CARD_WIDTH }}>
+                <View style={{ flexDirection: 'row', width: availableCalendarWidth }}>
                 {poles.map((pole, idx) => {
                   const subColCount = poleSubColumnCounts.get(idx) || 1;
                   const poleWidth = CARD_WIDTH * subColCount;
@@ -759,7 +769,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 onScroll={handleVerticalModeScroll}
                 style={{ flex: 1 }}
               >
-                <View style={{ position: 'relative', minWidth: totalUnitColumns * CARD_WIDTH }}>
+                <View style={{ position: 'relative', width: availableCalendarWidth }}>
                   {/* Time slot lines */}
                   {timeSlots.map((time, idx) => (
                     <View
