@@ -48,12 +48,11 @@ function RootLayoutNav() {
   // Initialize OneSignal once
   useEffect(() => {
     const requiredEnvVars = [
-      'ONESIGNAL_APP_ID',
-      'ONESIGNAL_REST_API_KEY'
+      'EXPO_PUBLIC_ONESIGNAL_APP_ID',
+      'EXPO_PUBLIC_ONESIGNAL_REST_API_KEY'
     ];
 
     const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-
     if (missingVars.length > 0 && typeof window !== 'undefined') {
       console.error('Missing required OneSignal environment variables:', missingVars);
       console.error('Please check your .env file');
@@ -66,7 +65,7 @@ function RootLayoutNav() {
     window.OneSignal.push(async () => {
       try {
         await window.OneSignal.init({
-          appId: process.env.ONESIGNAL_APP_ID,
+          appId: process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID,
           allowLocalhostAsSecureOrigin: true,
           serviceWorkerPath: '/OneSignalSDKWorker.js',
           serviceWorkerUpdaterPath: '/OneSignalSDKWorker.js',
