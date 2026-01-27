@@ -5,9 +5,12 @@ const path = require('path');
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
-// Add support for @ alias resolution
+// Configure path alias resolution for Metro bundler
 config.resolver.extraNodeModules = {
-  '@': path.resolve(__dirname),
+  '@': __dirname,
 };
+
+// Ensure Metro watches for changes in all relevant directories
+config.watchFolders = [__dirname];
 
 module.exports = config;
