@@ -57,6 +57,11 @@ export interface UseHighlightItemOptions {
    * @default 2
    */
   pulseCount?: number;
+  /**
+   * Optional category identifier for this list (e.g. 'artist', 'activity', 'meal')
+   * If provided, highlights/scrolls will only apply when the global highlightCategory matches.
+   */
+  category?: string;
 }
 
 export interface UseHighlightItemReturn {
@@ -100,11 +105,12 @@ export function useHighlightItem(
     scaleValue = 1.05,
     animationDuration = 200,
     pulseCount = 2,
-  } = options;
+    category,
+  } = options as UseHighlightItemOptions;
   // const { /* keep backwards compatible */ } = options as any;
   const numColumns = (options as any).numColumns || 1;
 
-  const { highlightId, clearHighlight } = useHighlight();
+  const { highlightId, highlightCategory, clearHighlight } = useHighlight();
   const flatListRef = useRef<FlatList>(null);
   const hasProcessedHighlight = useRef(false);
   
@@ -185,16 +191,24 @@ export function useHighlightItem(
   // Auto-scroll when highlightId changes
   useEffect(() => {
     if (highlightId) {
-      scrollToItem(highlightId);
+      // Only scroll if this hook instance has no category, or the categories match
+      if (!category || (highlightCategory && category === highlightCategory)) {
+        scrollToItem(highlightId);
+      }
     }
-  }, [highlightId, scrollToItem]);
+  }, [highlightId, highlightCategory, scrollToItem, category]);
 
   // Check if an item is highlighted
   const isItemHighlighted = useCallback(
     (itemId: number | string) => {
-      return highlightId !== null && itemId.toString() === highlightId;
+      if (highlightId === null) return false;
+      if (itemId.toString() !== highlightId) return false;
+      if (category) {
+        return highlightCategory === category;
+      }
+      return true;
     },
-    [highlightId]
+    [highlightId, highlightCategory, category]
   );
 
   return {

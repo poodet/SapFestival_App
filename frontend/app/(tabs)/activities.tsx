@@ -45,7 +45,8 @@ export default function ActivityScreen() {
     flatListRef 
   } = useHighlightItem({ 
     items: activities,
-    pulseCount: 2, // Double pulse animation
+      pulseCount: 3, // Double pulse animation
+      category: 'activity',
   });
 
   const currentSound = useRef<Audio.Sound | null>(null);

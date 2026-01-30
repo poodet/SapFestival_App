@@ -62,19 +62,14 @@ const ScheduleScreen = () => {
   };
 
   const highlightEvent = (event: any) => {
-    // Navigate to activities screen if it's an activity event
-    let pathName = '';
-    if (event.category === 'artist') {
-      pathName = '/(tabs)/artists';
-    } else if (event.category === 'meal') {
-      pathName = '/(tabs)/b2b';
-    } else if (event.category === 'activity') {
-      pathName = '/(tabs)/activities';
-    }
-
-    setHighlightId(event.metadata?.id?.toString() || '');
-    
-    router.push(pathName);
+    // Navigate to programme screen for all event types
+    // Store both the ID and category for proper section switching
+    const highlightData = {
+      id: event.metadata?.id?.toString() || '',
+      category: event.category || ''
+    };
+    setHighlightId(highlightData.id, highlightData.category);
+    router.push('/(tabs)/programme');
   };
 
   const closeModal = () => {

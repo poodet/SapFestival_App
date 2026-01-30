@@ -45,6 +45,7 @@ export default function ArtistsScreen() {
   } = useHighlightItem({ 
     items: artists,
     pulseCount: 2, // Double pulse animation
+    category: 'artist',
   });
 
   const { clearHighlight } = useHighlight();

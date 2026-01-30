@@ -1,10 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, ActivityIndicator, Text, FlatList, RefreshControl, Dimensions, Platform, TouchableOpacity, LayoutAnimation, UIManager } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text, FlatList, RefreshControl, Dimensions, Platform, TouchableOpacity } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import Animated from 'react-native-reanimated';
-import * as Font from 'expo-font';
-import ScreenTitle from '@/components/screenTitle';
-import InfoHeaderButton from '@/components/InfoHeaderButton';
 import { useMenuItems, useDrinkItems } from '@/contexts/DataContext';
 import { MenuItem, DrinkItem } from '@/types/data';
 import { useHighlightItem } from '@/hooks/useHighlightItem';
@@ -13,15 +10,10 @@ import ThemedText from '@/components/ThemedText';
 
 const { width } = Dimensions.get('window');
 
-export default function FoodDrinkScreen() {
-  const [loaded, error] = Font.useFonts({
-    'Oliver-Regular': require('../../assets/fonts/Oliver-Regular.otf'),
-  });
-  // Use the hook instead of hardcoded data
+export default function MenuList() {
   const { menuItems, isLoading, isRefreshing, refetch } = useMenuItems();
   const { drinkItems, isLoading: isDrinksLoading, isRefreshing: isDrinksRefreshing, refetch: refetchDrinks } = useDrinkItems();
 
-  // Use the highlight hook
   const { 
     currentHighlightId, 
     animatedStyle, 
@@ -29,23 +21,13 @@ export default function FoodDrinkScreen() {
     flatListRef 
   } = useHighlightItem({ 
     items: menuItems,
-      pulseCount: 2, 
-      category: 'b2b',
+    pulseCount: 2,
+    category: 'meal',
   });
 
-  // Enable LayoutAnimation on Android TODO(@podet): delete ?
-  React.useEffect(() => {
-    if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-      UIManager.setLayoutAnimationEnabledExperimental(true);
-    }
-  }, []);
-
-  // Track which card is expanded (only one at a time)
   const [expandedId, setExpandedId] = React.useState<number | null>(null);
-  // Track which drink category is expanded (only one at a time)
   const [expandedDrinkCategory, setExpandedDrinkCategory] = React.useState<string | null>(null);
 
-  // Group drinks by category
   const groupedDrinks = React.useMemo(() => {
     const groups: { [category: string]: DrinkItem[] } = {};
     drinkItems.forEach(drink => {
@@ -57,24 +39,18 @@ export default function FoodDrinkScreen() {
     return groups;
   }, [drinkItems]);
 
-  // Show loading indicator while data is being fetched
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.safeAreaViewContainer}> 
-        <ScreenTitle>A manger</ScreenTitle>
-        <InfoHeaderButton />
-        <View style={{ justifyContent: 'center', alignItems: 'center' , flex: 1}}>
-          <ActivityIndicator size="large" color={theme.background.secondary} />
-          <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading menu...</Text>
-        </View>
-      </SafeAreaView>
+      <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+        <ActivityIndicator size="large" color={theme.background.secondary} />
+        <Text style={{ color: theme.background.secondary, marginTop: 20 }}>Loading menu...</Text>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeAreaViewContainer}>
-      <ScreenTitle>A manger</ScreenTitle>
-      <InfoHeaderButton />
+    <View style={{ flex: 1 }}>
+      <ThemedText style={styles.drinkSectionTitle}>A Manger</ThemedText>
 
       <View style={{ flexShrink: 1 }}>
         <FlatList
@@ -103,13 +79,11 @@ export default function FoodDrinkScreen() {
                     onPress={() => setExpandedId(prev => (prev === item.id ? null : item.id))}
                   >
                     <View style={[styles.cardContent, 
-                      // if not open, align items in row
-                      ! isOpen && { flexDirection:'row', justifyContent:'space-between', alignItems:'center' }
-                      
-                      ]}>
+                      !isOpen && { flexDirection:'row', justifyContent:'space-between', alignItems:'center' }
+                    ]}>
                       <ThemedText style={styles.categoryTitle}>{item.moment_name}</ThemedText>
                       {
-                        ! isOpen && (
+                        !isOpen && (
                           <Text style={styles.menuTitle} numberOfLines={2} ellipsizeMode="tail">
                             {item.title}
                           </Text>
@@ -130,11 +104,10 @@ export default function FoodDrinkScreen() {
               </Animated.View>
             );
           }}
-          // contentContainerStyle={styles.list}
         />
       </View>
 
-      <ScreenTitle >A Boire</ScreenTitle>
+      <ThemedText style={styles.drinkSectionTitle}>A Boire</ThemedText>
       <View style={{ flex: 1 }}>
         {isDrinksLoading ? (
           <View style={{ justifyContent: 'center', alignItems: 'center', padding: 40 }}>
@@ -183,15 +156,11 @@ export default function FoodDrinkScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  safeAreaViewContainer: {
-    flex: 1,
-    backgroundColor: theme.background.primary,
-  },
   list: {
     alignItems: 'stretch',
     paddingBottom: layout.tabBar.contentPadding,
@@ -228,14 +197,13 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: width < 350 ? 16 : 20,
-    color: theme.background.dark,
+    color: theme.text.secondary,
     flexShrink: 1,
     textAlign: 'justify',
   },
   menuTitle: {
     fontSize: width < 350 ? 14 : 18,
-    // fontWeight: '600',
-    color: theme.background.dark,
+    color: theme.ui.black,
     flexShrink: 1,
   },
   menuDescription: {
@@ -245,10 +213,16 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: 'justify',
   },
+  drinkSectionTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: theme.text.primary,
+    textAlign: 'center',
+    marginVertical: 12,
+  },
   drinkName: {
     fontSize: width < 350 ? 14 : 16,
-    // fontWeight: '600',
-    color: theme.background.dark,
+    color: theme.text.secondary,
     flexShrink: 1,
   },
   drinkDescription: {
@@ -258,4 +232,3 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
 });
-

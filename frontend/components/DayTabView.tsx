@@ -7,10 +7,15 @@ interface Props {
   options: string[];
   value: string;
   onChange: (v: string) => void;
+  // When false, the internal pan responder is disabled so a parent
+  // horizontal pager (FlatList) can handle swipes without conflict.
+  swipeEnabled?: boolean;
+  // Optional numeric index to force-selected tab (preferred if provided)
+  selectedIndex?: number;
 }
 
-export default function DayTabView({ options, value, onChange }: Props) {
-  const index = Math.max(0, options.indexOf(value));
+export default function DayTabView({ options, value, onChange, swipeEnabled = true, selectedIndex }: Props) {
+  const index = typeof selectedIndex === 'number' ? Math.max(0, Math.min(selectedIndex, options.length - 1)) : Math.max(0, options.indexOf(value));
   const anim = useRef(new Animated.Value(index)).current;
   const [width, setWidth] = useState(0);
 
@@ -23,8 +28,12 @@ export default function DayTabView({ options, value, onChange }: Props) {
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 6,
+      onMoveShouldSetPanResponder: (_, gs) => {
+        if (!swipeEnabled) return false;
+        return Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 6;
+      },
       onPanResponderRelease: (_, gs) => {
+        if (!swipeEnabled) return;
         if (gs.dx < -50 && index < options.length - 1) {
             onChange(options[index + 1]);
         }

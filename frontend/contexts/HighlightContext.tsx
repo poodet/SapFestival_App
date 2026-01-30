@@ -14,9 +14,14 @@ interface HighlightContextType {
   highlightId: string | null;
   
   /**
-   * Set the highlighted item ID
+   * Current highlighted item category (artist, activity, meal, etc.)
    */
-  setHighlightId: (id: string | null) => void;
+  highlightCategory: string | null;
+  
+  /**
+   * Set the highlighted item ID and optional category
+   */
+  setHighlightId: (id: string | null, category?: string | null) => void;
   
   /**
    * Clear the highlighted item ID
@@ -28,17 +33,20 @@ const HighlightContext = createContext<HighlightContextType | undefined>(undefin
 
 export function HighlightProvider({ children }: { children: React.ReactNode }) {
   const [highlightId, setHighlightIdState] = useState<string | null>(null);
+  const [highlightCategory, setHighlightCategoryState] = useState<string | null>(null);
 
-  const setHighlightId = useCallback((id: string | null) => {
+  const setHighlightId = useCallback((id: string | null, category?: string | null) => {
     setHighlightIdState(id);
+    setHighlightCategoryState(category || null);
   }, []);
 
   const clearHighlight = useCallback(() => {
     setHighlightIdState(null);
+    setHighlightCategoryState(null);
   }, []);
 
   return (
-    <HighlightContext.Provider value={{ highlightId, setHighlightId, clearHighlight }}>
+    <HighlightContext.Provider value={{ highlightId, highlightCategory, setHighlightId, clearHighlight }}>
       {children}
     </HighlightContext.Provider>
   );

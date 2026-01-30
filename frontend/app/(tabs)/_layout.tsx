@@ -57,40 +57,36 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="b2b"
+        name="programme"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <>
               <Ionicons 
-              name={ 'fast-food-sharp'} 
+              name={'list'} 
               color={focused ? theme.interactive.primary : color} 
               size={30} 
               />
-              <Text style= {styles.badgeText}>Menu</Text>
+              <Text style= {styles.badgeText}>Programme</Text>
             </>
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="b2b"
+        options={{
+          href: null, // Hidden - now in programme tab
         }}
       />
       <Tabs.Screen
         name="artists"
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <>
-              <Ionicons name={'musical-notes'} color={focused ? theme.interactive.primary : color} size={30}/>
-              <Text style= {styles.badgeText}>Artistes</Text>
-            </>
-          ),
+          href: null, // Hidden - now in programme tab
         }}
       />
       <Tabs.Screen
         name="activities"
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <>
-              <Ionicons name={'trophy'} color={focused ? theme.interactive.primary : color} size={30}  />
-            <Text style= {styles.badgeText}>Activités</Text>
-            </>
-          ),
+          href: null, // Hidden - now in programme tab
         }}
       />
       <Tabs.Screen
