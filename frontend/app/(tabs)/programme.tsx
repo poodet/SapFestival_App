@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { StyleSheet, SafeAreaView, View, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, SafeAreaView, View, FlatList, Dimensions, useWindowDimensions, Text, TouchableOpacity } from 'react-native';
 import * as Font from 'expo-font';
 import ScreenTitle from '@/components/screenTitle';
 import InfoHeaderButton from '@/components/InfoHeaderButton';
-import SectionPager from '@/components/SectionPager';
+import { TabView, TabBar } from 'react-native-tab-view';
 import ArtistsList from '@/components/ArtistsList';
 import MenuList from '@/components/MenuList';
 import ActivitiesList from '@/components/ActivitiesList';
 import { theme } from '@/constants/theme';
 import { useHighlight } from '@/contexts/HighlightContext';
 import { useArtists, useActivities, useMenuItems } from '@/contexts/DataContext';
+
 
 type SectionType = 'Menu' | 'Artistes' | 'Activités';
 
@@ -45,22 +46,49 @@ export default function ProgrammeScreen() {
   }, [highlightId, highlightCategory]);
 
   const SECTIONS: SectionType[] = ['Menu', 'Artistes', 'Activités'];
+  const layout = useWindowDimensions();
+  const [index, setIndex] = useState(SECTIONS.indexOf(activeSection));
+  const [routes] = useState(SECTIONS.map((s) => ({ key: s, title: s })));
+
+  useEffect(() => {
+    setIndex(SECTIONS.indexOf(activeSection));
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (index >= 0 && index < SECTIONS.length) setActiveSection(SECTIONS[index]);
+  }, [index]);
+
+  const renderCustomTabBar = (props: any) => {
+    return (
+      <TabBar
+        {...props}
+        style={{ backgroundColor: 'transparent', elevation: 0 }}
+        indicatorStyle={{ backgroundColor: theme.interactive.primary, height: 3 }}
+        labelStyle={{ fontFamily: theme.fonts.themed, fontSize: 15 }}
+        activeColor={theme.text.primary}
+        inactiveColor={theme.text.secondary}
+      />
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <ScreenTitle>PROGRAMME</ScreenTitle>
       <InfoHeaderButton />
-      
-      <SectionPager
-        options={SECTIONS}
-        selectedIndex={SECTIONS.indexOf(activeSection)}
-        onIndexChange={(idx) => setActiveSection(SECTIONS[idx])}
-        renderSection={(option) => {
+
+      <TabView
+        navigationState={{ index, routes }}
+        renderTabBar={renderCustomTabBar}
+        renderScene={({ route }) => {
+          const option = route.key as SectionType;
           if (option === 'Menu') return <MenuList />;
           if (option === 'Artistes') return <ArtistsList />;
           if (option === 'Activités') return <ActivitiesList />;
           return null;
         }}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        swipeEnabled={true}
       />
     </SafeAreaView>
   );

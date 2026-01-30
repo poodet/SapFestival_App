@@ -9,12 +9,13 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
+   TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
-import { PanResponder, GestureResponderEvent, PanResponderGestureState, View as RNView } from 'react-native';
-import DayTabView from '@/components/DayTabView';
+import { TabView, TabBar } from 'react-native-tab-view';
+import { useWindowDimensions } from 'react-native';
 import { useFestivalData } from '@/contexts/DataContext';
 import { useHighlight } from '@/contexts/HighlightContext';
 import { useFestivalCalendar, useDayEvents, usePermCalendar } from '@/hooks/useCalendar';
@@ -25,6 +26,7 @@ import { CalendrierView } from '@/components/calendar/CalendrierView';
 import { PermsView } from '@/components/calendar/PermsView';
 import { LogistiqueView } from '@/components/calendar/LogistiqueView';
 import { PermModal } from '@/components/calendar/PermModal';
+
 
 const DAYS = ['Vendredi', 'Samedi'];
 
@@ -52,8 +54,9 @@ const ScheduleScreen = () => {
     sortByTime: true,
   });
 
-  // Get events for the selected day
-  const events = useDayEvents(eventsByDay, selectedDay);
+  // Get events for each day (keep hook order stable)
+  const eventsVendredi = useDayEvents(eventsByDay, 'Vendredi');
+  const eventsSamedi = useDayEvents(eventsByDay, 'Samedi');
   const eventsPerms = useDayEvents(permsByDay, selectedDay);
 
   const openPermDetails = (permEvent: any) => {
@@ -99,46 +102,60 @@ const ScheduleScreen = () => {
     }
   }, [isFocused]);
 
-  // Horizontal swipe responder for switching days without blocking vertical scroll
-  const selectedDayRef = React.useRef(selectedDay);
-  React.useEffect(() => { selectedDayRef.current = selectedDay; }, [selectedDay]);
-  const swipeResponder = React.useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_, gs: PanResponderGestureState) => {
-        // Only capture when horizontal movement is larger than vertical movement
-        return Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 8;
-      },
-      onPanResponderGrant: () => {
-        // flag to avoid double-switch during the same gesture
-        (swipeResponder as any).currentSwitched = false;
-      },
-      onPanResponderMove: (_: GestureResponderEvent, gs: PanResponderGestureState) => {
-        // allow switching during move for more responsive feel
-        const already = (swipeResponder as any).currentSwitched;
-        const threshold = 40;
-        const currentIndex = DAYS.indexOf(selectedDayRef.current);
+  const layout = useWindowDimensions();
+  const [index, setIndex] = React.useState(DAYS.indexOf(selectedDay));
+  const [routes] = React.useState(DAYS.map((d) => ({ key: d, title: d })));
 
-        if (!already && gs.dx < -threshold && currentIndex < DAYS.length - 1) {
-          setSelectedDay(DAYS[currentIndex + 1]);
-          (swipeResponder as any).currentSwitched = true;
-        } else if (!already && gs.dx > threshold && currentIndex > 0) {
-          setSelectedDay(DAYS[currentIndex - 1]);
-          (swipeResponder as any).currentSwitched = true;
-        }
-      },
-      onPanResponderRelease: (_: GestureResponderEvent, gs: PanResponderGestureState) => {
-        // fallback on release if move didn't switch
-        if ((swipeResponder as any).currentSwitched) return;
-        const currentIndex = DAYS.indexOf(selectedDayRef.current);
-        if (gs.dx < -50) {
-          if (currentIndex < DAYS.length - 1) setSelectedDay(DAYS[currentIndex + 1]);
-        } else if (gs.dx > 50) {
-          if (currentIndex > 0) setSelectedDay(DAYS[currentIndex - 1]);
-        }
-      },
-    })
-  ).current;
+  useEffect(() => {
+    setIndex(DAYS.indexOf(selectedDay));
+  }, [selectedDay]);
+
+  useEffect(() => {
+    if (typeof index === 'number' && index >= 0 && index < DAYS.length) {
+      setSelectedDay(DAYS[index]);
+    }
+  }, [index]);
+
+  // Use TabBar so TabView can animate label/indicator during swipes
+  const renderCustomTabBar = (props: any) => (
+    // Lags too much, dont know why
+    //     <View style={{ flexDirection: 'row', justifyContent: 'center', paddingVertical: 8 }}>
+    //   {props.navigationState.routes.map((route: any, i: number) => {
+    //     const focused = props.navigationState.index === i;
+    //     return (
+    //       <TouchableOpacity
+    //         key={route.key}
+    //         onPress={() => props.jumpTo(route.key)}
+    //         style={{ paddingHorizontal: 12, paddingVertical: 8, alignItems: 'center' }}
+    //         activeOpacity={0.85}
+    //       >
+    //         <Text style={{ fontFamily: theme.fonts.themed, fontSize: 15, color: focused ? theme.text.primary : theme.text.secondary }}>{route.title}</Text>
+    //         <View style={{ height: 3, width: 36, marginTop: 6, borderRadius: 2, backgroundColor: focused ? theme.interactive.primary : 'transparent' }} />
+    //       </TouchableOpacity>
+    //     );
+    //   })}
+    // </View>
+    
+    <TabBar
+      {...props}
+      style={{ backgroundColor: 'transparent', elevation: 0 }}
+      indicatorStyle={{ backgroundColor: theme.interactive.primary, height: 3 }}
+      activeColor={theme.text.primary}
+      inactiveColor={theme.text.secondary}
+      // Not working
+      // labelStyle={{ fontFamily: theme.fonts.themed, fontSize: 16 }}
+      // renderLabel={({ focused, route }) => {
+      //   return (
+      //     <TextView
+      //       size={20}
+      //       category="Medium"
+      //       color={focused ? 'red' : 'red'}>
+      //       {route.title}
+      //     </TextView>
+      //   );
+      // }}
+    />
+  );
 
   // Also handle tab presses when the screen is already focused.
   // React Navigation emits a `tabPress` event even if the tab is focused.
@@ -220,28 +237,41 @@ const ScheduleScreen = () => {
           </View>
         )}
         
-        {/* Day selector - only show for calendrier view */}
         {activeView === 'calendrier' && (
-          <View>
-            {/* <ScreenTitle style={{ paddingTop: 10 }}>LINE UP</ScreenTitle> */}
-            {/* Day Tab View: swipe or tap to change day */}
-            <View style={{ paddingHorizontal: 16 }}>
-              <DayTabView options={DAYS} value={selectedDay} onChange={setSelectedDay} />
-            </View>
-          </View>
-        )}
+          <View style={{ flex: 1 }}>
+            <TabView
+              navigationState={{ index, routes }}
+              renderScene={({ route }) => {
+                const option = route.key;
+                const eventsFor = option === 'Vendredi' ? eventsVendredi : eventsSamedi;
+                const minHourFor = option === 'Vendredi' ? 17 : 10;
+                const maxHourLocal = 30;
+                const timeSlotsLocal: string[] = [];
+                for (let hour = minHourFor; hour < maxHourLocal; hour++) {
+                  const displayHour = hour % 24;
+                  timeSlotsLocal.push(`${displayHour.toString().padStart(2, '0')}:00`);
+                  timeSlotsLocal.push(`${displayHour.toString().padStart(2, '0')}:30`);
+                }
+                timeSlotsLocal.push(`${(6).toString().padStart(2, '0')}:00`);
 
-        {/* Calendrier View */}
-        {activeView === 'calendrier' && (
-          <RNView {...swipeResponder.panHandlers} style={{ flex: 1 }}>
-            <CalendrierView
-              events={events}
-              selectedDay={selectedDay}
-              minHour={minHour}
-              timeSlots={timeSlots}
-              onEventPress={highlightEvent}
+                return (
+                  <View style={{ flex: 1 }}>
+                    <CalendrierView
+                      events={eventsFor}
+                      selectedDay={option}
+                      minHour={minHourFor}
+                      timeSlots={timeSlotsLocal}
+                      onEventPress={highlightEvent}
+                    />
+                  </View>
+                );
+              }}
+              renderTabBar={renderCustomTabBar}
+              onIndexChange={setIndex}
+              initialLayout={{ width: layout.width }}
+              swipeEnabled={true}
             />
-          </RNView>
+          </View>
         )}
 
         {/* Perms View */}

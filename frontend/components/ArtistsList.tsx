@@ -48,6 +48,8 @@ export default function ArtistsList() {
   }, [currentHighlightId]);
 
   return (
+    <View style={styles.container}>
+    
     <FlatList
       ref={flatListRef}
       data={artists}
@@ -148,18 +150,25 @@ export default function ArtistsList() {
       }}
       contentContainerStyle={styles.scrollContent}
     />
+    </View>
+    
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.background.primary,
+  },
   scrollContent: {
-    paddingHorizontal: 16,
+    paddingVertical: 20,
+    alignItems: 'stretch',
     paddingBottom: layout.tabBar.contentPadding,
   },
   card: {
     padding: 12,
     borderRadius: 24,
-    marginBottom: 24,
+    marginBottom: 16,
     backgroundColor: theme.background.secondary,
     width: '90%',
     maxWidth: 500,
