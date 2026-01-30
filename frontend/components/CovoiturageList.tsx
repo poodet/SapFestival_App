@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   ActivityIndicator, 
   RefreshControl, 
@@ -13,6 +13,8 @@ import {
   Platform,
   Modal,
   ScrollView,
+  Animated,
+  PanResponder,
   Alert,
 } from 'react-native';
 import { useCovoiturage } from '@/contexts/DataContext';
@@ -63,6 +65,42 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
   const [invalidDepartureTime, setInvalidDepartureTime] = useState(false);
   const [invalidContactInfo, setInvalidContactInfo] = useState(false);
 
+  // Pan/drag for modal dismissal
+  const panY = useRef(new Animated.Value(0)).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        // capture vertical drags
+        return Math.abs(gestureState.dy) > Math.abs(gestureState.dx) && Math.abs(gestureState.dy) > 4;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        // only allow dragging down
+        if (gestureState.dy > 0) {
+          panY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        const shouldClose = gestureState.dy > 150 || gestureState.vy > 1.2;
+        if (shouldClose) {
+          Animated.timing(panY, {
+            toValue: 1000,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => {
+            panY.setValue(0);
+            setIsModalVisible(false);
+          });
+        } else {
+          Animated.spring(panY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
   // Format date from Date object to DD/MM format
   const formatDate = (date: Date | string | any): string => {
     try {
@@ -110,7 +148,33 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
   // Filter trips based on trip type and search text
   const filteredTrips = useMemo(() => {
     if (!covoiturage) return [];
-    let filtered = covoiturage.filter((trip: Covoiturage) => trip.tripType === selectedTripType);
+
+    // first order by date ascending
+    const sorted = [...covoiturage].sort((a, b) => {
+      const dateA = a.departureDate instanceof Date ? a.departureDate : new Date(a.departureDate);
+      const dateB = b.departureDate instanceof Date ? b.departureDate : new Date(b.departureDate);
+      if (dateA < dateB) return -1;
+      if (dateA > dateB) return 1;
+      return 0;
+    });
+    // move trips with 0 seats available to the bottom
+    const ordered = sorted.sort((a, b) => {
+        const availableA = a.totalSeats;
+        const availableB = b.totalSeats;
+        if (availableA === 0 && availableB > 0) return 1;
+        if (availableA > 0 && availableB === 0) return -1;
+        return 0;
+    });
+    // Display first trips created by the current user
+    const userCreatedFirst = ordered.sort((a, b) => {
+
+      const aCreatedByUser = a.userId === user?.id ? 1 : 0;
+      const bCreatedByUser = b.userId === user?.id ? 1 : 0;
+      return bCreatedByUser - aCreatedByUser;
+    });
+
+
+    let filtered = userCreatedFirst.filter((trip: Covoiturage) => trip.tripType === selectedTripType);
 
     if (searchText.trim()) {
       const searchLower = searchText.toLowerCase();
@@ -124,7 +188,7 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
         return searchableText.includes(searchLower);
       });
     }
-
+    
     return filtered;
   }, [covoiturage, selectedTripType, searchText]);
 
@@ -244,6 +308,13 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
     }
   };
 
+  // Reset pan position when opening/closing modal
+  useEffect(() => {
+    if (!isModalVisible) {
+      panY.setValue(0);
+    }
+  }, [isModalVisible, panY]);
+
   // Handle create covoiturage
   const handleCreate = async () => {
     let hasError = false;
@@ -342,7 +413,7 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
     setIsCreating(true);
     try {
       const [day, month, year] = departureDay.split('/');
-      const [hours, minutes] = departureTime.split('/');
+      const [hours, minutes] = departureTime.split(':');
       const departureDate = new Date(
         parseInt(year || new Date().getFullYear().toString()),
         parseInt(month) - 1,
@@ -522,9 +593,9 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
                     />
                     <Text style={[
                       styles.detailText,
-                      availableSeats === 0 && styles.detailTextInactive
+                      availableSeats === 0 && [styles.detailTextInactive, {fontWeight: 'bold', color: 'red'}]
                     ]}>
-                      {availableSeats} place{availableSeats !== 1 ? 's' : ''}
+                      {availableSeats} place{availableSeats !== 1 ? 's' : ''} libre{availableSeats !== 1 ? 's' : ''}
                     </Text>
                   </View>
 
@@ -582,13 +653,19 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
       {/* Create/edit Modal - keeping the full modal code from cars.tsx */}
       <Modal
         visible={isModalVisible}
-        animationType="slide"
+        animationType="none"
         transparent={true}
         onRequestClose={() => setIsModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <Animated.View
+            style={[styles.modalContent, { transform: [{ translateY: panY }] }]}
+            {...panResponder.panHandlers}
+          >
             <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={styles.dragHandleContainer}>
+                <View style={styles.dragHandle} />
+              </View>
               <ThemedText style={styles.modalTitle}>
                 {isEditMode ? 'Modifier le trajet' : 'Ajouter un trajet'}
               </ThemedText>
@@ -634,7 +711,7 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
 
               {/* Conductor Name and Seats */}
               <View style={styles.formRow}>
-                <View style={[styles.formGroup, { flex: 2 }]}>
+                <View style={[styles.formGroup, { flex: 1 }]}>
                   <Text style={styles.label}>Conducteur</Text>
                   <TextInput
                     style={styles.input}
@@ -645,15 +722,41 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
                   />
                 </View>
                 <View style={[styles.formGroup, { flex: 1 }]}>
-                  <Text style={styles.label}>Places</Text>
-                  <TextInput
-                    style={[styles.input, invalidTotalSeats ? { borderColor: '#E74C3C' } : null]}
-                    placeholder="Nb"
-                    placeholderTextColor={theme.text.placeholder}
-                    value={totalSeats}
-                    onChangeText={setTotalSeats}
-                    keyboardType="number-pad"
-                  />
+                  <Text style={styles.label}>Places disponibles</Text>
+                  <View style={styles.placesRow}>
+                    <TouchableOpacity
+                      style={[styles.placesButton , {backgroundColor:'rgb(238 140 140)'}]}
+                      onPress={() => {
+                        const current = parseInt(totalSeats || '0', 10) || 0;
+                        const next = Math.max(0, current - 1);
+                        setTotalSeats(String(next));
+                      }}
+                      accessibilityLabel="minus"
+                    >
+                      <Text style={styles.placesButtonText}>-</Text>
+                    </TouchableOpacity>
+
+                    <TextInput
+                      style={[styles.input, styles.placesInput, invalidTotalSeats ? { borderColor: '#E74C3C' } : null]}
+                      placeholder="Nb"
+                      placeholderTextColor={theme.text.placeholder}
+                      value={totalSeats}
+                      onChangeText={(t) => setTotalSeats(t.replace(/[^0-9]/g, ''))}
+                      keyboardType="number-pad"
+                    />
+
+                    <TouchableOpacity
+                      style={[styles.placesButton , {backgroundColor:'rgb(140 202 140)'}]}
+                      onPress={() => {
+                        const current = parseInt(totalSeats || '0', 10) || 0;
+                        const next = current + 1;
+                        setTotalSeats(String(next));
+                      }}
+                      accessibilityLabel="plus"
+                    >
+                      <Text style={styles.placesButtonText}>+</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
 
@@ -781,7 +884,7 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
                 </Pressable>
               </View>
             </ScrollView>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>
@@ -952,6 +1055,41 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     padding: 20,
     maxHeight: '90%',
+  },
+  dragHandleContainer: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  dragHandle: {
+    width: 40,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#ddd',
+  },
+  placesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  placesButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: theme.ui.white,
+    borderWidth: 1,
+    borderColor: theme.interactive.inactive,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placesButtonText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: theme.ui.white,
+  },
+  placesInput: {
+    flexShrink: 1,
+    marginHorizontal: 8,
+    textAlign: 'center',
+    minWidth: 50,
   },
   modalTitle: {
     fontSize: 24,
