@@ -13,14 +13,14 @@ Remarques & retours utilisateurs:
 - Calendrier:
     - Changer le nom par "programme" ou "horaires"
     - mettre des images dans les card evenement comme pour les artistes
-    - petit bouton pour switcher les jours plutot que central sur la page
+    - ✅ petit bouton pour switcher les jours plutot que central sur la page
     - mettre tout a gauche de la navbar l'onglet le plus important.
 - Perms:
     - pouvoir cliquer sur la personne pour acceder a sa fiche
     - dropdown filters: 
-        - fermer le dropdown quand ouvre l'autre
-        - mettre bouton "clear filter" en bas et fixé
-        - afficher le nb de pole ou personne selectionnées
+        - ✅ fermer le dropdown quand ouvre l'autre
+        - ✅ mettre bouton "clear filter" en bas et fixé
+        - ✅ afficher le nb de pole ou personne selectionnées
 - Logistique:
     - Page d'information par pôle (univers,..) pour aider au montage / rangement avec consignes par zone 
 - Covoit:
@@ -33,16 +33,16 @@ Remarques & retours utilisateurs:
     - ✅ bouton "+/-" pour rapidement éditer les places voitures 
 - Bouffe:
     - scroller l'entiereté de la page plutot que séparement bouffe / boissons
-    - regrouper par catégories (bieres / cocktail), et pouvoir cliquer pour étendre la liste
+    - ✅ regrouper par catégories (bieres / cocktail), et pouvoir cliquer pour étendre la liste
     - clique sur un element bouffe ouvre des détails & allergènes,.., photo
 - Artistes: 
     - [FONCTIONNALITE] Bouton "son" play/pause sous bouton "subscribe" pour play 10 secondes d'un set 
 - Menu "mon compte"  / amélioration de l'organisation des menus
     - qui regrouperait les notif, les contacts, les infos, .. ?
     --> **solution**:
-        - Onglet "pratique" avec covoit, contact, info
+        - ✅ Onglet "pratique" avec covoit, contact, info
         - onglet "calendrier": page d'arrivée
-        - onglet "programme": regroupe menu, artiste, activité
+        - ✅ onglet "programme": regroupe menu, artiste, activité
         - onglet "compte / profil": avec login, notification, settings, logout
         - onglet "orga": permanences, logistique, etc
 - Autres pages:
