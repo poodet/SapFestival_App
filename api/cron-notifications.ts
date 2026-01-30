@@ -266,16 +266,24 @@ async function sendOneSignalNotification(params: {
     }
 
     // Save notification to Firestore (for in-app history)
-    await admin.firestore().collection('notifications').add({
+    const firestoreData: any = {
       userId,
       title,
       message,
       type,
-      relatedId,
-      relatedType,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       read: false,
-    });
+    };
+
+    // Only include relatedId and relatedType if they're defined
+    if (relatedId !== undefined) {
+      firestoreData.relatedId = relatedId;
+    }
+    if (relatedType !== undefined) {
+      firestoreData.relatedType = relatedType;
+    }
+
+    await admin.firestore().collection('notifications').add(firestoreData);
   } catch (error) {
     console.error('❌ Error sending OneSignal notification:', error);
     if (axios.isAxiosError(error) && error.response) {
@@ -293,6 +301,46 @@ function shouldSendNotification(
   lastCheck: dayjs.Dayjs
 ): boolean {
   return notifyAt.isAfter(lastCheck) && notifyAt.isBefore(now.add(CHECK_INTERVAL_MINUTES, 'minutes'));
+}
+
+/**
+ * Send test notifications to all users
+ */
+async function sendTestNotifications() {
+  console.log('🧪 Sending test notifications to all users...');
+
+  try {
+    // Get all user notification preferences
+    const prefsSnapshot = await admin.firestore().collection('notificationPreferences').get();
+
+    console.log(`👥 Found ${prefsSnapshot.size} users with notification preferences`);
+
+    let notificationsSent = 0;
+    
+    // Send test notification to each user
+    for (const prefDoc of prefsSnapshot.docs) {
+      const prefs = prefDoc.data() as NotificationPreference;
+
+      await sendOneSignalNotification({
+        userId: prefs.userId,
+        title: '🧪 Test Notification',
+        message: 'This is a test notification from SAP Festival App',
+        type: 'test',
+      });
+      notificationsSent++;
+    }
+
+    console.log(`✨ Test notifications complete. Sent ${notificationsSent} notifications.`);
+    return {
+      success: true,
+      testMode: true,
+      notificationsSent,
+      usersNotified: prefsSnapshot.size,
+    };
+  } catch (error) {
+    console.error('❌ Error in sendTestNotifications:', error);
+    throw error;
+  }
 }
 
 /**
@@ -320,7 +368,7 @@ async function checkNotifications() {
     console.log(`👥 Found ${prefsSnapshot.size} users with notification preferences`);
 
     let notificationsSent = 0;
-
+    
     // 3. For each user with preferences
     for (const prefDoc of prefsSnapshot.docs) {
       const prefs = prefDoc.data() as NotificationPreference;
@@ -405,8 +453,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     console.log('🚀 Cron job triggered at:', new Date().toISOString());
 
-    // Run notification check
-    const result = await checkNotifications();
+    // Check if this is a test request, only allowed in non-production
+    const isTestMode = req.body?.test === true || req.query?.test === 'true';
+    const isDev = process.env.NODE_ENV !== 'production';
+
+    // Run test notifications or regular notification check
+    const result = isTestMode && isDev
+      ? await sendTestNotifications()
+      : await checkNotifications();
 
     // Return success response
     return res.status(200).json({
