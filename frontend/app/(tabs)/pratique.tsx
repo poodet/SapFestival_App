@@ -12,7 +12,7 @@ import {
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Font from 'expo-font';
 import { useRouter } from 'expo-router';
-import theme, { layout } from '@/constants/theme';
+import theme, { addOpacity, layout } from '@/constants/theme';
 import ScreenTitle from '@/components/screenTitle';
 import InfoHeaderButton from '@/components/InfoHeaderButton';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +20,7 @@ import { useHighlight } from '@/contexts/HighlightContext';
 // Import existing components
 import CovoiturageList from '@/components/CovoiturageList';
 import ContactList from '@/components/ContactList';
+import ThemedText from '@/components/ThemedText';
 
 type SectionType = 'covoit' | 'contact' | 'infos';
 
@@ -69,14 +70,14 @@ const PratiqueScreen = () => {
           size={20}
           color={activeSection === 'covoit' ? theme.text.primary : theme.text.secondary}
         />
-        <Text
+        <ThemedText
           style={[
             styles.sectionButtonText,
             activeSection === 'covoit' && styles.sectionButtonTextActive,
           ]}
         >
           Covoit
-        </Text>
+        </ThemedText>
       </Pressable>
 
       <Pressable
@@ -88,14 +89,14 @@ const PratiqueScreen = () => {
           size={20}
           color={activeSection === 'contact' ? theme.text.primary : theme.text.secondary}
         />
-        <Text
+        <ThemedText
           style={[
             styles.sectionButtonText,
             activeSection === 'contact' && styles.sectionButtonTextActive,
           ]}
         >
           Contact
-        </Text>
+        </ThemedText>
       </Pressable>
 
       <Pressable
@@ -107,14 +108,14 @@ const PratiqueScreen = () => {
           size={20}
           color={activeSection === 'infos' ? theme.text.primary : theme.text.secondary}
         />
-        <Text
+        <ThemedText
           style={[
             styles.sectionButtonText,
             activeSection === 'infos' && styles.sectionButtonTextActive,
           ]}
         >
           Infos
-        </Text>
+        </ThemedText>
       </Pressable>
     </View>
   );
@@ -123,7 +124,7 @@ const PratiqueScreen = () => {
   const renderInfosSection = () => (
     <ScrollView
       style={{ flex: 1 }}
-      contentContainerStyle={{ paddingBottom: layout.tabBar.height + 20, padding: 16 }}
+      contentContainerStyle={{paddingHorizontal: 16, paddingBottom: layout.tabBar.contentPadding }}
     >
       {/* User Info */}
       {user ? (
@@ -225,11 +226,9 @@ const PratiqueScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <ScreenTitle>PRATIQUE</ScreenTitle>
+    <SafeAreaView style={styles.safeAreaViewContainer}>
+        {/* <ScreenTitle>PRATIQUE</ScreenTitle> */}
         <InfoHeaderButton />
-      </View>
 
       {renderSectionSelector()}
 
@@ -244,43 +243,38 @@ const PratiqueScreen = () => {
 export default PratiqueScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  safeAreaViewContainer: {
     flex: 1,
     backgroundColor: theme.background.primary,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
+
 
   // Section selector
   sectionSelector: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 8,
-    backgroundColor: theme.background.secondary,
+    justifyContent: 'center',
+    padding: 8,
+    marginTop: 10,
+    marginBottom: 10,
+    backgroundColor: addOpacity(theme.background.secondary, 0.5),
+    alignSelf: 'center',
+    borderRadius: 20,
   },
   sectionButton: {
-    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    marginHorizontal: 2,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     borderRadius: 12,
-    backgroundColor: theme.background.primary,
     gap: 6,
+    alignItems: 'center',
   },
   sectionButtonActive: {
     backgroundColor: theme.interactive.primary,
   },
   sectionButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    // fontWeight: '600',
     color: theme.text.secondary,
   },
   sectionButtonTextActive: {

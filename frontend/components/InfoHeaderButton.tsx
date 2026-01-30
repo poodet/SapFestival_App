@@ -8,7 +8,8 @@ const BUTTON_SIZE = 40;
 
 export default function InfoHeaderButton() {
   const router = useRouter();
-
+  // TODO - delete, replace by pratique / info and account buttons
+  return (<></>)
   return (
     <View style={styles.container}>
       <Pressable 

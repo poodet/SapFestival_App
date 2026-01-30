@@ -119,7 +119,7 @@ const ScheduleScreen = () => {
         <InfoHeaderButton />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.text.primary} />
-          <Text style={{ color: theme.text.primary, marginTop: 10, fontFamily: 'Oliver-Regular' }}>
+          <Text style={{ color: theme.text.primary, marginTop: 10, fontFamily: theme.fonts.themed }}>
             Chargement du programme...
           </Text>
         </View>
@@ -143,7 +143,7 @@ const ScheduleScreen = () => {
               <ThemedText
                 style={{
                   color: activeView === 'calendrier' ? theme.ui.white : theme.text.secondary,
-                  fontSize: 16,
+                  fontSize: 14,
                 }}
               >
                 Calendrier
@@ -158,7 +158,7 @@ const ScheduleScreen = () => {
               <ThemedText
                 style={{
                   color: activeView === 'perms' ? theme.ui.white : theme.text.secondary,
-                  fontSize: 16,
+                  fontSize: 14,
                 }}
               >
                 Perms
@@ -173,7 +173,7 @@ const ScheduleScreen = () => {
               <ThemedText
                 style={{
                   color: activeView === 'logistique' ? theme.ui.white : theme.text.secondary,
-                  fontSize: 16,
+                  fontSize: 14,
                 }}
               >
                 Logistique
