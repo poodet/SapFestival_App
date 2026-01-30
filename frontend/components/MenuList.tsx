@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text, FlatList, RefreshControl, Dimensions, Platform, TouchableOpacity } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import Animated from 'react-native-reanimated';
 import { useMenuItems, useDrinkItems } from '@/contexts/DataContext';
 import { MenuItem, DrinkItem } from '@/types/data';
 import { useHighlightItem } from '@/hooks/useHighlightItem';
+import { useHighlight } from '@/contexts/HighlightContext';
 import theme, { layout } from '@/constants/theme';
 import ThemedText from '@/components/ThemedText';
 
@@ -24,6 +25,7 @@ export default function MenuList() {
     pulseCount: 2,
     category: 'meal',
   });
+  const { clearHighlight } = useHighlight();
 
   const [expandedId, setExpandedId] = React.useState<number | null>(null);
   const [expandedDrinkCategory, setExpandedDrinkCategory] = React.useState<string | null>(null);
@@ -38,6 +40,14 @@ export default function MenuList() {
     });
     return groups;
   }, [drinkItems]);
+
+
+    useEffect(() => {
+      if (currentHighlightId) {
+        const id = parseInt(currentHighlightId, 10);
+        if (!Number.isNaN(id)) setExpandedId(id);
+      }
+    }, [currentHighlightId]);
 
   if (isLoading) {
     return (
@@ -76,7 +86,10 @@ export default function MenuList() {
                 <View style={[styles.card, isHighlighted && styles.highlightedCard]}>
                   <TouchableOpacity
                     activeOpacity={0.9}
-                    onPress={() => setExpandedId(prev => (prev === item.id ? null : item.id))}
+                    onPress={() => {
+                        clearHighlight();
+                        setExpandedId(prev => (prev === item.id ? null : item.id))
+                    }}
                   >
                     <View style={[styles.cardContent, 
                       !isOpen && { flexDirection:'row', justifyContent:'space-between', alignItems:'center' }
