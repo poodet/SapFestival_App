@@ -13,6 +13,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { PanResponder, GestureResponderEvent, PanResponderGestureState, View as RNView } from 'react-native';
+import DayTabView from '@/components/DayTabView';
 import { useFestivalData } from '@/contexts/DataContext';
 import { useHighlight } from '@/contexts/HighlightContext';
 import { useFestivalCalendar, useDayEvents, usePermCalendar } from '@/hooks/useCalendar';
@@ -102,6 +104,47 @@ const ScheduleScreen = () => {
     }
   }, [isFocused]);
 
+  // Horizontal swipe responder for switching days without blocking vertical scroll
+  const selectedDayRef = React.useRef(selectedDay);
+  React.useEffect(() => { selectedDayRef.current = selectedDay; }, [selectedDay]);
+  const swipeResponder = React.useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_, gs: PanResponderGestureState) => {
+        // Only capture when horizontal movement is larger than vertical movement
+        return Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 8;
+      },
+      onPanResponderGrant: () => {
+        // flag to avoid double-switch during the same gesture
+        (swipeResponder as any).currentSwitched = false;
+      },
+      onPanResponderMove: (_: GestureResponderEvent, gs: PanResponderGestureState) => {
+        // allow switching during move for more responsive feel
+        const already = (swipeResponder as any).currentSwitched;
+        const threshold = 40;
+        const currentIndex = DAYS.indexOf(selectedDayRef.current);
+
+        if (!already && gs.dx < -threshold && currentIndex < DAYS.length - 1) {
+          setSelectedDay(DAYS[currentIndex + 1]);
+          (swipeResponder as any).currentSwitched = true;
+        } else if (!already && gs.dx > threshold && currentIndex > 0) {
+          setSelectedDay(DAYS[currentIndex - 1]);
+          (swipeResponder as any).currentSwitched = true;
+        }
+      },
+      onPanResponderRelease: (_: GestureResponderEvent, gs: PanResponderGestureState) => {
+        // fallback on release if move didn't switch
+        if ((swipeResponder as any).currentSwitched) return;
+        const currentIndex = DAYS.indexOf(selectedDayRef.current);
+        if (gs.dx < -50) {
+          if (currentIndex < DAYS.length - 1) setSelectedDay(DAYS[currentIndex + 1]);
+        } else if (gs.dx > 50) {
+          if (currentIndex > 0) setSelectedDay(DAYS[currentIndex - 1]);
+        }
+      },
+    })
+  ).current;
+
   // Also handle tab presses when the screen is already focused.
   // React Navigation emits a `tabPress` event even if the tab is focused.
   useEffect(() => {
@@ -186,43 +229,24 @@ const ScheduleScreen = () => {
         {activeView === 'calendrier' && (
           <View>
             {/* <ScreenTitle style={{ paddingTop: 10 }}>LINE UP</ScreenTitle> */}
-            <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 8 }}>
-              {DAYS.map((day) => (
-                <Pressable
-                  key={day}
-                  onPress={() => setSelectedDay(day)}
-                  style={{
-                    marginHorizontal: 8,
-                    backgroundColor: theme.ui.white,
-                    padding: 5,
-                    borderRadius: 8,
-                    borderWidth: 5,
-                    borderColor: selectedDay === day ? theme.interactive.primary : theme.background.primary,
-                  }}
-                >
-                  <ThemedText
-                    style={{
-                      color: selectedDay === day ? theme.interactive.primary : theme.interactive.inactive,
-                      fontSize: 20,
-                    }}
-                  >
-                    {day}
-                  </ThemedText>
-                </Pressable>
-              ))}
+            {/* Day Tab View: swipe or tap to change day */}
+            <View style={{ paddingHorizontal: 16 }}>
+              <DayTabView options={DAYS} value={selectedDay} onChange={setSelectedDay} />
             </View>
           </View>
         )}
 
         {/* Calendrier View */}
         {activeView === 'calendrier' && (
-          <CalendrierView
-            events={events}
-            selectedDay={selectedDay}
-            minHour={minHour}
-            timeSlots={timeSlots}
-            onEventPress={highlightEvent}
-          />
+          <RNView {...swipeResponder.panHandlers} style={{ flex: 1 }}>
+            <CalendrierView
+              events={events}
+              selectedDay={selectedDay}
+              minHour={minHour}
+              timeSlots={timeSlots}
+              onEventPress={highlightEvent}
+            />
+          </RNView>
         )}
 
         {/* Perms View */}
