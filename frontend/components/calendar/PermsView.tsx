@@ -372,7 +372,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
         />
       )}
       {/* Search and Filter Bar */}
-      <View style={{ paddingHorizontal: 8, paddingBottom: 8, gap: 8, zIndex: 1000 }}>
+      <View style={{  paddingBottom: 8, gap: 8, zIndex: 1000 }}>
         <View style={{ flexDirection: 'row',  justifyContent: 'space-between', gap : 8 }}>
           {/* Search Input */}
           <View style={{ 
@@ -410,7 +410,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
 
 
 
-      </View>
+        </View>
 
         {/* Filter Row: My Perms Toggle + Pole Filter Dropdown */}
         <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -435,7 +435,10 @@ export const PermsView: React.FC<PermsViewProps> = ({
           {/* Pole Filter Dropdown */}
           <View style={{  position: 'relative', zIndex: 1001 }}>
             <Pressable
-              onPress={() => setShowPoleDropdown(!showPoleDropdown)}
+              onPress={() => {
+                setShowPoleDropdown(!showPoleDropdown);
+                if (!showPoleDropdown) setShowOrganizerDropdown(false);
+              }}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -454,7 +457,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
               }}>
                 {selectedPoles.length > 0 
                   ? `Pôles` 
-                  // + ': '+(selectedPoles.length)
+                  + ': '+(selectedPoles.length)
                   : 'Pôle'}
               </NormalText>
             </View>
@@ -486,26 +489,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
               zIndex: 1002,
             }}>
               <ScrollView>
-                {/* Clear all button */}
-                {selectedPoles.length > 0 && (
-                  <Pressable
-                    onPress={() => {
-                        setSelectedPoles([]);
-                        setShowPoleDropdown(false);
-                    }}
-                    style={{
-                      padding: 12,
-                      borderBottomWidth: 1,
-                      borderBottomColor: theme.interactive.inactive,
-                      backgroundColor: theme.background.secondary,
-                    }}
-                  >
-                    <ThemedText style={{ color: theme.interactive.primary, fontSize: 14, fontWeight: '600' }}>
-                      Reinitialiser
-                    </ThemedText>
-                  </Pressable>
-                )}
-                
+               
                 {availablePoles.map((pole) => {
                   const isSelected = selectedPoles.includes(pole);
                   const poleColor = permStyle[pole].color;
@@ -548,6 +532,25 @@ export const PermsView: React.FC<PermsViewProps> = ({
                   );
                 })}
               </ScrollView>
+              {/* Clear all button */}
+              {selectedPoles.length > 0 && (
+                <Pressable
+                  onPress={() => {
+                      setSelectedPoles([]);
+                      setShowPoleDropdown(false);
+                  }}
+                  style={{
+                    padding: 12,
+                    borderBottomWidth: 1,
+                    borderBottomColor: theme.interactive.inactive,
+                    backgroundColor: theme.background.secondary,
+                  }}
+                >
+                  <ThemedText style={{ color: theme.interactive.primary, fontSize: 14, fontWeight: '600' }}>
+                    Reinitialiser
+                  </ThemedText>
+                </Pressable>
+              )}
             </View>
           )}
           </View>
@@ -555,7 +558,10 @@ export const PermsView: React.FC<PermsViewProps> = ({
           {/* Organizer Filter Dropdown */}
           <View style={{  position: 'relative', zIndex: 1001 }}>
             <Pressable
-              onPress={() => setShowOrganizerDropdown(!showOrganizerDropdown)}
+              onPress={() => {
+                setShowOrganizerDropdown(!showOrganizerDropdown)
+                if (!showOrganizerDropdown) setShowPoleDropdown(false)
+              }}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -573,7 +579,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
               }}>
                 {selectedOrganizers.length > 0 
                   ? `Orgas` 
-                  // + ': '+(selectedOrganizers.length)
+                  + ': '+(selectedOrganizers.length)
                   : 'Orga'}
               </NormalText>
             </View>
@@ -602,29 +608,9 @@ export const PermsView: React.FC<PermsViewProps> = ({
               shadowRadius: 3.84,
               elevation: 5,
               zIndex: 1002,
-              minWidth: 140,
+              minWidth: 150,
             }}>
               <ScrollView>
-                {/* Clear all button */}
-                {selectedOrganizers.length > 0 && (
-                  <Pressable
-                    onPress={() => {
-                        setSelectedOrganizers([]);
-                        setShowOrganizerDropdown(false);
-                    }}
-                    style={{
-                      padding: 12,
-                      borderBottomWidth: 1,
-                      borderBottomColor: theme.interactive.inactive,
-                      backgroundColor: theme.background.secondary,
-                    }}
-                  >
-                    <ThemedText style={{ color: theme.interactive.primary, fontSize: 14, fontWeight: '600' }}>
-                      Reinitialiser
-                    </ThemedText>
-                  </Pressable>
-                )}
-                
                 {availableOrganizers.map((organizer) => {
                   const isSelected = selectedOrganizers.includes(organizer);
                   
@@ -668,6 +654,25 @@ export const PermsView: React.FC<PermsViewProps> = ({
                   );
                 })}
               </ScrollView>
+                {/* Clear all button */}
+                {selectedOrganizers.length > 0 && (
+                  <Pressable
+                    onPress={() => {
+                        setSelectedOrganizers([]);
+                        setShowOrganizerDropdown(false);
+                    }}
+                    style={{
+                      padding: 12,
+                      borderBottomWidth: 1,
+                      borderBottomColor: theme.interactive.inactive,
+                      backgroundColor: theme.background.secondary,
+                    }}
+                  >
+              <ThemedText style={{ color: theme.interactive.primary, fontSize: 14, fontWeight: '600' }}>
+                Reinitialiser
+              </ThemedText>
+                  </Pressable>
+                )}
             </View>
           )}
           </View>
@@ -707,7 +712,6 @@ export const PermsView: React.FC<PermsViewProps> = ({
         <View style={{ flex: 1, paddingHorizontal: 10 }}>
           {/* Fixed pole headers row - synced horizontal scroll */}
           <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-            {/* Spacer for time labels */}
             <View style={{ width: 60 }} />
             
             {/* Pole headers - scroll horizontally, fixed vertically */}
