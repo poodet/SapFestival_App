@@ -11,6 +11,7 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
+import Collapsible from 'react-native-collapsible';
 import Animated from 'react-native-reanimated';
 import ScreenTitle from '@/components/screenTitle';
 import { useRouter } from 'expo-router';
@@ -23,6 +24,7 @@ import { useHighlightItem } from '@/hooks/useHighlightItem';
 import ThemedText from '@/components/ThemedText';
 import { SubscribeButton } from '@/components/SubscribeButton';
 
+
 const { width } = Dimensions.get('window');
 
 export default function ActivityScreen() {
@@ -33,7 +35,7 @@ export default function ActivityScreen() {
   const { activities, isLoading, isRefreshing, refetch } = useActivities();
   const { orgas } = useOrgas();
   const router = useRouter();
-  const { setHighlightId } = useHighlight();
+  const { setHighlightId, clearHighlight } = useHighlight();
   
   // Use the highlight hook
   const { 
@@ -46,13 +48,20 @@ export default function ActivityScreen() {
     pulseCount: 2, // Double pulse animation
   });
 
-  const sound1 = require('../../sounds/Le_SAP_dans_l_espace_(reggae_version).mp3');
-  const sound2 = require('../../sounds/Le_SAP_dans_l_espace.mp3');
-  const sound3 = require('../../sounds/SAP_en_el_espacio.mp3');
-
   const currentSound = useRef<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSource, setCurrentSource] = useState<number | null>(null);
+
+  const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
+
+  // When an activity is highlighted externally, open its card
+  useEffect(() => {
+    if (currentHighlightId) {
+      const id = parseInt(currentHighlightId, 10);
+      if (!Number.isNaN(id)) setExpandedActivity(id);
+    }
+  }, [currentHighlightId]);
+  
 
   // Navigate to orgas list and highlight matching organizer
   const navigateToPersonCard = (personName: string) => {
@@ -146,6 +155,8 @@ export default function ActivityScreen() {
           }
           renderItem={({ item }) => {
             const isHighlighted = isItemHighlighted(item.id);
+            const isOpen = expandedActivity === item.id;
+            
             return (
               <Animated.View style={isHighlighted ? animatedStyle : undefined}>
                 <View style={[
@@ -158,51 +169,50 @@ export default function ActivityScreen() {
                       <SubscribeButton type="activity" id={item.id} compact />
                     </View>
                   </View>
-                  <View style={styles.cardContent}>
-                    <Text style={styles.detail}>📅 
-                      {
-                       ' '+ extractDayName(item.date_start) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)
-                      }
-                    </Text>
-                    { item.location ? (
-                     <View>
-                      <Text style={styles.detail}>📍 {item.location}</Text>
-                     </View>
-                    ) : null }
-                  </View>
-                    <View style={[styles.detail, { flexDirection: 'row', justifyContent: 'left' }]}>
-                      {/* 🧙🏻‍♀️🧙‍♂️ */}
-                      {item.respo.map((person, index) => (
-                        <TouchableOpacity 
-                        style={{borderWidth: 1, borderColor: theme.interactive.primary, borderRadius: 5, paddingHorizontal: 5, marginRight: 5}}
-                        
-                        key={index} onPress={() => navigateToPersonCard(person)}>
-                          <Text style={styles.detail}> {person}  </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+                    <TouchableOpacity
+                      activeOpacity={0.85}
+                      onPress={() => {
+                        // Clear any external highlight when user manually opens another card
+                        clearHighlight();
+                        setExpandedActivity(prev => (prev === item.id ? null : item.id));
+                      }}
+                    >
+                      <View style={styles.cardContent}>
+                        <Text style={styles.detail}>📅 
+                          {
+                          ' '+ extractDayName(item.date_start) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)
+                          }
+                        </Text>
+                        { item.location ? (
+                        <View>
+                          <Text style={styles.detail}>📍 {item.location}</Text>
+                        </View>
+                        ) : null }
+                      </View>
+                    </TouchableOpacity>
 
-                  {item.info ? (
-                    <View style={styles.cardContent}>
-                      <Text style={[styles.detail, {fontWeight : 400}]}>{item.info}</Text>
-                    </View>
-                  ) : null}
-                  {item.name === 'Élection Hymne' && (
-                    <View style={[styles.cardContent, { gap: 8, marginTop: 10 }]}>
-                      <Button
-                        title="▶️ Écouter Version 1"
-                        onPress={() => togglePlayPause(sound1)}
-                      />
-                      <Button
-                        title="▶️ Écouter Version 2"
-                        onPress={() => togglePlayPause(sound2)}
-                      />
-                      <Button
-                        title="▶️ Écouter Version 3"
-                        onPress={() => togglePlayPause(sound3)}
-                      />
-                    </View>
-                  )}
+                    <Collapsible collapsed={!isOpen} duration={300} align="top">
+                    
+                      <View style={[styles.detail, { flexDirection: 'row', justifyContent: 'left' }]}>
+                        {/* 🧙🏻‍♀️🧙‍♂️ */}
+                        {item.respo.map((person, index) => (
+                          <TouchableOpacity 
+                          style={{borderWidth: 1, borderColor: theme.interactive.primary, borderRadius: 5, paddingHorizontal: 5, marginRight: 5}}
+                          
+                          key={index} onPress={() => navigateToPersonCard(person)}>
+                            <Text style={styles.detail}> {person}  </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+
+                      {item.info ? (
+                        <View style={styles.cardContent}>
+                          <Text style={[styles.detail, {fontWeight : 400}]}>{item.info}</Text>
+                        </View>
+                      ) : null}
+                    </Collapsible>
+                  
+
                 </View>
               </Animated.View>
             );

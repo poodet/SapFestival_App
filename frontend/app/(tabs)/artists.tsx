@@ -13,6 +13,7 @@ import {
   Platform 
 } from 'react-native';
 import Animated from 'react-native-reanimated';
+import Collapsible from 'react-native-collapsible';
 import * as Font from 'expo-font';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import imageMapper from '@/components/imageMapper';
@@ -20,6 +21,7 @@ import ScreenTitle from '@/components/screenTitle';
 import InfoHeaderButton from '@/components/InfoHeaderButton';
 import { useArtists } from '@/contexts/DataContext';
 import {theme, layout} from '@/constants/theme'; 
+import { useHighlight } from '@/contexts/HighlightContext';
 import { useHighlightItem } from '@/hooks/useHighlightItem';
 import ThemedText from '@/components/ThemedText';
 import { extractTime, extractDayName } from '@/services/calendar.service';
@@ -38,11 +40,24 @@ export default function ArtistsScreen() {
   const { 
     animatedStyle, 
     isItemHighlighted, 
-    flatListRef 
+    flatListRef,
+    currentHighlightId,
   } = useHighlightItem({ 
     items: artists,
     pulseCount: 2, // Double pulse animation
   });
+
+  const { clearHighlight } = useHighlight();
+
+  const [expandedArtist, setExpandedArtist] = React.useState<number | null>(null);
+
+  // Expand artist card when highlighted externally
+  React.useEffect(() => {
+    if (currentHighlightId) {
+      const id = parseInt(currentHighlightId, 10);
+      if (!Number.isNaN(id)) setExpandedArtist(id);
+    }
+  }, [currentHighlightId]);
  
   const handleScrollToTop = () => {
     if (flatListRef.current) {
@@ -95,6 +110,8 @@ export default function ArtistsScreen() {
         }
         renderItem={({ item }) => {
           const isHighlighted = isItemHighlighted(item.id);
+          const isOpen = expandedArtist === item.id;
+          const datesText = `${extractDayName(item.date_start).substring(0, 3)} ${extractTime(item.date_start)} - ${extractTime(item.date_end)}`;
           return (
             <Animated.View style={isHighlighted ? animatedStyle : undefined}>
               <View style={[
@@ -104,29 +121,65 @@ export default function ArtistsScreen() {
                 <View style={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }} >
                   <SubscribeButton type="artist" id={item.id} compact />
                 </View>
-                <View style={styles.cardTop}>
-                  <Image
-                    alt=""
-                    resizeMode="cover"
-                    source={imageMapper[item.image]?.src}
-                    style={styles.cardImg}
-                  />
-                  <View style={styles.cardTopPills}>
-                    <View style={[styles.cardTopPill, { paddingLeft: 6 }]}>
-                      <Text style={styles.cardTopPillText}>{item.style}</Text>
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => {
+                    clearHighlight();
+                    setExpandedArtist(prev => (prev === item.id ? null : item.id));
+                  }}
+                >
+                  {(() => {
+                    const fullImgHeight = width * 0.65;
+                    const collapsedImgHeight = width * 0.22;
+                    const offset = imageMapper[item.image]?.offsetY ?? 0.5;
+                    // Compute desired translateY to position offset point roughly in the center
+                    const desired = (collapsedImgHeight / 2) - (offset * fullImgHeight);
+                    // Clamp translateY so image always covers the container (no white gaps)
+                    const minTranslate = -(fullImgHeight - collapsedImgHeight);
+                    const maxTranslate = 0;
+                    const clampedTranslate = Math.max(minTranslate, Math.min(maxTranslate, desired));
+                    const translateY = isOpen ? 0 : clampedTranslate;
+                    return (
+                      <View style={[styles.cardTop, { height: isOpen ? fullImgHeight : collapsedImgHeight }]}>
+                        <Image
+                          alt=""
+                          resizeMode="cover"
+                          source={imageMapper[item.image]?.src}
+                          style={[styles.cardImgAbsolute, { height: fullImgHeight, top: 0, left: 0, transform: [{ translateY }] }]}
+                        />
+                        <View style={styles.cardTopPills}>
+                          <View style={[styles.cardTopPill, { paddingLeft: 6 }]}>
+                            {
+                              isOpen ? (
+                                <Text style={styles.cardTopPillText}>{item.style}</Text>
+                              )
+                              :(
+                                <>
+                                <ThemedText style={[styles.cardTitle, {color:'white'}]}>{item.name} </ThemedText>
+                                <Text style={[styles.cardDescription, { color: 'white', textAlign: 'right' }]}>
+                                    {datesText}
+                                </Text>
+                                </>
+                            )}
+
+                          </View>
+                        </View>
+                      </View>
+                    );
+                  })()}
+                </TouchableOpacity>
+
+                <Collapsible collapsed={!isOpen} duration={300} align="top">
+                  <View style={styles.cardBody}>
+                    <View style={styles.cardHeader}>
+                      <ThemedText style={styles.cardTitle}>{item.name}</ThemedText>
+                      <Text style={[styles.cardDescription, { textAlign: 'right' }]}>
+                        {datesText}
+                      </Text>
                     </View>
+                    <Text style={styles.cardDescription}>{item.bio}</Text>
                   </View>
-                </View>
-                <View style={styles.cardBody}>
-                  <View style={styles.cardHeader}>
-                    <ThemedText style={styles.cardTitle}>{item.name}</ThemedText>
-                    <Text style={[styles.cardDescription, { textAlign: 'right' }]}>
-                      {/* keep only first three letters from day name */}
-                      {extractDayName(item.date_start).substring(0, 3) + ' ' + extractTime(item.date_start) + ' - ' + extractTime(item.date_end)}
-                    </Text>
-                  </View>
-                  <Text style={styles.cardDescription}>{item.bio}</Text>
-                </View>
+                </Collapsible>
               </View>
             </Animated.View>
           );
@@ -180,14 +233,14 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
   },
-  cardImg: {
+  cardImgAbsolute: {
+    position: 'absolute',
     width: '100%',
-    height: width * 0.65,
     borderRadius: 24,
   },
   cardTopPills: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 5,
     left: 10,
     backgroundColor: theme.background.overlay,
     borderRadius: 12,

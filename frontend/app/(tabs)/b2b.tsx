@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, ActivityIndicator, Text, FlatList, RefreshControl, Dimensions, Platform } from 'react-native';
+import { View, StyleSheet, SafeAreaView, ActivityIndicator, Text, FlatList, RefreshControl, Dimensions, Platform, TouchableOpacity, LayoutAnimation, UIManager } from 'react-native';
+import Collapsible from 'react-native-collapsible';
 import Animated from 'react-native-reanimated';
 import * as Font from 'expo-font';
 import ScreenTitle from '@/components/screenTitle';
@@ -30,6 +31,18 @@ export default function FoodDrinkScreen() {
     items: menuItems,
     pulseCount: 2, // Double pulse animation
   });
+
+  // Enable LayoutAnimation on Android TODO(@podet): delete ?
+  React.useEffect(() => {
+    if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }, []);
+
+  // Track which card is expanded (only one at a time)
+  const [expandedId, setExpandedId] = React.useState<number | null>(null);
+  // Track which drink category is expanded (only one at a time)
+  const [expandedDrinkCategory, setExpandedDrinkCategory] = React.useState<string | null>(null);
 
   // Group drinks by category
   const groupedDrinks = React.useMemo(() => {
@@ -80,21 +93,38 @@ export default function FoodDrinkScreen() {
           }
           renderItem={({ item }) => {
             const isHighlighted = isItemHighlighted(item.id);
+            const isOpen = expandedId === item.id;
             return (
               <Animated.View style={isHighlighted ? animatedStyle : undefined}>
-                <View style={[
-                  styles.card,
-                  isHighlighted && styles.highlightedCard
-                ]}>
-                  <View style={styles.cardContent}>
-                    <ThemedText style={styles.categoryTitle}>{item.moment_name}</ThemedText>
-                  </View>
-                  <View style={styles.cardContent}>
-                    <Text style={styles.menuTitle}>{item.title}</Text>
-                  </View>
-                  <View style={styles.cardContent}>
-                    <Text style={styles.menuDescription}>{item.description}</Text>
-                  </View>
+                <View style={[styles.card, isHighlighted && styles.highlightedCard]}>
+                  <TouchableOpacity
+                    activeOpacity={0.9}
+                    onPress={() => setExpandedId(prev => (prev === item.id ? null : item.id))}
+                  >
+                    <View style={[styles.cardContent, 
+                      // if not open, align items in row
+                      ! isOpen && { flexDirection:'row', justifyContent:'space-between', alignItems:'center' }
+                      
+                      ]}>
+                      <ThemedText style={styles.categoryTitle}>{item.moment_name}</ThemedText>
+                      {
+                        ! isOpen && (
+                          <Text style={styles.menuTitle} numberOfLines={2} ellipsizeMode="tail">
+                            {item.title}
+                          </Text>
+                        )
+                      }
+                    </View>
+                  </TouchableOpacity>
+
+                  <Collapsible collapsed={!isOpen} duration={300} align="top">
+                    <View style={styles.cardContent}>
+                      <Text style={styles.menuTitle}>{item.title}</Text>
+                    </View>
+                    <View style={styles.cardContent}>
+                      <Text style={styles.menuDescription}>{item.description}</Text>
+                    </View>
+                  </Collapsible>
                 </View>
               </Animated.View>
             );
@@ -125,19 +155,29 @@ export default function FoodDrinkScreen() {
                 titleColor={theme.background.secondary}
               />
             }
-            renderItem={({ item: category }) => (
-              <View style={styles.card}>
-                <View style={styles.cardContent}>
-                  <ThemedText style={styles.categoryTitle}>{category}</ThemedText>
+            renderItem={({ item: category }) => {
+              const isOpen = expandedDrinkCategory === category;
+              return (
+                <View style={styles.card}>
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    onPress={() => setExpandedDrinkCategory(prev => (prev === category ? null : category))}
+                  >
+                    <View style={styles.cardContent}>
+                      <ThemedText style={styles.categoryTitle}>{category}</ThemedText>
+                    </View>
+                  </TouchableOpacity>
+                  <Collapsible collapsed={!isOpen} duration={300} align="top">
+                    {groupedDrinks[category].map((drink) => (
+                      <View key={drink.id} style={[styles.cardContent, { flexDirection:'row', alignItems:'center' }]}>
+                        <Text style={styles.drinkName}>{drink.name}</Text>
+                        <Text style={styles.drinkDescription}>{drink.description}</Text>
+                      </View>
+                    ))}
+                  </Collapsible>
                 </View>
-                {groupedDrinks[category].map((drink) => (
-                  <View key={drink.id} style={[styles.cardContent, { flexDirection:'row', alignItems:'center' }]}>
-                    <Text style={styles.drinkName}>{drink.name}</Text>
-                    <Text style={styles.drinkDescription}>{drink.description}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
+              );
+            }}
             contentContainerStyle={styles.list}
           />
         )}
@@ -187,14 +227,13 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: width < 350 ? 16 : 20,
-    fontWeight: '700',
     color: theme.background.dark,
     flexShrink: 1,
     textAlign: 'justify',
   },
   menuTitle: {
     fontSize: width < 350 ? 14 : 18,
-    fontWeight: '600',
+    // fontWeight: '600',
     color: theme.background.dark,
     flexShrink: 1,
   },
