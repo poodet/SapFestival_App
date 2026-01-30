@@ -36,7 +36,8 @@ const organizerImageMapper: Record<string, ImageRequireSource> = {
  * Converts an organizer's full name to a key for image lookup
  * Example: "Pauline Lala" -> "paulinelala"
  */
-export const normalizeOrganizerName = (name: string): string => {
+export const normalizeOrganizerName = (name: string | undefined): string => {
+  if (!name || typeof name !== 'string') return '';
   return name.toLowerCase().replace(/\s+/g, '');
 };
 
@@ -45,7 +46,8 @@ export const normalizeOrganizerName = (name: string): string => {
  * @param organizerName The full name of the organizer (e.g., "Pauline Lala")
  * @returns The image source or undefined if no image exists
  */
-export const getOrganizerImage = (organizerName: string): ImageRequireSource | undefined => {
+export const getOrganizerImage = (organizerName: string | undefined): ImageRequireSource | undefined => {
+  if (!organizerName) return undefined;
   const key = normalizeOrganizerName(organizerName);
   return organizerImageMapper[key];
 };

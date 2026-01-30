@@ -107,31 +107,32 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="contacts"
+        name="pratique"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <>
               <Ionicons name={'people'} color={focused ? theme.interactive.primary : color} size={30} />
-              <Text style= {styles.badgeText}>Contact</Text>
+              <Text style= {styles.badgeText}>Pratique</Text>
             </>
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="contacts"
+        options={{
+          href: null, // Hidden - now in pratique tab
         }}
       />
       <Tabs.Screen
         name="cars"
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <>
-              <Ionicons name={'car'} color={focused ? theme.interactive.primary : color} size={30} />
-              <Text style= {styles.badgeText}>Covoit</Text>
-            </>
-          ),
+          href: null, // Hidden - now in pratique tab
         }}
       />
       <Tabs.Screen
         name="about"
         options={{
-          href: null, // Hidden - now accessible via header button
+          href: null, // Hidden - now in pratique tab (infos section)
         }}
       />
     </Tabs>

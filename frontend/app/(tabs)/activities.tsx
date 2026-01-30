@@ -64,10 +64,10 @@ export default function ActivityScreen() {
 
     if (matchingOrga) {
       setHighlightId(matchingOrga.id.toString());
-      router.push('/(tabs)/contacts');
+      router.push('/(tabs)/pratique');
     } else {
       // Still navigate but without highlight
-      router.push('/(tabs)/contacts');
+      router.push('/(tabs)/pratique');
     }
   };
 
