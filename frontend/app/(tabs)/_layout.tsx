@@ -1,10 +1,13 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { View, Text, StyleSheet } from 'react-native';
+import { useAuth } from '@/contexts/AuthContext';
 import {theme, addOpacity, layout} from '@/constants/theme';
 import { BlurView } from 'expo-blur';
 
 export default function TabLayout() {
+  const { user, loading, isGuest } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
@@ -129,6 +132,19 @@ export default function TabLayout() {
         name="about"
         options={{
           href: null, // Hidden - now in pratique tab (infos section)
+        }}
+      />
+      {/** Organizer route always present but hide its tab button for non-organizers */}
+      <Tabs.Screen
+        name="organizer"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <>
+              <Ionicons name={'star'} color={focused ? theme.interactive.primary : color} size={30} />
+              <Text style={styles.badgeText}>Orga</Text>
+            </>
+          ),
+          href: user?.role === 'organisateur' ? undefined : null,
         }}
       />
     </Tabs>
