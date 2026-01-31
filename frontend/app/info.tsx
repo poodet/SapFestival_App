@@ -42,30 +42,6 @@ const InfoScreen = () => {
         <View style={{ width: 80 }} />
       </View>
 
-      {/* User Info & Logout - Show login button if guest */}
-      {user ? (
-        <View style={styles.userSection}>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>{user.firstName} {user.lastName}</Text>
-            <Text style={styles.userRole}>
-              {user.role === 'organisateur' && '👑 Organisateur'}
-              {user.role === 'benevole' && '🤝 Bénévole'}
-              {user.role === 'participant' && '🎉 Participant'}
-            </Text>
-          </View>
-          <Pressable style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color={theme.text.primary} />
-            <Text style={styles.logoutText}>Déconnexion</Text>
-          </Pressable>
-        </View>
-      ) : isGuest ? (
-        <View style={styles.userSection}>
-          <Pressable style={styles.loginButton} onPress={handleLogin}>
-            <Ionicons name="log-in-outline" size={20} color={theme.text.primary} />
-            <Text style={styles.loginText}>Se connecter</Text>
-          </Pressable>
-        </View>
-      ) : null}
 
       <ScrollView style={styles.container} bounces={false} overScrollMode="never">
         <View style={[styles.section, {}]}>

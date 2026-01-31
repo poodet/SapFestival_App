@@ -65,6 +65,7 @@ export default function ProgrammeScreen() {
   }, [index]);
 
   const renderCustomTabBar = (props: any) => {
+    // TODO - create a tabView component to avoid duplication. 
     return (
       <TabBar
         {...props}
@@ -113,8 +114,6 @@ export default function ProgrammeScreen() {
               </View>
             )
           }
-
-          
         }}
       />
     </SafeAreaView>

@@ -147,6 +147,17 @@ export default function TabLayout() {
           href: user?.role === 'organisateur' ? undefined : null,
         }}
       />
+      <Tabs.Screen
+        name="compte"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <>
+              <Ionicons name={'person'} color={focused ? theme.interactive.primary : color} size={30} />
+              <Text style={styles.badgeText}>Compte</Text>
+            </>
+          ),
+        }}
+      />
     </Tabs>
   );
 }

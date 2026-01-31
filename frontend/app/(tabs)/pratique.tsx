@@ -50,21 +50,6 @@ const PratiqueScreen = () => {
     'Oliver-Regular': require('../../assets/fonts/Oliver-Regular.otf'),
   });
 
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await logout();
-      router.replace('/(auth)/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-      Alert.alert('Erreur', 'Impossible de se déconnecter');
-    }
-  };
-
-  // Handle login
-  const handleLogin = () => {
-    router.push('/(auth)/login');
-  };
 
   const renderCustomTabBar = (props: any) => (
     <TabBar
@@ -84,34 +69,13 @@ const PratiqueScreen = () => {
   const renderInfosSection = () => (
     <ScrollView
       style={{ flex: 1 }}
-      contentContainerStyle={{paddingHorizontal: 16, paddingBottom: layout.tabBar.contentPadding }}
+      contentContainerStyle={{
+        paddingHorizontal: 16, 
+        marginTop: 20,
+        paddingBottom: layout.tabBar.contentPadding 
+      }}
     >
-      {/* User Info */}
-      {user ? (
-        <View style={styles.userSection}>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>
-              {user.firstName} {user.lastName}
-            </Text>
-            <Text style={styles.userRole}>
-              {user.role === 'organisateur' && '👑 Organisateur'}
-              {user.role === 'benevole' && '🤝 Bénévole'}
-              {user.role === 'participant' && '🎉 Participant'}
-            </Text>
-          </View>
-          <Pressable style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color={theme.text.primary} />
-            <Text style={styles.logoutText}>Déconnexion</Text>
-          </Pressable>
-        </View>
-      ) : isGuest ? (
-        <View style={styles.userSection}>
-          <Pressable style={styles.loginButton} onPress={handleLogin}>
-            <Ionicons name="log-in-outline" size={20} color={theme.text.primary} />
-            <Text style={styles.loginText}>Se connecter</Text>
-          </Pressable>
-        </View>
-      ) : null}
+
 
       {/* Emergency */}
       <View style={styles.infoSection}>

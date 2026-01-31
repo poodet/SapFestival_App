@@ -171,16 +171,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.background.primary,
   },
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    padding: 8,
-    marginTop: 10,
-    marginBottom: 10,
-    backgroundColor: addOpacity(theme.background.secondary, 0.5),
-    alignSelf: 'center',
-    borderRadius: 20,
-  },
+  // TODO - remove unused styles
+  // tabContainer: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'center',
+  //   padding: 8,
+  //   marginTop: 10,
+  //   marginBottom: 10,
+  //   backgroundColor: addOpacity(theme.background.secondary, 0.5),
+  //   alignSelf: 'center',
+  //   borderRadius: 20,
+  // },
   tabButton: {
     marginHorizontal: 2,
     paddingVertical: 8,
@@ -205,6 +206,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     alignItems: 'center',
+    marginTop: 20,
     paddingBottom: layout.tabBar.contentPadding,
   },
   notificationItem: {

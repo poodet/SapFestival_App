@@ -901,6 +901,7 @@ const styles = StyleSheet.create({
     gap: 12,
     flexDirection: 'row',
     marginBottom: 12,
+    marginTop: 20,
   },
   tripTypeButtons: {
     flexDirection: 'row',
