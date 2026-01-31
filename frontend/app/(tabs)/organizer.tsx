@@ -69,7 +69,7 @@ export default function OrganizerScreen() {
   };
 
   const TABS: TabType[] = ['Perms', 'Logistique'];
-  const layout = useWindowDimensions();
+  const windowLayout = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const [routes] = useState(TABS.map((t) => ({ key: t, title: t })));
   const [allowTabSwipe, setAllowTabSwipe] = useState(true);
@@ -89,8 +89,8 @@ export default function OrganizerScreen() {
         indicatorStyle={{ 
             backgroundColor: theme.interactive.primary, 
             height: 3 ,
-            width: layout.width / 4,
-            left: layout.width / 8,
+            width: windowLayout.width / 4,
+            left: windowLayout.width / 8,
         }}
       />
     );
@@ -140,7 +140,7 @@ export default function OrganizerScreen() {
           return null;
         }}
         onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
+        initialLayout={{ width: windowLayout.width }}
         swipeEnabled={allowTabSwipe}
         commonOptions={{
         label: ({ route, labelText, focused, color }) => {

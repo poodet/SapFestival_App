@@ -76,7 +76,7 @@ export default function ProgrammeScreen() {
 
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
-      <ScreenTitle>PROGRAMME</ScreenTitle>
+      {/* <ScreenTitle>PROGRAMME</ScreenTitle> */}
       <InfoHeaderButton />
 
       <TabView
@@ -97,10 +97,10 @@ export default function ProgrammeScreen() {
             const iconName = route.key === 'Menu' ? 'fast-food' : route.key === 'Artistes' ? 'musical-notes' : 'trophy'
 
             return (
-              <View style={{ alignItems: 'center', justifyContent: 'center',  gap: 4 }}>
+              <View style={{ alignItems: 'center', justifyContent: 'center',   gap: 10, flexDirection: 'row'  }}>
                 <Ionicons name={iconName} size={20} color={focused ? theme.text.primary : theme.text.secondary} />
                 <ThemedText style={{
-                  fontSize: 12, 
+                  fontSize: 14, 
                   color: focused ? theme.text.primary : theme.text.secondary
                 }}>
                   {labelText}

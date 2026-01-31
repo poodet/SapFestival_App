@@ -8,7 +8,9 @@ import {
   ScrollView,
   Image,
   Alert,
+  useWindowDimensions,
 } from 'react-native';
+import { TabView, TabBar } from 'react-native-tab-view';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Font from 'expo-font';
 import { useRouter } from 'expo-router';
@@ -28,12 +30,18 @@ const PratiqueScreen = () => {
   const router = useRouter();
   const { user, logout, isGuest } = useAuth();
   const { highlightId } = useHighlight();
-  const [activeSection, setActiveSection] = useState<SectionType>('covoit');
+  const windowLayout = useWindowDimensions();
 
-  // Auto-switch to contact section when there's a highlight
+  // TabView state
+  const TABS: SectionType[] = ['covoit', 'contact', 'infos'];
+  const [index, setIndex] = useState(0);
+  const [routes] = useState(TABS.map((t) => ({ key: t, title: t })));
+
+  // Auto-switch to contact tab when there's a highlight
   useEffect(() => {
     if (highlightId) {
-      setActiveSection('contact');
+      const contactIndex = TABS.indexOf('contact');
+      if (contactIndex >= 0) setIndex(contactIndex);
     }
   }, [highlightId]);
 
@@ -58,66 +66,18 @@ const PratiqueScreen = () => {
     router.push('/(auth)/login');
   };
 
-  // Render section selector
-  const renderSectionSelector = () => (
-    <View style={styles.sectionSelector}>
-      <Pressable
-        style={[styles.sectionButton, activeSection === 'covoit' && styles.sectionButtonActive]}
-        onPress={() => setActiveSection('covoit')}
-      >
-        <Ionicons
-          name="car"
-          size={20}
-          color={activeSection === 'covoit' ? theme.text.primary : theme.text.secondary}
-        />
-        <ThemedText
-          style={[
-            styles.sectionButtonText,
-            activeSection === 'covoit' && styles.sectionButtonTextActive,
-          ]}
-        >
-          Covoit
-        </ThemedText>
-      </Pressable>
+  const renderCustomTabBar = (props: any) => (
+    <TabBar
+      {...props}
+      style={{ backgroundColor: 'transparent', elevation: 0 }}
+      indicatorStyle={{ 
+        backgroundColor: theme.interactive.primary, 
+        height: 3 ,
+        width: windowLayout.width / 6,
+        left: windowLayout.width / 12,
+      }}
 
-      <Pressable
-        style={[styles.sectionButton, activeSection === 'contact' && styles.sectionButtonActive]}
-        onPress={() => setActiveSection('contact')}
-      >
-        <Ionicons
-          name="people"
-          size={20}
-          color={activeSection === 'contact' ? theme.text.primary : theme.text.secondary}
-        />
-        <ThemedText
-          style={[
-            styles.sectionButtonText,
-            activeSection === 'contact' && styles.sectionButtonTextActive,
-          ]}
-        >
-          Contact
-        </ThemedText>
-      </Pressable>
-
-      <Pressable
-        style={[styles.sectionButton, activeSection === 'infos' && styles.sectionButtonActive]}
-        onPress={() => setActiveSection('infos')}
-      >
-        <Ionicons
-          name="information-circle"
-          size={20}
-          color={activeSection === 'infos' ? theme.text.primary : theme.text.secondary}
-        />
-        <ThemedText
-          style={[
-            styles.sectionButtonText,
-            activeSection === 'infos' && styles.sectionButtonTextActive,
-          ]}
-        >
-          Infos
-        </ThemedText>
-      </Pressable>
-    </View>
+    />
   );
 
   // Render Infos section
@@ -228,14 +188,34 @@ const PratiqueScreen = () => {
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
         {/* <ScreenTitle>PRATIQUE</ScreenTitle> */}
-        <InfoHeaderButton />
 
-      {renderSectionSelector()}
-
-      {/* Render appropriate section based on activeSection */}
-      {activeSection === 'covoit' && <CovoiturageList />}
-      {activeSection === 'contact' && <ContactList />}
-      {activeSection === 'infos' && renderInfosSection()}
+      <TabView
+        navigationState={{ index, routes }}
+        renderTabBar={renderCustomTabBar}
+        renderScene={({ route }) => {
+          if (route.key === 'covoit') return <CovoiturageList />;
+          if (route.key === 'contact') return <ContactList />;
+          if (route.key === 'infos') return renderInfosSection();
+          return null;
+        }}
+        onIndexChange={setIndex}
+        initialLayout={{ width: windowLayout.width }}
+        commonOptions={{
+        label: ({ route, labelText, focused, color }) => {
+            const iconName = route.key === 'covoit' ? 'car' : route.key === 'contact' ? 'people' : 'information-circle';
+            return (
+            <View style={{ alignItems: 'center', justifyContent: 'center',  gap: 10, flexDirection: 'row' }}>
+                <Ionicons name={iconName} size={20} color={focused ? theme.text.primary : theme.text.secondary} />
+                <ThemedText style={{
+                    fontSize: 14, 
+                    color: focused ? theme.text.primary : theme.text.secondary
+                }}>
+                {labelText}
+                </ThemedText>
+            </View>
+        )}
+                }}
+      />
     </SafeAreaView>
   );
 };
