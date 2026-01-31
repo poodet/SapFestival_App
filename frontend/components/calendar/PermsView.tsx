@@ -179,6 +179,7 @@ interface PermsViewProps {
   userName: string;
   onDaySelect: (day: string) => void;
   onPermPress: (perm: any) => void;
+  onCalendarScrollEnabledChange?: (enabled: boolean) => void;
 }
 
 export const PermsView: React.FC<PermsViewProps> = ({
@@ -190,6 +191,7 @@ export const PermsView: React.FC<PermsViewProps> = ({
   userName,
   onDaySelect,
   onPermPress,
+  onCalendarScrollEnabledChange,
 }) => {
   const [isHorizontal, setIsHorizontal] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -245,6 +247,20 @@ export const PermsView: React.FC<PermsViewProps> = ({
   const handleHorizontalModeScroll = (event: any) => {
     const scrollY = event.nativeEvent.contentOffset.y;
     horizontalModeHeaderScrollRef.current?.scrollTo({ x: 0, y: scrollY, animated: false });
+  };
+
+  // Handle calendar scroll begin - disable tab swipe while scrolling
+  const handleCalendarScrollBeginDrag = () => {
+    if (onCalendarScrollEnabledChange) {
+      onCalendarScrollEnabledChange(false);
+    }
+  };
+
+  // Handle calendar scroll end - re-enable tab swipe after momentum ends
+  const handleCalendarScrollEnd = () => {
+    if (onCalendarScrollEnabledChange) {
+      onCalendarScrollEnabledChange(true);
+    }
   };
 
   // Get all available poles from permStyle
@@ -754,7 +770,12 @@ export const PermsView: React.FC<PermsViewProps> = ({
           
           {/* Scrollable content area */}
           <ScrollView style={{ flex: 1,  paddingBottom: layout.tabBar.contentPadding }}>
-            <View style={{ flexDirection: 'row' }}>
+            <View 
+              style={{ flexDirection: 'row' }}
+              // Usefull for iOs touch handling to disable tab swipe when interacting with calendar
+              onTouchStart={() => onCalendarScrollEnabledChange?.(false)}
+              onTouchEnd={() => onCalendarScrollEnabledChange?.(true)}
+            >
               {/* Fixed time labels */}
               <View style={{ width: 60 }}>
                 {timeSlots.map((time, idx) => (
@@ -770,7 +791,10 @@ export const PermsView: React.FC<PermsViewProps> = ({
                 horizontal={true}
                 showsHorizontalScrollIndicator={true}
                 scrollEventThrottle={16}
+                directionalLockEnabled={true}
                 onScroll={handleVerticalModeScroll}
+                onScrollBeginDrag={handleCalendarScrollBeginDrag}
+                onMomentumScrollEnd={handleCalendarScrollEnd}
                 style={{ flex: 1 }}
               >
                 <View style={{ position: 'relative', width: availableCalendarWidth }}>
