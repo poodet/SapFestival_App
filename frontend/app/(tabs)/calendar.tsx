@@ -9,7 +9,7 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
-   TouchableOpacity,
+  TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -50,7 +50,7 @@ const ScheduleScreen = () => {
     sortByTime: true, // Sort events by time
   });
   const permsByDay = usePermCalendar(perms, {
-    allowedDays: DAYS, 
+    allowedDays: DAYS,
     sortByTime: true,
   });
 
@@ -79,7 +79,7 @@ const ScheduleScreen = () => {
     setModalVisible(false);
     setSelectedEvent(null);
   };
- 
+
   const [loaded, error] = Font.useFonts({
     'Oliver-Regular': require('../../assets/fonts/Oliver-Regular.otf'),
   });
@@ -116,44 +116,12 @@ const ScheduleScreen = () => {
     }
   }, [index]);
 
-  // Use TabBar so TabView can animate label/indicator during swipes
+  // Use TabBar so TabView can animate indicator during swipes
   const renderCustomTabBar = (props: any) => (
-    // Lags too much, dont know why
-    //     <View style={{ flexDirection: 'row', justifyContent: 'center', paddingVertical: 8 }}>
-    //   {props.navigationState.routes.map((route: any, i: number) => {
-    //     const focused = props.navigationState.index === i;
-    //     return (
-    //       <TouchableOpacity
-    //         key={route.key}
-    //         onPress={() => props.jumpTo(route.key)}
-    //         style={{ paddingHorizontal: 12, paddingVertical: 8, alignItems: 'center' }}
-    //         activeOpacity={0.85}
-    //       >
-    //         <Text style={{ fontFamily: theme.fonts.themed, fontSize: 15, color: focused ? theme.text.primary : theme.text.secondary }}>{route.title}</Text>
-    //         <View style={{ height: 3, width: 36, marginTop: 6, borderRadius: 2, backgroundColor: focused ? theme.interactive.primary : 'transparent' }} />
-    //       </TouchableOpacity>
-    //     );
-    //   })}
-    // </View>
-    
     <TabBar
       {...props}
       style={{ backgroundColor: 'transparent', elevation: 0 }}
       indicatorStyle={{ backgroundColor: theme.interactive.primary, height: 3 }}
-      activeColor={theme.text.primary}
-      inactiveColor={theme.text.secondary}
-      // Not working
-      // labelStyle={{ fontFamily: theme.fonts.themed, fontSize: 16 }}
-      // renderLabel={({ focused, route }) => {
-      //   return (
-      //     <TextView
-      //       size={20}
-      //       category="Medium"
-      //       color={focused ? 'red' : 'red'}>
-      //       {route.title}
-      //     </TextView>
-      //   );
-      // }}
     />
   );
 
@@ -193,7 +161,7 @@ const ScheduleScreen = () => {
               onPress={() => setActiveView('calendrier')}
               style={[{
                 backgroundColor: activeView === 'calendrier' ? theme.interactive.primary : '',
-              },styles.tabButton]}
+              }, styles.tabButton]}
             >
               <ThemedText
                 style={{
@@ -208,7 +176,7 @@ const ScheduleScreen = () => {
               onPress={() => setActiveView('perms')}
               style={[{
                 backgroundColor: activeView === 'perms' ? theme.interactive.primary : '',
-              },styles.tabButton]}
+              }, styles.tabButton]}
             >
               <ThemedText
                 style={{
@@ -223,7 +191,7 @@ const ScheduleScreen = () => {
               onPress={() => setActiveView('logistique')}
               style={[{
                 backgroundColor: activeView === 'logistique' ? theme.interactive.primary : '',
-              },styles.tabButton]}
+              }, styles.tabButton]}
             >
               <ThemedText
                 style={{
@@ -236,7 +204,7 @@ const ScheduleScreen = () => {
             </Pressable>
           </View>
         )}
-        
+
         {activeView === 'calendrier' && (
           <View style={{ flex: 1 }}>
             <TabView
@@ -270,6 +238,16 @@ const ScheduleScreen = () => {
               onIndexChange={setIndex}
               initialLayout={{ width: layout.width }}
               swipeEnabled={true}
+              commonOptions={{
+                label: ({ route, labelText, focused, color }) => (
+                  <ThemedText style={{
+                    fontSize: 14, 
+                    color: focused ? theme.text.primary : theme.text.secondary
+                  }}>
+                    {labelText}
+                  </ThemedText>
+                )
+              }}
             />
           </View>
         )}
@@ -292,7 +270,7 @@ const ScheduleScreen = () => {
         {activeView === 'logistique' && <LogistiqueView />}
 
         {/* Perm Details Modal */}
-        <PermModal 
+        <PermModal
           visible={modalVisible}
           selectedEvent={selectedEvent}
           onClose={closeModal}

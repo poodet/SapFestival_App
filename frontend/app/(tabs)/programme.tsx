@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { StyleSheet, SafeAreaView, View, FlatList, Dimensions, useWindowDimensions, Text, TouchableOpacity } from 'react-native';
 import * as Font from 'expo-font';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import ScreenTitle from '@/components/screenTitle';
 import InfoHeaderButton from '@/components/InfoHeaderButton';
 import { TabView, TabBar } from 'react-native-tab-view';
@@ -10,6 +11,7 @@ import ActivitiesList from '@/components/ActivitiesList';
 import { theme } from '@/constants/theme';
 import { useHighlight } from '@/contexts/HighlightContext';
 import { useArtists, useActivities, useMenuItems } from '@/contexts/DataContext';
+import { ThemedText } from '@/components/ThemedText';
 
 
 type SectionType = 'Menu' | 'Artistes' | 'Activités';
@@ -45,7 +47,11 @@ export default function ProgrammeScreen() {
     }
   }, [highlightId, highlightCategory]);
 
-  const SECTIONS: SectionType[] = ['Menu', 'Artistes', 'Activités'];
+  const SECTIONS: SectionType[] = [
+    'Menu', 
+    'Artistes', 
+    'Activites'
+  ];
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(SECTIONS.indexOf(activeSection));
   const [routes] = useState(SECTIONS.map((s) => ({ key: s, title: s })));
@@ -64,9 +70,6 @@ export default function ProgrammeScreen() {
         {...props}
         style={{ backgroundColor: 'transparent', elevation: 0 }}
         indicatorStyle={{ backgroundColor: theme.interactive.primary, height: 3 }}
-        labelStyle={{ fontFamily: theme.fonts.themed, fontSize: 15 }}
-        activeColor={theme.text.primary}
-        inactiveColor={theme.text.secondary}
       />
     );
   };
@@ -83,12 +86,31 @@ export default function ProgrammeScreen() {
           const option = route.key as SectionType;
           if (option === 'Menu') return <MenuList />;
           if (option === 'Artistes') return <ArtistsList />;
-          if (option === 'Activités') return <ActivitiesList />;
+          if (option === 'Activites') return <ActivitiesList />;
           return null;
         }}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
         swipeEnabled={true}
+        commonOptions={{
+          label: ({ route, labelText, focused, color }) =>  {
+            const iconName = route.key === 'Menu' ? 'fast-food' : route.key === 'Artistes' ? 'musical-notes' : 'trophy'
+
+            return (
+              <View style={{ alignItems: 'center', justifyContent: 'center',  gap: 4 }}>
+                <Ionicons name={iconName} size={20} color={focused ? theme.text.primary : theme.text.secondary} />
+                <ThemedText style={{
+                  fontSize: 12, 
+                  color: focused ? theme.text.primary : theme.text.secondary
+                }}>
+                  {labelText}
+                </ThemedText>
+              </View>
+            )
+          }
+
+          
+        }}
       />
     </SafeAreaView>
   );
@@ -101,7 +123,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 2,
   },
   contentContainer: {
     flex: 1,
