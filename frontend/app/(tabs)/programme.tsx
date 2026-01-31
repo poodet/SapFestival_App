@@ -14,7 +14,7 @@ import { useArtists, useActivities, useMenuItems } from '@/contexts/DataContext'
 import { ThemedText } from '@/components/ThemedText';
 
 
-type SectionType = 'Menu' | 'Artistes' | 'Activités';
+type SectionType = 'Menu' | 'Artistes' | 'Activites';
 
 export default function ProgrammeScreen() {
   const [loaded, error] = Font.useFonts({
@@ -40,7 +40,7 @@ export default function ProgrammeScreen() {
       if (highlightCategory === 'artist') {
         setActiveSection('Artistes');
       } else if (highlightCategory === 'activity') {
-        setActiveSection('Activités');
+        setActiveSection('Activites');
       } else if (highlightCategory === 'meal' || highlightCategory === 'drink') {
         setActiveSection('Menu');
       }

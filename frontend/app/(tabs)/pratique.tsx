@@ -23,6 +23,7 @@ import { useHighlight } from '@/contexts/HighlightContext';
 import CovoiturageList from '@/components/CovoiturageList';
 import ContactList from '@/components/ContactList';
 import ThemedText from '@/components/ThemedText';
+import InfosSection from '@/components/InfosSection';
 
 type SectionType = 'covoit' | 'contact' | 'infos';
 
@@ -65,92 +66,8 @@ const PratiqueScreen = () => {
     />
   );
 
-  // Render Infos section
-  const renderInfosSection = () => (
-    <ScrollView
-      style={{ flex: 1 }}
-      contentContainerStyle={{
-        paddingHorizontal: 16, 
-        marginTop: 20,
-        paddingBottom: layout.tabBar.contentPadding 
-      }}
-    >
-
-
-      {/* Emergency */}
-      <View style={styles.infoSection}>
-        <Text style={[styles.infoTitle, { fontWeight: '800', color: '#ff0f0f', textAlign: 'center' }]}>
-          🚨 EN CAS D'URGENCE 🚨{'\n'}
-          Protéger Alerter Secourir (PAS)
-        </Text>
-        <Text style={[styles.infoText, { fontWeight: '500' }]}>
-          Numéros d'urgence : {'\n'}
-          {'\t'} 🚑 15 - SAMU {'\n'}
-          {'\t'} 🚓 17 - POLICE SECOURS {'\n'}
-          {'\t'} 🚒 18 - POMPIERS {'\n'}
-          {'\t'} 💬 114 - Par SMS pour personnes malentendantes {'\n'}
-          {'\t'} 👨‍🚒 +33666859998 - Pierre MOUSSA
-        </Text>
-      </View>
-
-      {/* Map */}
-      <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>Plan d'accès</Text>
-        <Image
-          source={require('@/assets/images/plan.jpg')}
-          style={styles.mapImage}
-          resizeMode="contain"
-        />
-      </View>
-
-      {/* Rules */}
-      <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>Règles à respecter</Text>
-        <Text style={styles.infoText}>
-          - Ramassez vos déchets {'\n'}
-          - Respectez le silence sur le camping {'\n'}
-          - Respectez les personnes et leurs consentement {'\n'}
-          - Toute sortie est définitive.
-        </Text>
-      </View>
-
-      {/* Showers */}
-      <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>Horraires douches</Text>
-        <Text style={styles.infoText}>
-          🚿 Samedi 10h - 20h {'\n'}
-          🚿 Dimanche 10h - 14h {'\n'}
-        </Text>
-      </View>
-
-      {/* Packing list */}
-      <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>Que mettre dans mon sac</Text>
-        <Text style={styles.infoText}>
-          o Ton matériel de camping{'\n'}
-          o Ton plus beau sourire{'\n'}
-          o Ta gourde{'\n'}
-          o Des vêtements qui ne craignent rien{'\n'}
-          o Une tente de compétition{'\n'}
-          o Une lampe torche{'\n'}
-          o Une serviette{'\n'}
-          o Une trousse d'hygiène{'\n'}
-          o De l'antimoustique{'\n'}
-          o Crème solaire{'\n'}
-          o Un k-way{'\n'}
-          o Un pull, une polaire, des grosses chaussettes{'\n'}
-          o Un maillot de bain{'\n'}
-          o Ton chargeur{'\n'}
-          o Une casquette{'\n'}
-          o Des bouchons d'oreilles/casque anti bruit, masque, maximise ton confort pour la nuit{'\n'}
-          o Un tapis de yoga pour ne pas rater la meilleure activité du samedi{'\n'}
-        </Text>
-      </View>
-    </ScrollView>
-  );
-
-  return (
-    <SafeAreaView style={styles.safeAreaViewContainer}>
+  return(
+      <SafeAreaView style={styles.safeAreaViewContainer}>
         {/* <ScreenTitle>PRATIQUE</ScreenTitle> */}
 
       <TabView
@@ -159,11 +76,14 @@ const PratiqueScreen = () => {
         renderScene={({ route }) => {
           if (route.key === 'covoit') return <CovoiturageList />;
           if (route.key === 'contact') return <ContactList />;
-          if (route.key === 'infos') return renderInfosSection();
+          if (route.key === 'infos') return  <InfosSection />;
           return null;
         }}
         onIndexChange={setIndex}
         initialLayout={{ width: windowLayout.width }}
+        // lazy={true}
+        // lazyPreloadDistance={0}
+        // renderLazyPlaceholder={() => null}
         commonOptions={{
         label: ({ route, labelText, focused, color }) => {
             const iconName = route.key === 'covoit' ? 'car' : route.key === 'contact' ? 'people' : 'information-circle';

@@ -49,6 +49,9 @@ export const getSmallerName = (fullName: string): string => {
 
 const { width } = Dimensions.get('window');
 
+// Gap between event cards (in pixels)
+const GAP = 2;
+
 export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
   event,
   columnCount,
@@ -58,13 +61,14 @@ export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
   fieldToDisplay,
   scrollOffset,
 }) => {
-  // Calculate position and dimensions
+  // Calculate position and dimensions with gap
   const start = timeToMinutes(event.startTime);
   const end = timeToMinutes(event.endTime);
-  const top = (start - minHour * 60) * (slotHeight / 30) + 20;
-  const height = (end - start) * (slotHeight / 30);
-  const width = `${(100 / columnCount) * event.span}%`;
-  const left = `${(100 / columnCount) * event.column}%`;
+  const top = (start - minHour * 60) * (slotHeight / 30) + 20 + GAP;
+  const height = (end - start) * (slotHeight / 30) - (GAP * 2);
+  const columnWidth = 100 / columnCount;
+  const width = `calc(${columnWidth * event.span}% - ${GAP * 2}px)`;
+  const left = `calc(${columnWidth * event.column}% + ${GAP}px)`;
 
   // If event is Artist and has an image, use it as background
   const rawImageKey = event.metadata?.image;
@@ -93,6 +97,9 @@ export const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
           width,
           height,
           backgroundColor: event.bgColor,
+          // borderColor: event.bgColor,
+          // borderWidth: 2,
+          // borderTopWidth: 20,
         },
       ]}
     >
@@ -199,8 +206,8 @@ export const CalendarPermEventCard: React.FC<PermEventCardProps> = ({
     width = (end - start) * (slotHeight / 30);
     
     // Fixed height for all cards
-    height = CARD_HEIGHT;
-    top = subColumn * CARD_HEIGHT;
+    height = CARD_HEIGHT - (GAP * 2);
+    top = subColumn * CARD_HEIGHT + GAP;
     
     isNarrow = typeof width === 'number' && width < 100;
   } else {

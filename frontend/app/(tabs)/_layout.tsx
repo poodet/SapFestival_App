@@ -60,6 +60,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="pratique"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <>
+              <Ionicons name={'information-circle'} color={focused ? theme.interactive.primary : color} size={30} />
+              <Text style= {styles.badgeText}>Pratique</Text>
+            </>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="programme"
         options={{
           tabBarIcon: ({ color, focused }) => (
@@ -98,24 +109,14 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <>
             <Ionicons name={'calendar'} color={focused ? theme.interactive.primary : color} size={30} fontWeight="bold"/>
-              <Text style= {styles.badgeText}>Calendrier</Text>
+              <Text style= {styles.badgeText}>Horaires</Text>
             </>
 
           ),
         }}
       />
 
-      <Tabs.Screen
-        name="pratique"
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <>
-              <Ionicons name={'people'} color={focused ? theme.interactive.primary : color} size={30} />
-              <Text style= {styles.badgeText}>Pratique</Text>
-            </>
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="contacts"
         options={{

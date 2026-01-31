@@ -593,7 +593,8 @@ export default function CovoiturageList({ hideHeader = false }: CovoiturageListP
                     />
                     <Text style={[
                       styles.detailText,
-                      availableSeats === 0 && [styles.detailTextInactive, {fontWeight: 'bold', color: 'red'}]
+                      {fontWeight: 'bold'},
+                      availableSeats === 0 && [styles.detailTextInactive, { color: 'red'}],
                     ]}>
                       {availableSeats} place{availableSeats !== 1 ? 's' : ''} libre{availableSeats !== 1 ? 's' : ''}
                     </Text>
@@ -1002,7 +1003,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: width < 350 ? 13 : 15,
-    fontWeight: '500',
+    fontWeight: 'bold',
     color: '#545454',
     flex: 1,
   },
