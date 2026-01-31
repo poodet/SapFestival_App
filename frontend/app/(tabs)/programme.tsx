@@ -52,7 +52,7 @@ export default function ProgrammeScreen() {
     'Artistes', 
     'Activites'
   ];
-  const layout = useWindowDimensions();
+  const windowLayout = useWindowDimensions();
   const [index, setIndex] = useState(SECTIONS.indexOf(activeSection));
   const [routes] = useState(SECTIONS.map((s) => ({ key: s, title: s })));
 
@@ -69,7 +69,12 @@ export default function ProgrammeScreen() {
       <TabBar
         {...props}
         style={{ backgroundColor: 'transparent', elevation: 0 }}
-        indicatorStyle={{ backgroundColor: theme.interactive.primary, height: 3 }}
+        indicatorStyle={{ 
+          backgroundColor: theme.interactive.primary, 
+          height: 3 ,
+          width: windowLayout.width / 6,
+          left: windowLayout.width / 12,
+        }}
       />
     );
   };
@@ -90,7 +95,7 @@ export default function ProgrammeScreen() {
           return null;
         }}
         onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
+        initialLayout={{ width: windowLayout.width }}
         swipeEnabled={true}
         commonOptions={{
           label: ({ route, labelText, focused, color }) =>  {

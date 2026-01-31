@@ -63,7 +63,7 @@ const ScheduleScreen = () => {
 
   const insets = useSafeAreaInsets();
 
-  const layout = useWindowDimensions();
+  const windowLayout = useWindowDimensions();
   const [index, setIndex] = React.useState(DAYS.indexOf(selectedDay));
   const [routes] = React.useState(DAYS.map((d) => ({ key: d, title: d })));
 
@@ -82,7 +82,12 @@ const ScheduleScreen = () => {
     <TabBar
       {...props}
       style={{ backgroundColor: 'transparent', elevation: 0 }}
-      indicatorStyle={{ backgroundColor: theme.interactive.primary, height: 3 }}
+      indicatorStyle={{ 
+        backgroundColor: theme.interactive.primary, 
+        height: 3 ,
+        width: windowLayout.width / 4,
+        left: windowLayout.width / 8,
+      }}
     />
   );
 
@@ -144,7 +149,7 @@ const ScheduleScreen = () => {
               }}
               renderTabBar={renderCustomTabBar}
               onIndexChange={setIndex}
-              initialLayout={{ width: layout.width }}
+              initialLayout={{ width: windowLayout.width }}
               swipeEnabled={true}
               commonOptions={{
                 label: ({ route, labelText, focused, color }) => (
